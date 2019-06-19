@@ -1,6 +1,6 @@
-# OpenEuropa entity_meta_relation
+# Entity meta relation
 
-The OpenEuropa entity_meta_relation provides ...`[One Paragraph of project description goes here]`
+The Entity meta relation module allows to associate extra information stored in independent entities (meta entities) to content entities. This avoids the need to store this information as a content entity field and pollute the content entity keeping metadata information that controls specific entity behaviour outside of its main storage. 
 
 ## Development setup
 

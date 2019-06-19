@@ -1,0 +1,9 @@
+name: Entity Meta Relation Node
+type: module
+description: 'Configure entity meta relations for nodes.'
+package: Entity Meta Relation
+core: 8.x
+
+dependencies:
+  - entity_meta_relation:entity_meta_relation
+  - drupal:inline_entity_form
