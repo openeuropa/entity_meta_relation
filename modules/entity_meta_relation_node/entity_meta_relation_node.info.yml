@@ -6,4 +6,3 @@ core: 8.x
 
 dependencies:
   - entity_meta_relation:entity_meta_relation
-  - drupal:inline_entity_form
