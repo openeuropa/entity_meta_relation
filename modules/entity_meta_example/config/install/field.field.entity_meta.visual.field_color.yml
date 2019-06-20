@@ -6,7 +6,7 @@ dependencies:
     - field.storage.entity_meta.field_color
   module:
     - options
-id: entity_meta_relation.visual.field_color
+id: entity_meta.visual.field_color
 field_name: field_color
 entity_type: entity_meta
 bundle: visual
