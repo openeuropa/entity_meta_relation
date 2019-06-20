@@ -1,10 +1,10 @@
-entity.entity_meta_type.collection:
-  title: 'Entity meta types'
-  parent: system.admin_structure
-  description: 'Manage and CRUD actions on Entity meta type.'
-  route_name: entity.entity_meta_type.collection
 entity.entity_meta_relation_type.collection:
   title: 'Entity meta relation types'
   parent: system.admin_structure
   description: 'Manage and CRUD actions on Entity meta relation type.'
   route_name: entity.entity_meta_relation_type.collection
+entity.entity_meta_type.collection:
+  title: 'Entity meta types'
+  parent: system.admin_structure
+  description: 'Manage and CRUD actions on Entity meta type.'
+  route_name: entity.entity_meta_type.collection

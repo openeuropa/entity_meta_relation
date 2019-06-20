@@ -18,7 +18,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *       "edit" = "Drupal\entity_meta_relation\Form\EntityMetaTypeForm",
  *       "delete" = "Drupal\Core\Entity\EntityDeleteForm",
  *     },
- *     "list_builder" = "Drupal\entity_meta\EntityMetaTypeListBuilder",
+ *     "list_builder" = "Drupal\entity_meta_relation\EntityMetaTypeListBuilder",
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *     }
