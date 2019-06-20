@@ -15,3 +15,29 @@ entity.entity_meta_relation_type.edit_form:
   title: Edit
   route_name: entity.entity_meta_relation_type.edit_form
   base_route: entity.entity_meta_relation_type.edit_form
+entity.entity_meta.view:
+  title: View
+  route_name: entity.entity_meta.canonical
+  base_route: entity.entity_meta.canonical
+entity.entity_meta.edit_form:
+  title: Edit
+  route_name: entity.entity_meta.edit_form
+  base_route: entity.entity_meta.canonical
+entity.entity_meta.delete_form:
+  title: Delete
+  route_name: entity.entity_meta.delete_form
+  base_route: entity.entity_meta.canonical
+  weight: 10
+entity.entity_meta.collection:
+  title: Entity meta
+  route_name: entity.entity_meta.collection
+  base_route: system.admin_content
+  weight: 10
+entity.entity_meta_type.edit_form:
+  title: Edit
+  route_name: entity.entity_meta_type.edit_form
+  base_route: entity.entity_meta_type.edit_form
+entity.entity_meta_type.collection:
+  title: List
+  route_name: entity.entity_meta_type.collection
+  base_route: entity.entity_meta_type.collection

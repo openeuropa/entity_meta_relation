@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - entity_meta_relation
+    - entity_reference_revisions
+    - node
+id: entity_meta_relation.field_emr_node_revision
+field_name: field_emr_node_revision
+entity_type: entity_meta_relation
+type: entity_reference_revisions
+settings:
+  target_type: node
+module: entity_reference_revisions
+locked: false
+cardinality: 1
+translatable: false
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

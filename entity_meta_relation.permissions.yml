@@ -4,3 +4,9 @@ administer entity meta relation types:
   restrict access: true
 access entity meta relation overview:
   title: 'Access entity meta relation overview page'
+administer entity meta types:
+  title: 'Administer entity meta types'
+  description: 'Maintain the types of entity meta entity.'
+  restrict access: true
+access entity meta overview:
+  title: 'Access entity meta example overview page'

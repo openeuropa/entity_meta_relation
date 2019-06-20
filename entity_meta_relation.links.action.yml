@@ -9,3 +9,15 @@ entity_meta_relation.add_page:
   title: 'Add entity meta relation'
   appears_on:
     - entity.entity_meta_relation.collection
+
+entity_meta.type_add:
+  route_name: entity.entity_meta_type.add_form
+  title: 'Add entity meta type'
+  appears_on:
+    - entity.entity_meta_type.collection
+
+entity_meta.add_page:
+  route_name: entity.entity_meta.add_page
+  title: 'Add entity meta'
+  appears_on:
+    - entity.entity_meta.collection
