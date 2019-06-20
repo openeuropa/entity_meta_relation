@@ -1,0 +1,27 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - entity_meta_relation.entity_meta_relation_type.node_meta_relation
+    - field.storage.entity_meta_relation.field_emr_meta_revision
+  module:
+    - entity_reference_revisions
+id: entity_meta_relation.node_meta_relation.field_emr_meta_revision
+field_name: field_emr_meta_revision
+entity_type: entity_meta_relation
+bundle: node_meta_relation
+label: 'Meta revision'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:entity_meta'
+  handler_settings:
+    target_bundles: null
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference_revisions

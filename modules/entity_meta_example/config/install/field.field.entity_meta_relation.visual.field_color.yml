@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - entity_meta_relation.entity_meta_type.visual
+    - field.storage.entity_meta.field_color
+  module:
+    - options
+id: entity_meta_relation.visual.field_color
+field_name: field_color
+entity_type: entity_meta
+bundle: visual
+label: Color
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string
