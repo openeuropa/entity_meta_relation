@@ -1,0 +1,11 @@
+entity_meta_relation.type_add:
+  route_name: entity.entity_meta_relation_type.add_form
+  title: 'Add entity meta relation type'
+  appears_on:
+    - entity.entity_meta_relation_type.collection
+
+entity_meta_relation.add_page:
+  route_name: entity.entity_meta_relation.add_page
+  title: 'Add entity meta relation'
+  appears_on:
+    - entity.entity_meta_relation.collection
