@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Entity meta relation node module install file.
+ */
+
+declare(strict_types = 1);
+
+/**
+ * Implements hook_install().
+ */
+function entity_meta_example_install() {
+
+  // Loads all the bundles of node meta example relation.
+  $all_bundle_fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('entity_meta_relation', 'node_meta_relation');
+
+  /* @var $all_bundle_fields \Drupal\field\Entity\FieldConfig[] */
+  if (!empty($all_bundle_fields)) {
+    foreach ($all_bundle_fields as $id => $bundle_field) {
+      if ($bundle_field->getType() == 'entity_reference_revisions') {
+
+        $target_type = $bundle_field->getFieldStorageDefinition()->getSetting('target_type');
+        $all_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($target_type);
+        $handler_settings = $bundle_field->getSetting('handler_settings');
+        $handler_settings['target_bundles'] = array_keys($all_bundles);
+        $bundle_field->setSetting('handler_settings', $handler_settings);
+        $bundle_field->save();
+      }
+    }
+  }
+}
