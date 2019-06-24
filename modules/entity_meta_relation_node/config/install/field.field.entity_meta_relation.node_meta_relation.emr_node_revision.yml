@@ -3,11 +3,11 @@ status: true
 dependencies:
   config:
     - entity_meta_relation.entity_meta_relation_type.node_meta_relation
-    - field.storage.entity_meta_relation.field_emr_node_revision
+    - field.storage.entity_meta_relation.emr_node_revision
   module:
     - entity_reference_revisions
-id: entity_meta_relation.node_meta_relation.field_emr_node_revision
-field_name: field_emr_node_revision
+id: entity_meta_relation.node_meta_relation._emr_node_revision
+field_name: emr_node_revision
 entity_type: entity_meta_relation
 bundle: node_meta_relation
 label: 'Node revision'
