@@ -32,6 +32,7 @@ use Drupal\entity_meta_relation\EntityMetaRelationInterface;
  *   base_table = "entity_meta_relation",
  *   revision_table = "entity_meta_relation_revision",
  *   show_revision_ui = TRUE,
+ *   translatable = TRUE,
  *   admin_permission = "administer entity meta relation types",
  *   entity_keys = {
  *     "id" = "id",
@@ -99,6 +100,7 @@ class EntityMetaRelation extends RevisionableContentEntityBase implements Entity
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE)
       ->setLabel(t('Status'))
       ->setDescription(t('A boolean indicating whether the entity meta relation is enabled.'))
       ->setDefaultValue(TRUE)
@@ -123,6 +125,7 @@ class EntityMetaRelation extends RevisionableContentEntityBase implements Entity
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Authored on'))
+      ->setTranslatable(TRUE)
       ->setDescription(t('The time that the entity meta relation was created.'))
       ->setDisplayOptions('view', [
         'label' => 'above',
@@ -137,6 +140,7 @@ class EntityMetaRelation extends RevisionableContentEntityBase implements Entity
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
+      ->setTranslatable(TRUE)
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity meta relation was last edited.'));
 
