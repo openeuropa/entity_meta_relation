@@ -1,3 +1,7 @@
+entity.entity_meta_relation.settings:
+  title: Settings
+  route_name: entity.entity_meta_relation.settings
+  base_route: entity.entity_meta_relation.settings
 entity.entity_meta_relation.view:
   title: View
   route_name: entity.entity_meta_relation.canonical

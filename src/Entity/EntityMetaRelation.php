@@ -27,12 +27,12 @@ use Drupal\entity_meta_relation\EntityMetaRelationInterface;
  *     },
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
- *     }
+ *     },
+ *     "list_builder" = "Drupal\Core\Entity\EntityListBuilder",
  *   },
  *   base_table = "entity_meta_relation",
  *   revision_table = "entity_meta_relation_revision",
  *   show_revision_ui = TRUE,
- *   translatable = TRUE,
  *   admin_permission = "administer entity meta relation types",
  *   entity_keys = {
  *     "id" = "id",

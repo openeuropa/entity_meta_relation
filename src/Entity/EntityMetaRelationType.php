@@ -20,7 +20,8 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *     },
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
- *     }
+ *     },
+ *     "list_builder" = "Drupal\Core\Config\Entity\ConfigEntityListBuilder",
  *   },
  *   admin_permission = "administer entity meta relation types",
  *   bundle_of = "entity_meta_relation",

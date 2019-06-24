@@ -25,6 +25,7 @@ use Drupal\entity_meta_relation\EntityMetaInterface;
  *       "edit" = "Drupal\entity_meta_relation\Form\EntityMetaForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm"
  *     },
+ *     "list_builder" = "Drupal\Core\Entity\EntityListBuilder",
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *     }
@@ -32,12 +33,14 @@ use Drupal\entity_meta_relation\EntityMetaInterface;
  *   base_table = "entity_meta",
  *   revision_table = "entity_meta_revision",
  *   show_revision_ui = TRUE,
+ *   translatable = TRUE,
  *   admin_permission = "administer entity meta types",
  *   entity_keys = {
  *     "id" = "id",
  *     "revision" = "revision_id",
  *     "bundle" = "bundle",
  *     "label" = "id",
+ *     "langcode" = "langcode",
  *     "uuid" = "uuid"
  *   },
  *   revision_metadata_keys = {
