@@ -8,5 +8,3 @@ entity_meta.entity_meta_type.*:
     label:
       type: label
       label: 'Label'
-    uuid:
-      type: string
