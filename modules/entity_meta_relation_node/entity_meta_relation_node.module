@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Entity meta relation node module file.
+ */
+
+declare(strict_types = 1);
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_node_form_alter().
+ */
+function entity_meta_relation_node_form_node_form_alter(&$form, FormStateInterface &$form_state) {
+  $contentEntity = $form_state->getFormObject()->getEntity();
+  $form = \Drupal::service('entity_meta_relation.form_manager')->addFormElements($form, $form_state, $contentEntity);
+  array_unshift($form['actions']['submit']['#submit'], '_entity_meta_relation_node_submit');
+}
+
+/**
+ * Submit function used by entity_meta_relation_node_form_node_form_alter.
+ *
+ * @param array $form
+ *   The form.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ */
+function _entity_meta_relation_node_submit(array &$form, FormStateInterface &$form_state) {
+  $entity = $form_state->getFormObject()->getEntity();
+  $entity->entity_meta_relations = $form_state->getValue('referenced_meta_revision_ids');
+}
