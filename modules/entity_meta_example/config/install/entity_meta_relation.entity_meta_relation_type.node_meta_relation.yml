@@ -2,4 +2,4 @@ langcode: en
 status: true
 dependencies: {  }
 id: node_meta_relation
-label: 'Node meta example relation'
+label: 'Relation nodes to entity_meta_example'
