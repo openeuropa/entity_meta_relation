@@ -19,8 +19,6 @@ use Drupal\entity_meta_relation\EntityMetaRelationInterface;
  *   label_collection = @Translation("Entity Meta Relations"),
  *   bundle_label = @Translation("Entity Meta Relation type"),
  *   handlers = {
- *     "view_builder" = "Drupal\entity_meta_relation\EntityMetaRelationViewBuilder",
- *     "list_builder" = "Drupal\entity_meta_relation\EntityMetaRelationListBuilder",
  *     "views_data" = "Drupal\views\EntityViewsData",
  *     "form" = {
  *       "add" = "Drupal\entity_meta_relation\Form\EntityMetaRelationForm",
