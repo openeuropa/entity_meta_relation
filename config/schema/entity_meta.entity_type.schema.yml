@@ -1,4 +1,4 @@
-entity_meta.entity_meta_type.*:
+emr.entity_meta_type.*:
   type: config_entity
   label: 'Entity meta type config'
   mapping:
