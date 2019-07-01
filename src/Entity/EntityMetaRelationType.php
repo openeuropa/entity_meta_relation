@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\entity_meta_relation\Entity;
+namespace Drupal\emr\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
 
@@ -10,32 +10,32 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  * Defines the Entity Meta Relation type configuration entity.
  *
  * @ConfigEntityType(
- *   id = "entity_meta_relation_type",
+ *   id = "emr_type",
  *   label = @Translation("Entity Meta Relation type"),
  *   handlers = {
  *     "form" = {
- *       "add" = "Drupal\entity_meta_relation\Form\EntityMetaRelationTypeForm",
- *       "edit" = "Drupal\entity_meta_relation\Form\EntityMetaRelationTypeForm",
+ *       "add" = "Drupal\emr\Form\EntityMetaRelationTypeForm",
+ *       "edit" = "Drupal\emr\Form\EntityMetaRelationTypeForm",
  *       "delete" = "Drupal\Core\Entity\EntityDeleteForm",
  *     },
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *     },
- *     "list_builder" = "Drupal\entity_meta_relation\EntityMetaRelationTypeListBuilder",
+ *     "list_builder" = "Drupal\emr\EntityMetaRelationTypeListBuilder",
  *   },
  *   admin_permission = "administer entity meta relation types",
- *   bundle_of = "entity_meta_relation",
- *   config_prefix = "entity_meta_relation_type",
+ *   bundle_of = "emr",
+ *   config_prefix = "emr_type",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "add-form" = "/admin/structure/entity_meta_relation_types/add",
- *     "edit-form" = "/admin/structure/entity_meta_relation_types/manage/{entity_meta_relation_type}",
- *     "delete-form" = "/admin/structure/entity_meta_relation_types/manage/{entity_meta_relation_type}/delete",
- *     "collection" = "/admin/structure/entity_meta_relation_types"
+ *     "add-form" = "/admin/structure/emr_types/add",
+ *     "edit-form" = "/admin/structure/emr_types/manage/{emr_type}",
+ *     "delete-form" = "/admin/structure/emr_types/manage/{emr_type}/delete",
+ *     "collection" = "/admin/structure/emr_types"
  *   },
  *   config_export = {
  *     "id",

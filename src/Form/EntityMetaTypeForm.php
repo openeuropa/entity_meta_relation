@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\entity_meta_relation\Form;
+namespace Drupal\emr\Form;
 
 use Drupal\Core\Entity\BundleEntityFormBase;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -44,7 +44,7 @@ class EntityMetaTypeForm extends BundleEntityFormBase {
       '#default_value' => $entity_type->id(),
       '#maxlength' => EntityTypeInterface::BUNDLE_MAX_LENGTH,
       '#machine_name' => [
-        'exists' => ['Drupal\entity_meta_relation\Entity\EntityMetaType', 'load'],
+        'exists' => ['Drupal\emr\Entity\EntityMetaType', 'load'],
         'source' => ['label'],
       ],
       '#description' => $this->t('A unique machine-readable name for this entity meta type. It must only contain lowercase letters, numbers, and underscores.'),

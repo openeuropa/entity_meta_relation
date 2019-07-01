@@ -2,13 +2,13 @@ langcode: en
 status: true
 dependencies:
   config:
-    - entity_meta_relation.entity_meta_relation_type.node_meta_relation
-    - field.storage.entity_meta_relation.emr_meta_revision
+    - emr.emr_type.node_meta_relation
+    - field.storage.emr.emr_meta_revision
   module:
     - entity_reference_revisions
-id: entity_meta_relation.node_meta_relation.emr_meta_revision
+id: emr.node_meta_relation.emr_meta_revision
 field_name: emr_meta_revision
-entity_type: entity_meta_relation
+entity_type: emr
 bundle: node_meta_relation
 label: 'Meta revision'
 description: ''

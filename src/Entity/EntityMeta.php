@@ -2,13 +2,13 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\entity_meta_relation\Entity;
+namespace Drupal\emr\Entity;
 
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\entity_meta_relation\EntityMetaInterface;
+use Drupal\emr\EntityMetaInterface;
 
 /**
  * Defines the entity meta entity class.
@@ -21,8 +21,8 @@ use Drupal\entity_meta_relation\EntityMetaInterface;
  *   handlers = {
  *     "views_data" = "Drupal\views\EntityViewsData",
  *     "form" = {
- *       "add" = "Drupal\entity_meta_relation\Form\EntityMetaForm",
- *       "edit" = "Drupal\entity_meta_relation\Form\EntityMetaForm",
+ *       "add" = "Drupal\emr\Form\EntityMetaForm",
+ *       "edit" = "Drupal\emr\Form\EntityMetaForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm"
  *     },
  *     "list_builder" = "Drupal\Core\Entity\EntityListBuilder",

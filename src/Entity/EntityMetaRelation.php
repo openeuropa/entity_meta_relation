@@ -2,27 +2,27 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\entity_meta_relation\Entity;
+namespace Drupal\emr\Entity;
 
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\entity_meta_relation\EntityMetaRelationInterface;
+use Drupal\emr\EntityMetaRelationInterface;
 
 /**
  * Defines the entity meta relation entity class.
  *
  * @ContentEntityType(
- *   id = "entity_meta_relation",
+ *   id = "emr",
  *   label = @Translation("Entity Meta Relation"),
  *   label_collection = @Translation("Entity Meta Relations"),
  *   bundle_label = @Translation("Entity Meta Relation type"),
  *   handlers = {
  *     "views_data" = "Drupal\views\EntityViewsData",
  *     "form" = {
- *       "add" = "Drupal\entity_meta_relation\Form\EntityMetaRelationForm",
- *       "edit" = "Drupal\entity_meta_relation\Form\EntityMetaRelationForm",
+ *       "add" = "Drupal\emr\Form\EntityMetaRelationForm",
+ *       "edit" = "Drupal\emr\Form\EntityMetaRelationForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm"
  *     },
  *     "route_provider" = {
@@ -30,8 +30,8 @@ use Drupal\entity_meta_relation\EntityMetaRelationInterface;
  *     },
  *     "list_builder" = "Drupal\Core\Entity\EntityListBuilder",
  *   },
- *   base_table = "entity_meta_relation",
- *   revision_table = "entity_meta_relation_revision",
+ *   base_table = "emr",
+ *   revision_table = "emr_revision",
  *   show_revision_ui = TRUE,
  *   admin_permission = "administer entity meta relation types",
  *   entity_keys = {
@@ -46,15 +46,15 @@ use Drupal\entity_meta_relation\EntityMetaRelationInterface;
  *     "revision_log_message" = "revision_log"
  *   },
  *   links = {
- *     "add-form" = "/admin/content/entity-meta-relation/add/{entity_meta_relation_type}",
+ *     "add-form" = "/admin/content/entity-meta-relation/add/{emr_type}",
  *     "add-page" = "/admin/content/entity-meta-relation/add",
- *     "canonical" = "/entity_meta_relation/{entity_meta_relation}",
- *     "edit-form" = "/admin/content/entity-meta-relation/{entity_meta_relation}/edit",
- *     "delete-form" = "/admin/content/entity-meta-relation/{entity_meta_relation}/delete",
+ *     "canonical" = "/emr/{emr}",
+ *     "edit-form" = "/admin/content/entity-meta-relation/{emr}/edit",
+ *     "delete-form" = "/admin/content/entity-meta-relation/{emr}/delete",
  *     "collection" = "/admin/content/entity-meta-relation"
  *   },
- *   bundle_entity_type = "entity_meta_relation_type",
- *   field_ui_base_route = "entity.entity_meta_relation_type.edit_form"
+ *   bundle_entity_type = "emr_type",
+ *   field_ui_base_route = "entity.emr_type.edit_form"
  * )
  */
 class EntityMetaRelation extends RevisionableContentEntityBase implements EntityMetaRelationInterface {

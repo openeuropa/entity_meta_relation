@@ -40,12 +40,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "Drupal\\entity_meta_relation\\": "./src/"
+            "Drupal\\emr\\": "./src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Drupal\\Tests\\entity_meta_relation\\": "./tests/"
+            "Drupal\\Tests\\emr\\": "./tests/"
         }
     },
     "extra": {

@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\entity_meta_relation\Form;
+namespace Drupal\emr\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
@@ -26,14 +26,14 @@ class EntityMetaRelationForm extends ContentEntityForm {
 
     if ($result == SAVED_NEW) {
       $this->messenger()->addStatus($this->t('New entity meta relation %label has been created.', $message_arguments));
-      $this->logger('entity_meta_relation')->notice('Created new entity meta relation %label', $logger_arguments);
+      $this->logger('emr')->notice('Created new entity meta relation %label', $logger_arguments);
     }
     else {
       $this->messenger()->addStatus($this->t('The entity meta relation %label has been updated.', $message_arguments));
-      $this->logger('entity_meta_relation')->notice('Updated new entity meta relation %label.', $logger_arguments);
+      $this->logger('emr')->notice('Updated new entity meta relation %label.', $logger_arguments);
     }
 
-    $form_state->setRedirect('entity.entity_meta_relation.canonical', ['entity_meta_relation' => $entity->id()]);
+    $form_state->setRedirect('entity.emr.canonical', ['emr' => $entity->id()]);
   }
 
 }

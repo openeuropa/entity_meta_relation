@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\entity_meta_relation;
+namespace Drupal\emr;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
@@ -11,7 +11,7 @@ use Drupal\Core\Url;
 /**
  * Defines a class to build a listing of entity meta type entities.
  *
- * @see \Drupal\entity_meta_relation\Entity\EntityMetaType
+ * @see \Drupal\emr\Entity\EntityMetaType
  */
 class EntityMetaTypeListBuilder extends ConfigEntityListBuilder {
 

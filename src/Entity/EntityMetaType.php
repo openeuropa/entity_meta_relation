@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\entity_meta_relation\Entity;
+namespace Drupal\emr\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
 
@@ -14,14 +14,14 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *   label = @Translation("Entity meta type"),
  *   handlers = {
  *     "form" = {
- *       "add" = "Drupal\entity_meta_relation\Form\EntityMetaTypeForm",
- *       "edit" = "Drupal\entity_meta_relation\Form\EntityMetaTypeForm",
+ *       "add" = "Drupal\emr\Form\EntityMetaTypeForm",
+ *       "edit" = "Drupal\emr\Form\EntityMetaTypeForm",
  *       "delete" = "Drupal\Core\Entity\EntityDeleteForm",
  *     },
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *     },
- *     "list_builder" = "Drupal\entity_meta_relation\EntityMetaTypeListBuilder",
+ *     "list_builder" = "Drupal\emr\EntityMetaTypeListBuilder",
  *   },
  *   admin_permission = "administer entity meta types",
  *   bundle_of = "entity_meta",

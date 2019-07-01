@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\entity_meta_relation;
+namespace Drupal\emr;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
@@ -11,7 +11,7 @@ use Drupal\Core\Url;
 /**
  * Defines a class to build a listing of entity meta relation type entities.
  *
- * @see \Drupal\entity_meta_relation\Entity\EntityMetaRelationType
+ * @see \Drupal\emr\Entity\EntityMetaRelationType
  */
 class EntityMetaRelationTypeListBuilder extends ConfigEntityListBuilder {
 
@@ -44,7 +44,7 @@ class EntityMetaRelationTypeListBuilder extends ConfigEntityListBuilder {
 
     $build['table']['#empty'] = $this->t(
       'No entity meta relation types available. <a href=":link">Add entity meta relation type</a>.',
-      [':link' => Url::fromRoute('entity.entity_meta_relation_type.add_form')->toString()]
+      [':link' => Url::fromRoute('entity.emr_type.add_form')->toString()]
     );
 
     return $build;

@@ -2,11 +2,11 @@ langcode: en
 status: true
 dependencies:
   module:
-    - entity_meta_relation
+    - emr
     - entity_reference_revisions
-id: entity_meta_relation.emr_meta_revision
+id: emr.emr_meta_revision
 field_name: emr_meta_revision
-entity_type: entity_meta_relation
+entity_type: emr
 type: entity_reference_revisions
 settings:
   target_type: entity_meta
