@@ -8,7 +8,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
 
 /**
- * Provides an interface defining an entity meta entity type.
+ * Provides an interface defining an entity meta entity.
  */
 interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInterface {
 
