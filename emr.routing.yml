@@ -4,4 +4,4 @@ emr.admin_structure:
     _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
     _title: 'Entity meta relation'
   requirements:
-    _permission: 'access administration pages'
+    _permission: 'access entity meta relation overview'
