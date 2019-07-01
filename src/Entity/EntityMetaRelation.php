@@ -8,7 +8,6 @@ use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\emr\EntityMetaRelationInterface;
 
 /**
  * Defines the entity meta relation entity class.

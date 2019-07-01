@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\emr;
+namespace Drupal\emr\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
@@ -26,7 +26,7 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
    * @param int $timestamp
    *   The entity meta creation timestamp.
    *
-   * @return \Drupal\emr\EntityMetaInterface
+   * @return \Drupal\emr\Entity\EntityMetaInterface
    *   The called entity meta entity.
    */
   public function setCreatedTime($timestamp);
@@ -45,7 +45,7 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
    * @param bool $status
    *   TRUE to enable this entity meta , FALSE to disable.
    *
-   * @return \Drupal\emr\EntityMetaInterface
+   * @return \Drupal\emr\Entity\EntityMetaInterface
    *   The called entity meta entity.
    */
   public function setStatus($status);
