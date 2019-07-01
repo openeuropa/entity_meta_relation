@@ -16,7 +16,7 @@ class EntityMetaTypeForm extends BundleEntityFormBase {
   /**
    * {@inheritdoc}
    */
-  public function form(array $form, FormStateInterface $form_state) {
+  public function form(array $form, FormStateInterface $form_state): array {
     $form = parent::form($form, $form_state);
 
     $entity_type = $this->entity;
@@ -56,7 +56,7 @@ class EntityMetaTypeForm extends BundleEntityFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function actions(array $form, FormStateInterface $form_state) {
+  protected function actions(array $form, FormStateInterface $form_state): array {
     $actions = parent::actions($form, $form_state);
     $actions['submit']['#value'] = $this->t('Save entity meta type');
     $actions['delete']['#value'] = $this->t('Delete entity meta type');
@@ -66,7 +66,7 @@ class EntityMetaTypeForm extends BundleEntityFormBase {
   /**
    * {@inheritdoc}
    */
-  public function save(array $form, FormStateInterface $form_state) {
+  public function save(array $form, FormStateInterface $form_state): void {
     $entity_type = $this->entity;
 
     $entity_type->set('id', trim($entity_type->id()));

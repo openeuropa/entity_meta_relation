@@ -18,7 +18,7 @@ interface EntityMetaRelationInterface extends ContentEntityInterface, EntityChan
    * @return int
    *   Creation timestamp of the entity meta relation.
    */
-  public function getCreatedTime();
+  public function getCreatedTime(): int;
 
   /**
    * Sets the entity meta relation creation timestamp.

@@ -15,7 +15,7 @@ class EntityMetaForm extends ContentEntityForm {
   /**
    * {@inheritdoc}
    */
-  public function save(array $form, FormStateInterface $form_state) {
+  public function save(array $form, FormStateInterface $form_state): void {
 
     $entity = $this->getEntity();
     $result = $entity->save();
