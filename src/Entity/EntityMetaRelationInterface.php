@@ -40,14 +40,19 @@ interface EntityMetaRelationInterface extends ContentEntityInterface, EntityChan
   public function isEnabled();
 
   /**
-   * Sets the entity meta relation status.
-   *
-   * @param bool $status
-   *   TRUE to enable this entity meta relation, FALSE to disable.
+   * Sets the entity meta relation status to TRUE.
    *
    * @return \Drupal\emr\Entity\EntityMetaRelationInterface
    *   The called entity meta relation entity.
    */
-  public function setStatus($status);
+  public function enable();
+
+  /**
+   * Sets the entity meta relation status to FALSE.
+   *
+   * @return \Drupal\emr\Entity\EntityMetaRelationInterface
+   *   The called entity meta relation entity.
+   */
+  public function disable();
 
 }

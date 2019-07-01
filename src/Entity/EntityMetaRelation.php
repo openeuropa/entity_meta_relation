@@ -70,8 +70,16 @@ class EntityMetaRelation extends RevisionableContentEntityBase implements Entity
   /**
    * {@inheritdoc}
    */
-  public function setStatus($status) {
-    $this->set('status', $status);
+  public function enable() {
+    $this->set('status', TRUE);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function disable() {
+    $this->set('status', FALSE);
     return $this;
   }
 
