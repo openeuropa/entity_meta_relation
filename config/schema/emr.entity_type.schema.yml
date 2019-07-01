@@ -8,5 +8,3 @@ emr.emr_type.*:
     label:
       type: label
       label: 'Label'
-    uuid:
-      type: string
