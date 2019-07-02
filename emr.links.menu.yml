@@ -3,12 +3,12 @@ emr.admin_structure:
   parent: system.admin_structure
   description: 'Manage and CRUD actions on Entity meta relation module.'
   route_name: emr.admin_structure
-entity.emr_type.collection:
+emr.emr_type.collection:
   title: 'Entity meta relation types'
   parent: emr.admin_structure
   description: 'Manage and CRUD actions on Entity meta relation types.'
   route_name: entity.emr_type.collection
-entity.entity_meta_type.collection:
+emr.entity_meta_type.collection:
   title: 'Entity meta types'
   parent: emr.admin_structure
   description: 'Manage and CRUD actions on Entity meta types.'

@@ -10,13 +10,13 @@ emr.add_page:
   appears_on:
     - entity.emr.collection
 
-entity_meta.type_add:
+emr.entity_meta.type_add:
   route_name: entity.entity_meta_type.add_form
   title: 'Add entity meta type'
   appears_on:
     - entity.entity_meta_type.collection
 
-entity_meta.add_page:
+emr.entity_meta.add_page:
   route_name: entity.entity_meta.add_page
   title: 'Add entity meta'
   appears_on:
