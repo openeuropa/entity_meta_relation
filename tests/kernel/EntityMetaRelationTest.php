@@ -13,11 +13,9 @@ use Drupal\node\Entity\Node;
 class EntityMetaRelationTest extends KernelTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'entity_meta_example',
     'emr',
     'emr_node',
