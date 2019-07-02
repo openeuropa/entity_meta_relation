@@ -9,4 +9,4 @@ administer entity meta types:
   description: 'Maintain the types of entity meta entity.'
   restrict access: true
 access entity meta overview:
-  title: 'Access entity meta example overview page'
+  title: 'Access entity meta overview page'
