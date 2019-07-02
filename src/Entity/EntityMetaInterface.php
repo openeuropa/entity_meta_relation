@@ -40,17 +40,17 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
   public function isEnabled();
 
   /**
-   * Sets the entity meta relation status to TRUE.
+   * Sets the entity meta status to TRUE.
    *
-   * @return \Drupal\emr\Entity\EntityMetaRelationInterface
+   * @return \Drupal\emr\Entity\EntityMetaInterface
    *   The called entity meta relation entity.
    */
   public function enable();
 
   /**
-   * Sets the entity meta relation status to FALSE.
+   * Sets the entity meta status to FALSE.
    *
-   * @return \Drupal\emr\Entity\EntityMetaRelationInterface
+   * @return \Drupal\emr\Entity\EntityMetaInterface
    *   The called entity meta relation entity.
    */
   public function disable();
