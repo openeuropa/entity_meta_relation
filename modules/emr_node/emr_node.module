@@ -14,7 +14,7 @@ use Drupal\Core\Form\FormStateInterface;
  */
 function emr_node_form_node_form_alter(&$form, FormStateInterface &$form_state) {
   $contentEntity = $form_state->getFormObject()->getEntity();
-  $form = \Drupal::service('entity_meta_relation.form_manager')->addFormElements($form, $form_state, $contentEntity);
+  $form = \Drupal::service('emr.form_manager')->addFormElements($form, $form_state, $contentEntity);
   array_unshift($form['actions']['submit']['#submit'], '_emr_node_submit');
 }
 

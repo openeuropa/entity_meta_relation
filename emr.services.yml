@@ -1,0 +1,9 @@
+services:
+  emr.manager:
+    class: \Drupal\emr\EntityMetaRelationManager
+    arguments: ['@entity_type.manager']
+  plugin.manager.emr:
+    class: Drupal\emr\EntityMetaRelationPluginManager
+    parent: default_plugin_manager
+  emr.form_manager:
+    class: \Drupal\emr\ContentEntityFormManager
