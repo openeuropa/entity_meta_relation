@@ -10,7 +10,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  * Defines the Entity Meta Relation type configuration entity.
  *
  * @ConfigEntityType(
- *   id = "emr_type",
+ *   id = "entity_meta_relation_type",
  *   label = @Translation("Entity Meta Relation type"),
  *   handlers = {
  *     "form" = {
@@ -25,17 +25,17 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *   },
  *   admin_permission = "administer entity meta relation types",
  *   bundle_of = "emr",
- *   config_prefix = "emr_type",
+ *   config_prefix = "entity_meta_relation_type",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "add-form" = "/admin/structure/emr_types/add",
- *     "edit-form" = "/admin/structure/emr_types/manage/{emr_type}",
- *     "delete-form" = "/admin/structure/emr_types/manage/{emr_type}/delete",
- *     "collection" = "/admin/structure/emr_types"
+ *     "add-form" = "/admin/structure/entity_meta_relation_types/add",
+ *     "edit-form" = "/admin/structure/entity_meta_relation_types/manage/{entity_meta_relation_type}",
+ *     "delete-form" = "/admin/structure/entity_meta_relation_types/manage/{entity_meta_relation_type}/delete",
+ *     "collection" = "/admin/structure/entity_meta_relation_types"
  *   },
  *   config_export = {
  *     "id",

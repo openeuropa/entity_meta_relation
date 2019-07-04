@@ -1,8 +1,8 @@
 emr.type_add:
-  route_name: entity.emr_type.add_form
+  route_name: entity.entity_meta_relation_type.add_form
   title: 'Add entity meta relation type'
   appears_on:
-    - entity.emr_type.collection
+    - entity.entity_meta_relation_type.collection
 
 emr.add_page:
   route_name: entity.emr.add_page

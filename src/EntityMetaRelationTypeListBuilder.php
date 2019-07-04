@@ -44,7 +44,7 @@ class EntityMetaRelationTypeListBuilder extends ConfigEntityListBuilder {
 
     $build['table']['#empty'] = $this->t(
       'No entity meta relation types available. <a href=":link">Add entity meta relation type</a>.',
-      [':link' => Url::fromRoute('entity.emr_type.add_form')->toString()]
+      [':link' => Url::fromRoute('entity.entity_meta_relation_type.add_form')->toString()]
     );
 
     return $build;

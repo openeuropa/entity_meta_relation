@@ -15,10 +15,10 @@ entity.emr.delete_form:
   route_name: entity.emr.delete_form
   base_route: entity.emr.canonical
   weight: 10
-entity.emr_type.edit_form:
+entity.entity_meta_relation_type.edit_form:
   title: Edit
-  route_name: entity.emr_type.edit_form
-  base_route: entity.emr_type.edit_form
+  route_name: entity.entity_meta_relation_type.edit_form
+  base_route: entity.entity_meta_relation_type.edit_form
 entity.entity_meta.view:
   title: View
   route_name: entity.entity_meta.canonical
@@ -58,7 +58,7 @@ entity.emr.delete_form:
   route_name: entity.emr.delete_form
   base_route: entity.emr.canonical
   weight: 10
-entity.emr_type.edit_form:
+entity.entity_meta_relation_type.edit_form:
   title: Edit
-  route_name: entity.emr_type.edit_form
-  base_route: entity.emr_type.edit_form
+  route_name: entity.entity_meta_relation_type.edit_form
+  base_route: entity.entity_meta_relation_type.edit_form

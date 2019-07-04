@@ -45,15 +45,15 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "revision_log_message" = "revision_log"
  *   },
  *   links = {
- *     "add-form" = "/admin/content/entity-meta-relation/add/{emr_type}",
+ *     "add-form" = "/admin/content/entity-meta-relation/add/{entity_meta_relation_type}",
  *     "add-page" = "/admin/content/entity-meta-relation/add",
  *     "canonical" = "/emr/{emr}",
  *     "edit-form" = "/admin/content/entity-meta-relation/{emr}/edit",
  *     "delete-form" = "/admin/content/entity-meta-relation/{emr}/delete",
  *     "collection" = "/admin/content/entity-meta-relation"
  *   },
- *   bundle_entity_type = "emr_type",
- *   field_ui_base_route = "entity.emr_type.edit_form"
+ *   bundle_entity_type = "entity_meta_relation_type",
+ *   field_ui_base_route = "entity.entity_meta_relation_type.edit_form"
  * )
  */
 class EntityMetaRelation extends RevisionableContentEntityBase implements EntityMetaRelationInterface {

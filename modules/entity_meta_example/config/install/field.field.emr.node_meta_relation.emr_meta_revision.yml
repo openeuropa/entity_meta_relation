@@ -2,7 +2,7 @@ langcode: en
 status: true
 dependencies:
   config:
-    - emr.emr_type.node_meta_relation
+    - emr.entity_meta_relation_type.node_meta_relation
     - field.storage.emr.emr_meta_revision
   module:
     - entity_reference_revisions
