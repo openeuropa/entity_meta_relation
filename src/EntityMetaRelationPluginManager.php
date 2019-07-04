@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\entity_meta_relation;
+namespace Drupal\emr;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;

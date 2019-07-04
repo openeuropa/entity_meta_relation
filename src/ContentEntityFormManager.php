@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\entity_meta_relation;
+namespace Drupal\emr;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -46,7 +46,7 @@ class ContentEntityFormManager {
       '#attributes' => ['id' => 'edit-meta-reference'],
     ];
 
-    $form['meta_entities']['referenced_meta']['iefa'] = [
+    $form['meta_entities']['referenced_meta']['ief'] = [
       '#type' => 'inline_entity_form',
       '#entity_type' => 'entity_meta',
       '#bundle' => 'visual',
