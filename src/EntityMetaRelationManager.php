@@ -63,7 +63,6 @@ class EntityMetaRelationManager {
     $relations = [];
     $metaRelationStorage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $metaRelationsRevisionIds = $metaRelationStorage->getQuery()->condition('emr_node_revision.target_revision_id', $content_entity->getRevisionId())->execute();
-
     $metaRelations = $metaRelationStorage->loadMultiple($metaRelationsRevisionIds);
 
     if (!empty($metaRelations)) {

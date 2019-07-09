@@ -27,8 +27,8 @@ class EntityMetaRelationPluginManager extends DefaultPluginManager {
       'Plugin/EntityMetaRelation',
       $namespaces,
       $module_handler,
-      'Drupal\entity_meta_relation\EntityMetaRelationInterface',
-      'Drupal\entity_meta_relation\Annotation\EntityMetaRelation'
+      'Drupal\emr\EntityMetaRelationPluginInterface',
+      'Drupal\emr\Annotation\EntityMetaRelation'
     );
     $this->alterInfo('entity_meta_relation_info');
     $this->setCacheBackend($cache_backend, 'entity_meta_relation_plugins');

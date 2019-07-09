@@ -20,20 +20,23 @@ class ContentEntityFormManager {
   protected $emrManager;
 
   /**
+   * The plugin manager.
+   *
+   * @var \Drupal\emr\EntityMetaRelationPluginManager
+   */
+  protected $pluginManager;
+
+  /**
    * Constructs the event subscriber.
    *
    * @param \Drupal\emr\EntityMetaRelationManager $entity_meta_relation_manager
    *   The EntityMetaRelationManager.
+   * @param \Drupal\emr\EntityMetaRelationPluginManager $pluginManager
+   *   The plugin manager.
    */
-  public function __construct(EntityMetaRelationManager $entity_meta_relation_manager) {
+  public function __construct(EntityMetaRelationManager $entity_meta_relation_manager, EntityMetaRelationPluginManager $pluginManager) {
     $this->emrManager = $entity_meta_relation_manager;
-  }
-
-  /**
-   * Get defined plugins for this bundle.
-   */
-  protected function getPlugins() {
-
+    $this->pluginManager = $pluginManager;
   }
 
   /**
@@ -50,6 +53,14 @@ class ContentEntityFormManager {
    *   Form elements to be added.
    */
   public function addFormElements(array $form, FormStateInterface $form_state, EntityInterface $contentEntity = NULL) {
+
+    $plugins = $this->pluginManager->getDefinitions();
+    foreach ($plugins as $plugin) {
+      $pluginInstance = $this->pluginManager->createInstance($plugin['id'], []);
+      if (!$pluginInstance->isApplicable($contentEntity)) {
+
+      }
+    }
 
     $entity_meta_relations = $this->emrManager->loadEntityMetaRelations($contentEntity);
 

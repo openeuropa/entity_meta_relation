@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\entity_meta_relation\Annotation;
+namespace Drupal\emr\Annotation;
 
 use Drupal\Component\Annotation\Plugin;
 
