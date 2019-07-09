@@ -2,7 +2,7 @@ langcode: en
 status: true
 dependencies:
   config:
-    - entity_meta_relation.entity_meta_type.visual
+    - emr.entity_meta_type.visual
     - field.storage.entity_meta.field_color
   module:
     - options
