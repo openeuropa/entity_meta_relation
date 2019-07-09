@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Drupal\emr;
 
 use Drupal\Core\Entity\EntityInterface;
@@ -9,6 +11,23 @@ use Drupal\Core\Form\FormStateInterface;
  * Form controller for the emr to alter edit forms in content entities.
  */
 class ContentEntityFormManager {
+
+  /**
+   * The entity relation manager.
+   *
+   * @var \Drupal\emr\EntityMetaRelationManager
+   */
+  protected $emrManager;
+
+  /**
+   * Constructs the event subscriber.
+   *
+   * @param \Drupal\emr\EntityMetaRelationManager $entity_meta_relation_manager
+   *   The EntityMetaRelationManager.
+   */
+  public function __construct(EntityMetaRelationManager $entity_meta_relation_manager) {
+    $this->emrManager = $entity_meta_relation_manager;
+  }
 
   /**
    * Get defined plugins for this bundle.
@@ -32,7 +51,7 @@ class ContentEntityFormManager {
    */
   public function addFormElements(array $form, FormStateInterface $form_state, EntityInterface $contentEntity = NULL) {
 
-    $entity_meta_relations = [];
+    $entity_meta_relations = $this->emrManager->loadEntityMetaRelations($contentEntity);
 
     $form['meta_entities'] = [
       '#type' => 'details',

@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Drupal\emr\Entity;
 
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -151,6 +152,26 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
       ->setDescription(t('The time that the entity meta was last edited.'));
 
     return $fields;
+  }
+
+  /*
+  public function preSave(EntityStorageInterface $storage) {
+  // Avoids to save new revision if no change required.
+  // $this->setNewRevision(FALSE);
+  parent::preSave($storage);
+  }
+   */
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
+
+    if ($this->host_entity) {
+      \Drupal::service('emr.manager')->createNewMetaRelation('node_meta_relation', $this->host_entity, $this);
+    }
+
+    parent::postSave($storage, $update);
   }
 
 }

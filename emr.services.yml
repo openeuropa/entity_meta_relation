@@ -7,3 +7,4 @@ services:
     parent: default_plugin_manager
   emr.form_manager:
     class: \Drupal\emr\ContentEntityFormManager
+    arguments: ['@emr.manager']
