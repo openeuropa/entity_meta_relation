@@ -1,4 +1,4 @@
-emr.entity_meta_relation_type.*:
+entity_meta_relation.entity_meta_relation_type.*:
   type: config_entity
   label: 'Entity Meta Relation type config'
   mapping:
@@ -8,7 +8,7 @@ emr.entity_meta_relation_type.*:
     label:
       type: label
       label: 'Label'
-emr.entity_meta_type.*:
+entity_meta_relation.entity_meta_type.*:
   type: config_entity
   label: 'Entity meta type config'
   mapping:
