@@ -24,7 +24,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *     "list_builder" = "Drupal\emr\EntityMetaRelationTypeListBuilder",
  *   },
  *   admin_permission = "administer entity meta relation types",
- *   bundle_of = "emr",
+ *   bundle_of = "entity_meta_relation",
  *   config_prefix = "entity_meta_relation_type",
  *   entity_keys = {
  *     "id" = "id",

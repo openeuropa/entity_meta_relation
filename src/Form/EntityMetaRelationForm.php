@@ -33,7 +33,7 @@ class EntityMetaRelationForm extends ContentEntityForm {
       $this->logger('emr')->notice('Updated new entity meta relation %label.', $logger_arguments);
     }
 
-    $form_state->setRedirect('entity.emr.canonical', ['emr' => $entity->id()]);
+    $form_state->setRedirect('entity.entity_meta_relation.canonical', ['entity_meta_relation' => $entity->id()]);
   }
 
 }

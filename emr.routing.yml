@@ -1,4 +1,4 @@
-emr.admin_structure:
+entity_meta_relation.admin_structure:
   path: '/admin/structure/emr'
   defaults:
     _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'

@@ -1,22 +1,22 @@
-emr.type_add:
+entity_meta_relation.type_add:
   route_name: entity.entity_meta_relation_type.add_form
   title: 'Add entity meta relation type'
   appears_on:
     - entity.entity_meta_relation_type.collection
 
-emr.add_page:
-  route_name: entity.emr.add_page
+entity_meta_relation.add_page:
+  route_name: entity.entity_meta_relation.add_page
   title: 'Add entity meta relation'
   appears_on:
-    - entity.emr.collection
+    - entity.entity_meta_relation.collection
 
-emr.entity_meta.type_add:
+entity_meta_relation.entity_meta.type_add:
   route_name: entity.entity_meta_type.add_form
   title: 'Add entity meta type'
   appears_on:
     - entity.entity_meta_type.collection
 
-emr.entity_meta.add_page:
+entity_meta_relation.entity_meta.add_page:
   route_name: entity.entity_meta.add_page
   title: 'Add entity meta'
   appears_on:

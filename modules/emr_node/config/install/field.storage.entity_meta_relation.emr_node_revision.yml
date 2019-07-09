@@ -4,12 +4,13 @@ dependencies:
   module:
     - emr
     - entity_reference_revisions
-id: emr.emr_meta_revision
-field_name: emr_meta_revision
-entity_type: emr
+    - node
+id: entity_meta_relation.emr_node_revision
+field_name: emr_node_revision
+entity_type: entity_meta_relation
 type: entity_reference_revisions
 settings:
-  target_type: entity_meta
+  target_type: node
 module: entity_reference_revisions
 locked: false
 cardinality: 1

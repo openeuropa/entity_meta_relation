@@ -2,7 +2,7 @@ langcode: en
 status: true
 dependencies:
   config:
-    - emr.entity_meta_type.visual
+    - entity_meta_relation.entity_meta_type.visual
     - field.field.entity_meta.visual.field_color
 id: entity_meta.visual.default
 targetEntityType: entity_meta

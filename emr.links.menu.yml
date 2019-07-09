@@ -1,15 +1,15 @@
-emr.admin_structure:
+entity_meta_relation.admin_structure:
   title: 'Entity meta relation'
   parent: system.admin_structure
   description: 'Manage and CRUD actions on Entity meta relation module.'
-  route_name: emr.admin_structure
-emr.entity_meta_relation_type.collection:
+  route_name: entity_meta_relation.admin_structure
+entity_meta_relation.entity_meta_relation_type.collection:
   title: 'Entity meta relation types'
-  parent: emr.admin_structure
+  parent: entity_meta_relation.admin_structure
   description: 'Manage and CRUD actions on Entity meta relation types.'
   route_name: entity.entity_meta_relation_type.collection
-emr.entity_meta_type.collection:
+entity_meta_relation.entity_meta_type.collection:
   title: 'Entity meta types'
-  parent: emr.admin_structure
+  parent: entity_meta_relation.admin_structure
   description: 'Manage and CRUD actions on Entity meta types.'
   route_name: entity.entity_meta_type.collection

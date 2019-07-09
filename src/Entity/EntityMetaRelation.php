@@ -13,7 +13,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  * Defines the entity meta relation entity class.
  *
  * @ContentEntityType(
- *   id = "emr",
+ *   id = "entity_meta_relation",
  *   label = @Translation("Entity Meta Relation"),
  *   label_collection = @Translation("Entity Meta Relations"),
  *   bundle_label = @Translation("Entity Meta Relation type"),
@@ -29,8 +29,8 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     },
  *     "list_builder" = "Drupal\Core\Entity\EntityListBuilder",
  *   },
- *   base_table = "emr",
- *   revision_table = "emr_revision",
+ *   base_table = "entity_meta_relation",
+ *   revision_table = "entity_meta_relation_revision",
  *   show_revision_ui = TRUE,
  *   admin_permission = "administer entity meta relation types",
  *   entity_keys = {
@@ -47,9 +47,9 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   links = {
  *     "add-form" = "/admin/content/entity-meta-relation/add/{entity_meta_relation_type}",
  *     "add-page" = "/admin/content/entity-meta-relation/add",
- *     "canonical" = "/emr/{emr}",
- *     "edit-form" = "/admin/content/entity-meta-relation/{emr}/edit",
- *     "delete-form" = "/admin/content/entity-meta-relation/{emr}/delete",
+ *     "canonical" = "/entity_meta_relation/{entity_meta_relation}",
+ *     "edit-form" = "/admin/content/entity-meta-relation/{entity_meta_relation}/edit",
+ *     "delete-form" = "/admin/content/entity-meta-relation/{entity_meta_relation}/delete",
  *     "collection" = "/admin/content/entity-meta-relation"
  *   },
  *   bundle_entity_type = "entity_meta_relation_type",
