@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Drupal\emr\Entity;
 
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityChangesDetectionTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
@@ -154,13 +155,31 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
     return $fields;
   }
 
-  /*
-  public function preSave(EntityStorageInterface $storage) {
-  // Avoids to save new revision if no change required.
-  // $this->setNewRevision(FALSE);
-  parent::preSave($storage);
-  }
+  /**
+   * {@inheritdoc}
    */
+  public function preSave(EntityStorageInterface $storage) {
+    // Avoids to save new revision if no change required.
+    $fields = array_keys($this->toArray());
+    $field_blacklist = $this->traitGetFieldsToSkipFromTranslationChangesCheck($this);
+
+    // Compare with previous revision, only save a new revision if important fields changed.
+    if (!$this->isNew()) {
+      $latestRevision = \Drupal::entityTypeManager()
+        ->getStorage($this->getEntityTypeId())
+        ->loadUnchanged($this->id());
+      $fields = array_diff($fields, $field_blacklist);
+      foreach ($fields as $field) {
+        // If we encounter a change, we directly return.
+        if ($this->get($field)->hasAffectingChanges($latestRevision->get($field)->filterEmptyItems(), $this->language()->getId())) {
+          $this->setNewRevision(TRUE);
+        }
+      }
+    }
+
+    parent::preSave($storage);
+  }
+
 
   /**
    * {@inheritdoc}

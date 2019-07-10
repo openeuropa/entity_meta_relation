@@ -60,14 +60,22 @@ class EntityMetaRelationManager {
    *   The list of meta entities related with this content revision.
    */
   public function loadEntityMetaRelations(EntityInterface $content_entity): array {
-    $relations = [];
+    $relations = $referencedEntities = [];
     $metaRelationStorage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $metaRelationsRevisionIds = $metaRelationStorage->getQuery()->condition('emr_node_revision.target_revision_id', $content_entity->getRevisionId())->execute();
     $metaRelations = $metaRelationStorage->loadMultiple($metaRelationsRevisionIds);
 
+    // Get all referenced entities
     if (!empty($metaRelations)) {
       foreach ($metaRelations as $relation) {
-        $metaRevision = $relation->get('emr_meta_revision')->value;
+        $referencedEntities[] = $relation->get('emr_meta_revision')->referencedEntities()[0];
+      }
+    }
+
+    // Groups referenced entities per bundle
+    if (!empty($referencedEntities)) {
+      foreach ($referencedEntities as $referencedEntity) {
+        $relations[$referencedEntity->bundle()][] = $referencedEntity;
       }
     }
 

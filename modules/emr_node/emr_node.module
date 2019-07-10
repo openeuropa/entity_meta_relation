@@ -8,7 +8,6 @@
 declare(strict_types = 1);
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\inline_entity_form\Element\InlineEntityForm;
 
 /**
  * Implements hook_form_node_form_alter().
@@ -28,14 +27,5 @@ function emr_node_form_node_form_alter(&$form, FormStateInterface &$form_state) 
  *   The form state.
  */
 function _emr_node_submit(array &$form, FormStateInterface &$form_state) {
-  $entity_form = $form['meta_entities']['referenced_meta']['ief'];
-  $inline_form_handler = InlineEntityForm::getInlineFormHandler($entity_form['#entity_type']);
-  $inline_form_handler->entityFormSubmit($entity_form, $form_state);
-  if ($entity_form['#save_entity']) {
-    $entity_form['#entity']->host_entity = $form_state->getFormObject()->getEntity();
-    $inline_form_handler->save($entity_form['#entity']);
-  }
-
-  $entity = $form_state->getFormObject()->getEntity();
-  $entity->entity_meta_relations = $form_state->getValue('referenced_meta_revision_ids');
+  $form = \Drupal::service('emr.form_manager')->submitFormElements($form, $form_state);
 }
