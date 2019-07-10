@@ -66,4 +66,5 @@ class EntityMetaRelationType extends ConfigEntityBundleBase {
   public function shouldCreateNewRevision() {
     return TRUE;
   }
+
 }

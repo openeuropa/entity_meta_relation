@@ -17,19 +17,13 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
 
   /**
    * The entity field manager.
+   *
    * @var \Drupal\Core\Entity\EntityFieldManager
    */
   protected $entityFieldManager;
 
   /**
-   * @param array $configuration
-   *   The plugin configuration.
-   * @param string $plugin_id
-   *   The plugin id.
-   * @param mixed $plugin_definition
-   *   The plugin definition.
-   * @param \Drupal\Core\Entity\EntityFieldManager $entity_field_manager
-   *   The entity field manager.
+   * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityFieldManager $entity_field_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -57,12 +51,18 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
   }
 
   /**
+   * Checks if the plugin is applicable to the passed content entity.
+   *
    * @param \Drupal\Core\Entity\EntityInterface $content_entity
+   *   The content entity.
+   *
+   * @return bool
+   *   Return applicability of the plugin.
    */
-  protected function isApplicable(EntityInterface $content_entity) {
+  protected function isApplicable(EntityInterface $content_entity): bool {
     $content_bundle = $content_entity->bundle();
 
-    // Gets fields defined for the defined bundle
+    // Gets fields defined for the defined bundle.
     $fields = $this->entityFieldManager->getFieldDefinitions('entity_meta_relation', $this->pluginDefinition['bundle']);
 
     /** @var \Drupal\Core\Field\FieldStorageDefinitionInterface $field_definition */
@@ -70,7 +70,8 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
       if ($field_definition->getType() == 'entity_reference_revisions' && $field_definition->getSetting('target_type') == 'node') {
         $target_bundles = $field_definition->getSetting('handler_settings')['target_bundles'];
 
-        // checks if the current content entity bundle is referenceable by emr bundle used by the plugin
+        // Checks if the current content entity bundle
+        // is referenceable by emr bundle used by the plugin.
         if (in_array($content_bundle, $target_bundles)) {
           return TRUE;
         }
@@ -79,6 +80,5 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
 
     return FALSE;
   }
-
 
 }
