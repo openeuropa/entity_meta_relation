@@ -59,6 +59,7 @@ abstract class EntityMetaRelationContentFormPluginBase extends EntityMetaRelatio
       '#entity_type' => 'entity_meta',
       '#bundle' => $pluginDefinition['entity_meta_bundle'],
       '#save_entity' => TRUE,
+      '#entity_meta_relation_bundle' => $pluginDefinition['entity_meta_relation_bundle'],
       '#form_mode' => 'default',
       '#default_value' => $entity_meta_relations[$entityMetaBundle][0] ?? NULL,
     ];

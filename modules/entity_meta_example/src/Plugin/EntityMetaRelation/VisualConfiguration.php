@@ -11,7 +11,7 @@ use Drupal\emr\EntityMetaRelationContentFormPluginBase;
  * @EntityMetaRelation(
  *   id = "visual_configuration",
  *   label = @Translation("Visual configuration"),
- *   bundle = "node_meta_relation",
+ *   entity_meta_relation_bundle = "node_meta_relation",
  *   entity_meta_bundle = "visual",
  *   description = @Translation("Visual configuration.")
  * )

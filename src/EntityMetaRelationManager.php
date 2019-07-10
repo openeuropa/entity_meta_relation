@@ -39,7 +39,7 @@ class EntityMetaRelationManager {
    * @param \Drupal\Core\Entity\EntityInterface $meta_entity
    *   The meta emtity.
    */
-  public function createNewMetaRelation(string $bundle, EntityInterface $content_entity, EntityInterface $meta_entity) {
+  public function createEntityMetaRelation(string $bundle, EntityInterface $content_entity, EntityInterface $meta_entity) {
 
     $metaRelationStorage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $metaRelationStorage->create([
@@ -62,6 +62,7 @@ class EntityMetaRelationManager {
   public function loadEntityMetaRelations(EntityInterface $content_entity): array {
     $relations = $referencedEntities = [];
     $metaRelationStorage = $this->entityTypeManager->getStorage('entity_meta_relation');
+    // @TODO the field should be automatically discovered
     $metaRelationsRevisionIds = $metaRelationStorage->getQuery()->condition('emr_node_revision.target_revision_id', $content_entity->getRevisionId())->execute();
     $metaRelations = $metaRelationStorage->loadMultiple($metaRelationsRevisionIds);
 
@@ -80,6 +81,16 @@ class EntityMetaRelationManager {
     }
 
     return $relations;
+  }
+
+  /**
+   * Copies previously relations referencing entity meta.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity_meta
+   *   The Meta Entity.
+   */
+  public function copyEntityMetaRelations(EntityInterface $entity_meta) {
+    // @TODO: Load relationships from previous entity meta revision and copy them over.
   }
 
 }

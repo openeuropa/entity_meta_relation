@@ -63,7 +63,7 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
     $content_bundle = $content_entity->bundle();
 
     // Gets fields defined for the defined bundle.
-    $fields = $this->entityFieldManager->getFieldDefinitions('entity_meta_relation', $this->pluginDefinition['bundle']);
+    $fields = $this->entityFieldManager->getFieldDefinitions('entity_meta_relation', $this->pluginDefinition['entity_meta_relation_bundle']);
 
     /** @var \Drupal\Core\Field\FieldStorageDefinitionInterface $field_definition */
     foreach ($fields as $field_name => $field_definition) {

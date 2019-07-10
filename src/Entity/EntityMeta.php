@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\emr\Exception\EntityMetaEmpty;
 
 /**
  * Defines the entity meta entity class.
@@ -158,23 +159,34 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
    * {@inheritdoc}
    */
   public function preSave(EntityStorageInterface $storage) {
+    $emptyEntity = TRUE;
+
     // Avoids to save new revision if no change required.
     $fields = array_keys($this->toArray());
     $field_blacklist = $this->traitGetFieldsToSkipFromTranslationChangesCheck($this);
+    $fields = array_diff($fields, $field_blacklist);
 
     // Compare with previous revision.
-    // Only save a new revision if important fields changed.
     if (!$this->isNew()) {
-      $latestRevision = \Drupal::entityTypeManager()
-        ->getStorage($this->getEntityTypeId())
-        ->loadUnchanged($this->id());
-      $fields = array_diff($fields, $field_blacklist);
-      foreach ($fields as $field) {
-        // If we encounter a change, we directly return.
-        if ($this->get($field)->hasAffectingChanges($latestRevision->get($field)->filterEmptyItems(), $this->language()->getId())) {
-          $this->setNewRevision(TRUE);
-        }
+      $latestRevision = \Drupal::entityTypeManager()->getStorage($this->getEntityTypeId())->loadUnchanged($this->id());
+    }
+
+    foreach ($fields as $field) {
+      // This field is not empty.
+      if (!empty($field)) {
+        $emptyEntity = FALSE;
       }
+
+      // Only save a new revision if important fields changed.
+      // If we encounter a change, we save a new revision.
+      if (!empty($latestRevision) && $this->get($field)->hasAffectingChanges($latestRevision->get($field)->filterEmptyItems(), $this->language()->getId())) {
+        $this->setNewRevision(TRUE);
+      }
+    }
+
+    // If all fields were empty, do not save the entity.
+    if ($emptyEntity) {
+      throw new EntityMetaEmpty('Entity fields are empty');
     }
 
     parent::preSave($storage);
@@ -185,8 +197,14 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
    */
   public function postSave(EntityStorageInterface $storage, $update = TRUE) {
 
-    if ($this->host_entity) {
-      \Drupal::service('emr.manager')->createNewMetaRelation('node_meta_relation', $this->host_entity, $this);
+    // If the entity is being saved through the content entity form,
+    // we save a new relationship to the host entity.
+    if (!empty($this->emr_host_entity)) {
+      \Drupal::service('emr.manager')->createEntityMetaRelation($this->emr_host_entity->entity_meta_relation_bundle, $this->emr_host_entity, $this);
+    }
+    // Otherwise we need to copy previous relations.
+    else {
+      \Drupal::service('emr.manager')->copyEntityMetaRelations('node_meta_relation', $this);
     }
 
     parent::postSave($storage, $update);

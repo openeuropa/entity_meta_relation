@@ -96,7 +96,8 @@ class ContentEntityFormManager {
           $inline_form_handler = InlineEntityForm::getInlineFormHandler($entity_form['#entity_type']);
           $inline_form_handler->entityFormSubmit($entity_form, $form_state);
           if ($entity_form['#save_entity']) {
-            $entity_form['#entity']->host_entity = $form_state->getFormObject()->getEntity();
+            $entity_form['#entity']->emr_host_entity = $form_state->getFormObject()->getEntity();
+            $entity_form['#entity']->emr_host_entity->entity_meta_relation_bundle = $entity_form['#entity_meta_relation_bundle'];
             $inline_form_handler->save($entity_form['#entity']);
           }
           $entity = $form_state->getFormObject()->getEntity();
