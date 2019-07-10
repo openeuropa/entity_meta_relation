@@ -6,3 +6,17 @@
  */
 
 declare(strict_types = 1);
+
+/**
+ * Implements hook_inline_entity_form_reference_form_alter().
+ */
+function emr_inline_entity_form_entity_form_alter(&$reference_form, &$form_state) {
+
+  // Hide non desirable fields for entity meta when show in inline entity form.
+  if ($reference_form['#entity_type'] == 'entity_meta') {
+    $reference_form['status']['#access'] = FALSE;
+    $reference_form['created']['#access'] = FALSE;
+    $reference_form['revision_log']['#access'] = FALSE;
+    $reference_form['entity_id']['#description'] = t('New autocomplete description');
+  }
+}
