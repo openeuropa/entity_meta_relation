@@ -30,7 +30,7 @@ class EntityMetaListBuilder extends EntityListBuilder {
   protected $redirectDestination;
 
   /**
-   * Constructs a new OeEntityMetaListBuilder object.
+   * Constructs a new EntityMetaListBuilder object.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type definition.
