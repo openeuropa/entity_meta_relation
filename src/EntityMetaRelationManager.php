@@ -51,7 +51,7 @@ class EntityMetaRelationManager {
   }
 
   /**
-   * Loads the associated meta entities with this content entity.
+   * Gets related entities meta revisions ids.
    *
    * @param Drupal\Core\Entity\ContentEntityInterface $content_entity
    *   The content_entity.
@@ -59,10 +59,9 @@ class EntityMetaRelationManager {
    * @return array
    *   The list of meta entities related with this content revision.
    */
-  public function loadEntityMetaRelations(ContentEntityInterface $content_entity): array {
-    $relations = $referencedEntities = [];
+  public function getRelatedEntityMeta(ContentEntityInterface $content_entity): array {
+    $referencedEntities = [];
     $metaRelationStorage = $this->entityTypeManager->getStorage('entity_meta_relation');
-    // @TODO the field should be automatically discovered
     $metaRelationsRevisionIds = $metaRelationStorage->getQuery()->condition('emr_node_revision.target_revision_id', $content_entity->getRevisionId())->execute();
     $metaRelations = $metaRelationStorage->loadMultiple($metaRelationsRevisionIds);
 
@@ -72,6 +71,22 @@ class EntityMetaRelationManager {
         $referencedEntities[] = $relation->get('emr_meta_revision')->referencedEntities()[0];
       }
     }
+
+    return $referencedEntities;
+  }
+
+  /**
+   * Loads the associated meta entities with this content entity.
+   *
+   * @param Drupal\Core\Entity\ContentEntityInterface $content_entity
+   *   The content_entity.
+   *
+   * @return array
+   *   The list of meta entities related with this content revision.
+   */
+  public function loadBundledEntityMetaRelations(ContentEntityInterface $content_entity): array {
+    $relations = $referencedEntities = [];
+    $referencedEntities = $this->getRelatedEntityMeta($content_entity);
 
     // Groups referenced entities per bundle.
     if (!empty($referencedEntities)) {

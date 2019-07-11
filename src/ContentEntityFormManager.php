@@ -58,7 +58,7 @@ class ContentEntityFormManager {
   public function addFormElements(array $form, FormStateInterface $form_state, EntityInterface $contentEntity = NULL): array {
 
     // Loads current relations.
-    $entity_meta_relations = $this->emrManager->loadEntityMetaRelations($contentEntity);
+    $entity_meta_relations = $this->emrManager->loadBundledEntityMetaRelations($contentEntity);
 
     // Loops through all plugins and builds the forms for appropriated ones.
     $plugins = $this->pluginManager->getDefinitions();
