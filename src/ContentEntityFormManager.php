@@ -93,14 +93,18 @@ class ContentEntityFormManager {
         $entity_form = $form[$form_key]['referenced_meta'][$emr_element_key];
 
         // Only submit inline entity forms.
-        if ($entity_form['#type'] == 'inline_entity_form') {
+        if ($entity_form['#type'] == 'inline_entity_form' && $entity_form['#save_entity']) {
           $inline_form_handler = InlineEntityForm::getInlineFormHandler($entity_form['#entity_type']);
           $inline_form_handler->entityFormSubmit($entity_form, $form_state);
-          if ($entity_form['#save_entity']) {
-            $entity_form['#entity']->emr_host_entity = $form_state->getFormObject()->getEntity();
-            $entity_form['#entity']->emr_host_entity->entity_meta_relation_bundle = $entity_form['#entity_meta_relation_bundle'];
-            $inline_form_handler->save($entity_form['#entity']);
-          }
+
+          // Saves host entity in a property to handle the relationships.
+          $entity_form['#entity']->emr_host_entity = $form_state->getFormObject()->getEntity();
+          $entity_form['#entity']->emr_host_entity->entity_meta_relation_bundle = $entity_form['#entity_meta_relation_bundle'];
+
+          // Copy status from emr_host_entity.
+          $entity_form['#entity']->emr_host_entity->isPublished() ? $entity_form['#entity']->enable() : $entity_form['#entity']->disable();
+          $inline_form_handler->save($entity_form['#entity']);
+
         }
       }
     }
