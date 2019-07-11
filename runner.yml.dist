@@ -20,7 +20,7 @@ drupal:
     - "./vendor/bin/drush config-set node.settings use_admin_theme 1 -y"
     # Enable the modules.
     - "./vendor/bin/drush en config_devel -y"
-    - "./vendor/bin/drush en entity_meta_relation -y"
+    - "./vendor/bin/drush en emr -y"
     - "./vendor/bin/drush cr"
   settings:
     settings:
@@ -32,7 +32,7 @@ drupal:
 
 commands:
   drupal:site-setup:
-    - { task: "symlink", from: "../../..", to: "${drupal.root}/modules/custom/entity_meta_relation" }
+    - { task: "symlink", from: "../../..", to: "${drupal.root}/modules/custom/emr" }
     - { task: "run", command: "drupal:drush-setup" }
     - { task: "run", command: "drupal:settings-setup" }
     - { task: "run", command: "setup:phpunit" }

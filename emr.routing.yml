@@ -1,0 +1,7 @@
+entity_meta_relation.admin_structure:
+  path: '/admin/structure/emr'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Entity meta relation'
+  requirements:
+    _permission: 'access entity meta relation overview'

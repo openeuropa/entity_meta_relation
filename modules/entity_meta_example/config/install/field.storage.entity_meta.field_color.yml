@@ -1,0 +1,28 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - options
+id: entity_meta.field_color
+field_name: field_color
+entity_type: entity_meta
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: red
+      label: Red
+    -
+      value: green
+      label: Green
+    -
+      value: blue
+      label: Blue
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
