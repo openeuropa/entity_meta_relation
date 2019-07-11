@@ -204,7 +204,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
     }
     // Otherwise we need to copy previous relations.
     else {
-      \Drupal::service('emr.manager')->copyEntityMetaRelations('node_meta_relation', $this);
+      \Drupal::service('emr.manager')->copyEntityMetaRelations($this);
     }
 
     parent::postSave($storage, $update);
