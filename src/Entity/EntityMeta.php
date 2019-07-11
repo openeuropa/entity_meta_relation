@@ -24,7 +24,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *       "edit" = "Drupal\emr\Form\EntityMetaForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm"
  *     },
- *     "list_builder" = "Drupal\Core\Entity\EntityListBuilder",
+ *     "list_builder" = "Drupal\emr\EntityMetaListBuilder",
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *     }

@@ -18,6 +18,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   label_collection = @Translation("Entity Meta Relations"),
  *   bundle_label = @Translation("Entity Meta Relation type"),
  *   handlers = {
+ *     "list_builder" = "Drupal\emr\EntityMetaRelationListBuilder",
  *     "views_data" = "Drupal\views\EntityViewsData",
  *     "form" = {
  *       "add" = "Drupal\emr\Form\EntityMetaRelationForm",
@@ -27,7 +28,6 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *     },
- *     "list_builder" = "Drupal\Core\Entity\EntityListBuilder",
  *   },
  *   base_table = "entity_meta_relation",
  *   revision_table = "entity_meta_relation_revision",
