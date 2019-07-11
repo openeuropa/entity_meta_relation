@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Drupal\emr;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
@@ -77,7 +78,7 @@ class ContentEntityFormManager {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
-  public function submitFormElements(array &$form, FormStateInterface $form_state): void {
+  public static function submitFormElements(array &$form, FormStateInterface $form_state): void {
     $emr_form_keys = $form_state->getValue('emr_form_keys');
     if (empty($emr_form_keys)) {
       return;
@@ -100,11 +101,26 @@ class ContentEntityFormManager {
             $entity_form['#entity']->emr_host_entity->entity_meta_relation_bundle = $entity_form['#entity_meta_relation_bundle'];
             $inline_form_handler->save($entity_form['#entity']);
           }
-          $entity = $form_state->getFormObject()->getEntity();
-          $entity->entity_meta_relations = $form_state->getValue('referenced_meta_revision_ids');
         }
       }
     }
+  }
+
+  /**
+   * Entity form builder to add the entity meta relations to the node.
+   *
+   * @param string $entity_type
+   *   The Entity type.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The entity.
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public static function entityBuilder(string $entity_type, ContentEntityInterface $entity, array &$form, FormStateInterface $form_state) {
+    // Don't copy previous relations if node is edited through the content form.
+    $entity->emr_no_copy = TRUE;
   }
 
 }

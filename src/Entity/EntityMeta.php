@@ -196,15 +196,14 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
    * {@inheritdoc}
    */
   public function postSave(EntityStorageInterface $storage, $update = TRUE) {
-
     // If the entity is being saved through the content entity form,
     // we save a new relationship to the host entity.
     if (!empty($this->emr_host_entity)) {
       \Drupal::service('emr.manager')->createEntityMetaRelation($this->emr_host_entity->entity_meta_relation_bundle, $this->emr_host_entity, $this);
     }
-    // Otherwise we need to copy previous relations.
-    else {
-      \Drupal::service('emr.manager')->copyEntityMetaRelations($this);
+    // Otherwise we need to copy previous relations if entity is not new.
+    elseif ($update) {
+      \Drupal::service('emr.manager')->copyEntityMetaRelations($this, 'emr_meta_revision');
     }
 
     parent::postSave($storage, $update);

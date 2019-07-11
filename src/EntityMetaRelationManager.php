@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Drupal\emr;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
@@ -20,7 +21,7 @@ class EntityMetaRelationManager {
   protected $entityTypeManager;
 
   /**
-   * Constructs the event subscriber.
+   * Constructs the EntityRelationManager.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
@@ -39,7 +40,7 @@ class EntityMetaRelationManager {
    * @param \Drupal\Core\Entity\EntityInterface $meta_entity
    *   The meta emtity.
    */
-  public function createEntityMetaRelation(string $bundle, EntityInterface $content_entity, EntityInterface $meta_entity) {
+  public function createEntityMetaRelation(string $bundle, EntityInterface $content_entity, EntityInterface $meta_entity): void {
 
     $metaRelationStorage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $metaRelationStorage->create([
@@ -47,19 +48,18 @@ class EntityMetaRelationManager {
       'emr_meta_revision' => $meta_entity,
       'emr_node_revision' => $content_entity,
     ])->save();
-
   }
 
   /**
    * Loads the associated meta entities with this content entity.
    *
-   * @param Drupal\Core\Entity\EntityInterface $content_entity
+   * @param Drupal\Core\Entity\ContentEntityInterface $content_entity
    *   The content_entity.
    *
    * @return array
    *   The list of meta entities related with this content revision.
    */
-  public function loadEntityMetaRelations(EntityInterface $content_entity): array {
+  public function loadEntityMetaRelations(ContentEntityInterface $content_entity): array {
     $relations = $referencedEntities = [];
     $metaRelationStorage = $this->entityTypeManager->getStorage('entity_meta_relation');
     // @TODO the field should be automatically discovered
@@ -86,11 +86,26 @@ class EntityMetaRelationManager {
   /**
    * Copies previously relations referencing entity meta.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity_meta
-   *   The Meta Entity.
+   * @param \Drupal\Core\Entity\ContentEntityInterface|\Drupal\Core\Entity\EntityInterface $entity_meta
+   *   The Entity Meta.
+   * @param string $relation_field
+   *   The relation field name to use.
    */
-  public function copyEntityMetaRelations(EntityInterface $entity_meta) {
-    // @TODO: Load relationships from previous entity meta revision and copy them over.
+  public function copyEntityMetaRelations(ContentEntityInterface $entity_meta, string $relation_field): void {
+    $entityMetaRelationStorage = $this->entityTypeManager->getStorage('entity_meta_relation');
+
+    $previousRevisionId = $entity_meta->getLoadedRevisionId();
+    $entityMetaRelationsRevisionIds = $entityMetaRelationStorage->getQuery()->condition($relation_field . '.target_revision_id', $previousRevisionId)->execute();
+
+    if (empty($entityMetaRelationsRevisionIds)) {
+      return;
+    }
+
+    foreach ($entityMetaRelationsRevisionIds as $entityMetaRelationRevisionId) {
+      $entityMetaRelation = $entityMetaRelationStorage->loadRevision($entityMetaRelationRevisionId);
+      $entityMetaRelation->set($relation_field, $entity_meta);
+      $entityMetaRelation->save();
+    }
   }
 
 }
