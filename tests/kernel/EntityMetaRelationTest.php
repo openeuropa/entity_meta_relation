@@ -45,7 +45,6 @@ class EntityMetaRelationTest extends KernelTestBase {
    * Tests using entity fields of the entity version field type.
    */
   public function testEntitySave() {
-
     // Create node.
     $node = Node::create([
       'type' => 'entity_meta_example',
@@ -80,8 +79,8 @@ class EntityMetaRelationTest extends KernelTestBase {
     $entity_meta_relation_new = EntityMetaRelation::load($entity_meta_relation->id());
 
     // Assert relationship between the two entities is present.
-    $this->assertEqual($entity_meta_relation_new->emr_meta_revision[0]->target_id, $meta_entity_new->getRevisionId());
-    $this->assertEqual($entity_meta_relation_new->emr_node_revision[0]->target_id, $node_new->getRevisionId());
+    $this->assertEqual($entity_meta_relation_new->emr_meta_revision->first()->target_id, $meta_entity_new->getRevisionId());
+    $this->assertEqual($entity_meta_relation_new->emr_node_revision->first()->target_id, $node_new->getRevisionId());
   }
 
 }

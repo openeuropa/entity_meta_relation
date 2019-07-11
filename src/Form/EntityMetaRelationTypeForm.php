@@ -75,10 +75,10 @@ class EntityMetaRelationTypeForm extends BundleEntityFormBase {
     $status = $entity_type->save();
 
     $t_args = ['%name' => $entity_type->label()];
-    if ($status == SAVED_UPDATED) {
+    if ($status === SAVED_UPDATED) {
       $message = $this->t('The entity meta relation type %name has been updated.', $t_args);
     }
-    elseif ($status == SAVED_NEW) {
+    elseif ($status === SAVED_NEW) {
       $message = $this->t('The entity meta relation type %name has been added.', $t_args);
     }
     $this->messenger()->addStatus($message);

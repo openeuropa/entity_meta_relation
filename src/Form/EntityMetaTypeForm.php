@@ -20,7 +20,7 @@ class EntityMetaTypeForm extends BundleEntityFormBase {
     $form = parent::form($form, $form_state);
 
     $entity_type = $this->entity;
-    if ($this->operation == 'add') {
+    if ($this->operation === 'add') {
       $form['#title'] = $this->t('Add entity meta type');
     }
     else {
@@ -75,10 +75,10 @@ class EntityMetaTypeForm extends BundleEntityFormBase {
     $status = $entity_type->save();
 
     $t_args = ['%name' => $entity_type->label()];
-    if ($status == SAVED_UPDATED) {
+    if ($status === SAVED_UPDATED) {
       $message = $this->t('The entity meta type %name has been updated.', $t_args);
     }
-    elseif ($status == SAVED_NEW) {
+    elseif ($status === SAVED_NEW) {
       $message = $this->t('The entity meta type %name has been added.', $t_args);
     }
     $this->messenger()->addStatus($message);
