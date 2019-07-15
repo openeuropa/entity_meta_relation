@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Drupal\emr;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Defines an interface for Task plugin plugins.
@@ -20,6 +21,6 @@ interface EntityMetaRelationPluginInterface extends PluginInspectionInterface {
    * @return bool
    *   Return applicability of the plugin.
    */
-  protected function isApplicable(EntityInterface $content_entity): bool;
+  public function isApplicable(EntityInterface $content_entity): bool;
 
 }

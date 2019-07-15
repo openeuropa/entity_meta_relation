@@ -92,7 +92,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     // Assert that node has relations.
     $related_entity_meta_pre_save_ids = $related_entity_meta_post_save_ids = $related_entity_meta_final_save_ids = [];
     $related_entity_meta = $entity_relation_manager->getRelatedEntityMeta($node_new);
-    $this->assertNotEmpty($related_entity_meta, []);
+    $this->assertNotEmpty($related_entity_meta);
 
     array_walk($related_entity_meta, function ($entity_meta) use (&$related_entity_meta_pre_save_ids) {
       $related_entity_meta_pre_save_ids[] += $entity_meta->getRevisionId();
@@ -122,8 +122,8 @@ class EntityMetaRelationTest extends KernelTestBase {
       $related_entity_meta_final_save_ids[] += $entity_meta->getRevisionId();
     });
 
-    $this->assertNotEquals($related_entity_meta, []);
-    $this->assertNotEmpty(array_diff(array_values($related_entity_meta_post_save_ids), array_values($related_entity_meta_final_save_ids)));
+    $this->assertNotEmpty($related_entity_meta);
+    $this->assertEmpty(array_diff(array_values($related_entity_meta_post_save_ids), array_values($related_entity_meta_final_save_ids)));
   }
 
 }

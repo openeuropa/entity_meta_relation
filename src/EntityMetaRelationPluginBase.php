@@ -53,7 +53,7 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
   /**
    * {@inheritdoc}
    */
-  protected function isApplicable(EntityInterface $content_entity): bool {
+  public function isApplicable(EntityInterface $content_entity): bool {
     $content_bundle = $content_entity->bundle();
 
     // Gets fields defined for the defined bundle.

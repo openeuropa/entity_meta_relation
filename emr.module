@@ -7,6 +7,9 @@
 
 declare(strict_types = 1);
 
+use Drupal\Core\Render\Element;
+use Masterminds\HTML5\Elements;
+
 /**
  * Implements hook_inline_entity_form_reference_form_alter().
  */
@@ -17,6 +20,16 @@ function emr_inline_entity_form_entity_form_alter(&$reference_form, &$form_state
     $reference_form['status']['#access'] = FALSE;
     $reference_form['created']['#access'] = FALSE;
     $reference_form['revision_log']['#access'] = FALSE;
-    $reference_form['entity_id']['#description'] = t('New autocomplete description');
+
+    // Add a new field value that contains all relevant field keys
+    // for elements that can have values.
+    $emr_fields = $reference_form['#emr_fields']['#value'] ?? [];
+    foreach ($reference_form as $id => $element) {
+      if (is_array($element) && !Element::property($id) && Element::isVisibleElement($element)) {
+        $emr_fields[] = $id;
+      }
+    }
+
+    $form_state->set($reference_form['#ief_id'], $emr_fields);
   }
 }

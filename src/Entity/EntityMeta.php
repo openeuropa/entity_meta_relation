@@ -161,32 +161,31 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   public function preSave(EntityStorageInterface $storage) {
     $emptyEntity = TRUE;
 
-    // Avoids to save new revision if no change required.
-    $fields = array_keys($this->toArray());
-    $fieldBlacklist = $this->traitGetFieldsToSkipFromTranslationChangesCheck($this);
-    $fields = array_diff($fields, $fieldBlacklist);
+    // Only act in case save was triggered by emr content entity form.
+    if (!empty($this->emr_fields)) {
 
-    // Compare with previous revision.
-    if (!$this->isNew()) {
-      $latestRevision = \Drupal::entityTypeManager()->getStorage($this->getEntityTypeId())->loadUnchanged($this->id());
-    }
-
-    foreach ($fields as $field) {
-      // This field is not empty.
-      if (!empty($field)) {
-        $emptyEntity = FALSE;
+      // Compare with previous revision.
+      if (!$this->isNew()) {
+        $latestRevision = \Drupal::entityTypeManager()->getStorage($this->getEntityTypeId())->loadUnchanged($this->id());
       }
 
-      // Only save a new revision if important fields changed.
-      // If we encounter a change, we save a new revision.
-      if (!empty($latestRevision) && $this->get($field)->hasAffectingChanges($latestRevision->get($field)->filterEmptyItems(), $this->language()->getId())) {
-        $this->setNewRevision(TRUE);
-      }
-    }
+      foreach ($this->emr_fields as $field) {
+        // This field is not empty.
+        if (!$this->get($field)->isEmpty()) {
+          $emptyEntity = FALSE;
+        }
 
-    // If all fields were empty, do not save the entity.
-    if ($emptyEntity) {
-      throw new EntityMetaEmptyException('Entity fields are empty');
+        // Only save a new revision if important fields changed.
+        // If we encounter a change, we save a new revision.
+        if (!empty($latestRevision) && $this->get($field)->hasAffectingChanges($latestRevision->get($field)->filterEmptyItems(), $this->language()->getId())) {
+          $this->setNewRevision(TRUE);
+        }
+      }
+
+      // If all fields were empty, do not save the entity.
+      if ($emptyEntity) {
+        throw new EntityMetaEmptyException('Entity fields are empty');
+      }
     }
 
     parent::preSave($storage);

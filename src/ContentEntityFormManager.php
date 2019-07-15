@@ -6,6 +6,7 @@ namespace Drupal\emr;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\inline_entity_form\Element\InlineEntityForm;
@@ -85,13 +86,22 @@ class ContentEntityFormManager implements ContentEntityFormManagerInterface {
           $inline_form_handler = InlineEntityForm::getInlineFormHandler($entity_form['#entity_type']);
           $inline_form_handler->entityFormSubmit($entity_form, $form_state);
 
+          // Fields to be considered.
+          $entity_form['#entity']->emr_fields = $form_state->get($entity_form['#ief_id']);
+
           // Saves host entity in a property to handle the relationships.
           $entity_form['#entity']->emr_host_entity = $form_state->getFormObject()->getEntity();
           $entity_form['#entity']->emr_host_entity->entity_meta_relation_bundle = $entity_form['#entity_meta_relation_bundle'];
 
           // Copy status from emr_host_entity.
           $entity_form['#entity']->emr_host_entity->isPublished() ? $entity_form['#entity']->enable() : $entity_form['#entity']->disable();
-          $inline_form_handler->save($entity_form['#entity']);
+
+          try {
+            $inline_form_handler->save($entity_form['#entity']);
+          }
+          catch (EntityStorageException $exception) {
+            // Don't do anything if entity meta is empty.
+          }
 
         }
       }
