@@ -67,7 +67,7 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
 
     /** @var \Drupal\Core\Field\FieldStorageDefinitionInterface $field_definition */
     foreach ($fields as $field_name => $field_definition) {
-      if ($field_definition->getType() == 'entity_reference_revisions' && $field_definition->getSetting('target_type') == 'node') {
+      if ($field_definition->getType() == 'entity_reference_revisions' && $field_definition->getSetting('target_type') == $content_entity->getEntityTypeId()) {
         $target_bundles = $field_definition->getSetting('handler_settings')['target_bundles'];
 
         // Checks if the current content entity bundle
