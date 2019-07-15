@@ -9,7 +9,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\emr\Exception\EntityMetaEmpty;
+use Drupal\emr\Exception\EntityMetaEmptyException;
 
 /**
  * Defines the entity meta entity class.
@@ -163,8 +163,8 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
 
     // Avoids to save new revision if no change required.
     $fields = array_keys($this->toArray());
-    $field_blacklist = $this->traitGetFieldsToSkipFromTranslationChangesCheck($this);
-    $fields = array_diff($fields, $field_blacklist);
+    $fieldBlacklist = $this->traitGetFieldsToSkipFromTranslationChangesCheck($this);
+    $fields = array_diff($fields, $fieldBlacklist);
 
     // Compare with previous revision.
     if (!$this->isNew()) {
@@ -186,7 +186,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
 
     // If all fields were empty, do not save the entity.
     if ($emptyEntity) {
-      throw new EntityMetaEmpty('Entity fields are empty');
+      throw new EntityMetaEmptyException('Entity fields are empty');
     }
 
     parent::preSave($storage);

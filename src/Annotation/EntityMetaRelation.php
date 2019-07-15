@@ -5,7 +5,7 @@ namespace Drupal\emr\Annotation;
 use Drupal\Component\Annotation\Plugin;
 
 /**
- * Defines entity_meta_relation annotation object.
+ * Defines an entity meta relation annotation object.
  *
  * @Annotation
  */

@@ -13,10 +13,10 @@ use Drupal\inline_entity_form\Element\InlineEntityForm;
 /**
  * Form controller for the emr to alter edit forms in content entities.
  */
-class ContentEntityFormManager {
+class ContentEntityFormManager implements ContentEntityFormManagerInterface {
 
   /**
-   * The entity relation manager.
+   * The entity meta relation manager service.
    *
    * @var \Drupal\emr\EntityMetaRelationManager
    */
@@ -30,30 +30,20 @@ class ContentEntityFormManager {
   protected $pluginManager;
 
   /**
-   * Constructs the event subscriber.
+   * Constructs the ContentEntityFormManager.
    *
-   * @param \Drupal\emr\EntityMetaRelationManager $entity_meta_relation_manager
+   * @param \Drupal\emr\EntityMetaRelationManager $entityMetaRelationManager
    *   The EntityMetaRelationManager.
    * @param \Drupal\emr\EntityMetaRelationPluginManager $pluginManager
    *   The plugin manager.
    */
-  public function __construct(EntityMetaRelationManager $entity_meta_relation_manager, EntityMetaRelationPluginManager $pluginManager) {
-    $this->emrManager = $entity_meta_relation_manager;
+  public function __construct(EntityMetaRelationManager $entityMetaRelationManager, EntityMetaRelationPluginManager $pluginManager) {
+    $this->emrManager = $entityMetaRelationManager;
     $this->pluginManager = $pluginManager;
   }
 
   /**
-   * Add form elements.
-   *
-   * @param array $form
-   *   The form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state.
-   * @param \Drupal\Core\Entity\EntityInterface|null $contentEntity
-   *   The content entity.
-   *
-   * @return array
-   *   Form elements to be added.
+   * {@inheritdoc}
    */
   public function addFormElements(array $form, FormStateInterface $form_state, EntityInterface $contentEntity = NULL): array {
 
@@ -67,16 +57,14 @@ class ContentEntityFormManager {
       $form = $pluginInstance->build($form, $form_state, $contentEntity, $entity_meta_relations);
     }
 
+    $form['actions']['submit']['#submit'][] = [ContentEntityFormManager::class, 'submitFormElements'];
+    $form['#entity_builders'][] = [ContentEntityFormManager::class, 'entityBuilder'];
+
     return $form;
   }
 
   /**
-   * Submits all emr elemnts to the form.
-   *
-   * @param array $form
-   *   The form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state.
+   * {@inheritdoc}
    */
   public static function submitFormElements(array &$form, FormStateInterface $form_state): void {
     $emr_form_keys = $form_state->getValue('emr_form_keys');
@@ -111,16 +99,7 @@ class ContentEntityFormManager {
   }
 
   /**
-   * Entity form builder to add the entity meta relations to the node.
-   *
-   * @param string $entity_type
-   *   The Entity type.
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   *   The entity.
-   * @param array $form
-   *   The form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state.
+   * {@inheritdoc}
    */
   public static function entityBuilder(string $entity_type, ContentEntityInterface $entity, array &$form, FormStateInterface $form_state) {
     // Don't copy previous relations if node is edited through the content form.

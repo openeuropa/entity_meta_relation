@@ -51,13 +51,7 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
   }
 
   /**
-   * Checks if the plugin is applicable to the passed content entity.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $content_entity
-   *   The content entity.
-   *
-   * @return bool
-   *   Return applicability of the plugin.
+   * {@inheritdoc}
    */
   protected function isApplicable(EntityInterface $content_entity): bool {
     $content_bundle = $content_entity->bundle();

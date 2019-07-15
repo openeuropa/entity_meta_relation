@@ -7,6 +7,6 @@ namespace Drupal\emr\Exception;
 /**
  * Used to mark an entity meta as empty.
  */
-class EntityMetaEmpty extends \Exception {
+class EntityMetaEmptyException extends \Exception {
 
 }

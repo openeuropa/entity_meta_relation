@@ -9,7 +9,6 @@ declare(strict_types = 1);
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\emr\ContentEntityFormManager;
 
 /**
  * Implements hook_form_node_form_alter().
@@ -17,8 +16,6 @@ use Drupal\emr\ContentEntityFormManager;
 function emr_node_form_node_form_alter(&$form, FormStateInterface &$form_state) {
   $contentEntity = $form_state->getFormObject()->getEntity();
   $form = \Drupal::service('emr.form_manager')->addFormElements($form, $form_state, $contentEntity);
-  $form['actions']['submit']['#submit'][] = [ContentEntityFormManager::class, 'submitFormElements'];
-  $form['#entity_builders'][] = [ContentEntityFormManager::class, 'entityBuilder'];
 }
 
 /**
@@ -26,7 +23,7 @@ function emr_node_form_node_form_alter(&$form, FormStateInterface &$form_state) 
  */
 function emr_node_node_update(ContentEntityInterface $entity) {
   // Copy previous relations when node is updated outside of the edit form.
-  if (!$entity->isNew() && (!isset($entity->emr_no_copy) || !$entity->emr_no_copy)) {
+  if (!$entity->isNew() && $entity->isNewRevision() && (!isset($entity->emr_no_copy) || !$entity->emr_no_copy)) {
     \Drupal::service('emr.manager')->copyEntityMetaRelations($entity, 'emr_node_revision');
   }
 }
