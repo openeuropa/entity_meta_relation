@@ -8,7 +8,6 @@
 declare(strict_types = 1);
 
 use Drupal\Core\Render\Element;
-use Masterminds\HTML5\Elements;
 
 /**
  * Implements hook_inline_entity_form_reference_form_alter().
