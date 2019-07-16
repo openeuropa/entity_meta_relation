@@ -76,25 +76,43 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
       $oldRevisionId = $entity_meta->getRevisionId();
     }
 
+    // Change node status and color.
     $this->drupalGet('node/' . $node->id() . '/edit');
     $this->getSession()->getPage()->fillField('Title', 'Node example 2');
     $this->getSession()->getPage()->checkField('Published');
     $this->getSession()->getPage()->selectFieldOption('Color', 'green');
     $this->getSession()->getPage()->pressButton('Save');
-
-    $node = $this->getOneEntityByLabel('node', 'Node example 2');
-    $entity_meta_relations = $emr_manager->getRelatedEntityMeta($node);
+    $node_updated = $this->getOneEntityByLabel('node', 'Node example 2');
+    $entity_meta_relations = $emr_manager->getRelatedEntityMeta($node_updated);
 
     $this->assertNotEmpty($entity_meta_relations);
     foreach ($entity_meta_relations as $entity_meta) {
-      $oldRevisionId = $entity_meta->getRevisionId();
+      $newRevisionId = $entity_meta->getRevisionId();
+      // Color was properly saved.
+      $this->assertEquals($entity_meta->get('field_color')->value, 'green');
+      // Status was properly changed.
+      $this->assertTrue($entity_meta->get('status')->value);
+      // Revision changed.
+      $this->assertNotEquals($oldRevisionId, $newRevisionId);
+    }
+
+    // Do not save color and check if revision for entity meta did not change.
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->getSession()->getPage()->fillField('Title', 'Node example 3');
+    $this->getSession()->getPage()->pressButton('Save');
+    $node_updated_no_meta_changes = $this->getOneEntityByLabel('node', 'Node example 3');
+    $entity_meta_relations = $emr_manager->getRelatedEntityMeta($node_updated_no_meta_changes);
+
+    $this->assertNotEmpty($entity_meta_relations);
+    foreach ($entity_meta_relations as $entity_meta) {
+      $lastRevisionId = $entity_meta->getRevisionId();
       // Color was properly saved.
       $this->assertEquals($entity_meta->get('field_color')->value, 'green');
       // Status was properly set.
       $this->assertTrue($entity_meta->get('status')->value);
+      // Revision did not change.
+      $this->assertEquals($lastRevisionId, $newRevisionId);
     }
-
-    // @TODO: Test situation of no changes.
   }
 
   /**
@@ -112,7 +130,10 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::service('entity_type.manager');
     $property = $entity_type_manager->getDefinition($type)->getKey('label');
+
     $entity_list = $entity_type_manager->getStorage($type)->loadByProperties([$property => $label]);
+    $entity_type_manager->getStorage($type)->resetCache(array_keys($entity_list));
+
     $entity = current($entity_list);
     if (!$entity) {
       $this->fail("No {$type} entity named {$label} found.");
