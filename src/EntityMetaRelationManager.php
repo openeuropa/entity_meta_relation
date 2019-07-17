@@ -36,11 +36,28 @@ class EntityMetaRelationManager implements EntityMetaRelationManagerInterface {
   public function createEntityMetaRelation(string $bundle, EntityInterface $content_entity, EntityInterface $meta_entity): void {
 
     $metaRelationStorage = $this->entityTypeManager->getStorage('entity_meta_relation');
-    $metaRelationStorage->create([
-      'bundle' => $bundle,
-      'emr_meta_revision' => $meta_entity,
-      'emr_node_revision' => $content_entity,
-    ])->save();
+
+    // If we are editing an item, check if we have relations to this revision.
+    $metaRelationsRevisionIds = $metaRelationStorage->getQuery()
+      ->condition('emr_node_revision.target_revision_id', $content_entity->getRevisionId())
+      ->condition('emr_meta_revision.target_id', $meta_entity->id())
+      ->execute();
+
+    // If no relations, create new ones.
+    if (empty($metaRelationsRevisionIds)) {
+      $relation = $metaRelationStorage->create([
+        'bundle' => $bundle,
+        'emr_meta_revision' => $meta_entity,
+        'emr_node_revision' => $content_entity,
+      ]);
+    }
+    // Otherwise update existing ones.
+    else {
+      $relation = $metaRelationStorage->load(key($metaRelationsRevisionIds));
+      $relation->set('emr_meta_revision', $meta_entity);
+    }
+
+    $relation->save();
   }
 
   /**

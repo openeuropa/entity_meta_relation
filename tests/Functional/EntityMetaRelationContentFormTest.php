@@ -113,6 +113,25 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
       // Revision did not change.
       $this->assertEquals($lastRevisionId, $newRevisionId);
     }
+
+    // Do not create a new revision and change color.
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->getSession()->getPage()->fillField('Title', 'Node example 4');
+    $this->getSession()->getPage()->uncheckField('Create new revision');
+    $this->getSession()->getPage()->selectFieldOption('Color', 'green');
+    $this->getSession()->getPage()->pressButton('Save');
+    $node_updated_no_revision = $this->getOneEntityByLabel('node', 'Node example 4');
+    $entity_meta_relations = $emr_manager->getRelatedEntityMeta($node_updated_no_revision);
+
+    // Checks we keep having a single relation.
+    $this->assertEqual(count($entity_meta_relations), 1);
+    foreach ($entity_meta_relations as $entity_meta) {
+      $changedRevisionId = $entity_meta->getRevisionId();
+      // Color was properly kept.
+      $this->assertEquals($entity_meta->get('field_color')->value, 'green');
+      // Revision did change.
+      $this->assertEquals($lastRevisionId, $changedRevisionId);
+    }
   }
 
   /**
