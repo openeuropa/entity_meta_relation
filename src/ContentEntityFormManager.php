@@ -19,7 +19,7 @@ class ContentEntityFormManager implements ContentEntityFormManagerInterface {
   /**
    * The entity meta relation manager service.
    *
-   * @var \Drupal\emr\EntityMetaRelationManager
+   * @var \Drupal\emr\EntityMetaRelationManagerInterface
    */
   protected $emrManager;
 
@@ -33,12 +33,12 @@ class ContentEntityFormManager implements ContentEntityFormManagerInterface {
   /**
    * Constructs the ContentEntityFormManager.
    *
-   * @param \Drupal\emr\EntityMetaRelationManager $entityMetaRelationManager
-   *   The EntityMetaRelationManager.
+   * @param \Drupal\emr\EntityMetaRelationManagerInterface $entityMetaRelationManager
+   *   The entity meta relation manager service.
    * @param \Drupal\emr\EntityMetaRelationPluginManager $pluginManager
-   *   The plugin manager.
+   *   The entity meta relation plugin manager.
    */
-  public function __construct(EntityMetaRelationManager $entityMetaRelationManager, EntityMetaRelationPluginManager $pluginManager) {
+  public function __construct(EntityMetaRelationManagerInterface $entityMetaRelationManager, EntityMetaRelationPluginManager $pluginManager) {
     $this->emrManager = $entityMetaRelationManager;
     $this->pluginManager = $pluginManager;
   }
