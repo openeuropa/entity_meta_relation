@@ -58,8 +58,8 @@ class ContentEntityFormManager implements ContentEntityFormManagerInterface {
       $form = $pluginInstance->build($form, $form_state, $contentEntity, $entity_meta_relations);
     }
 
-    $form['actions']['submit']['#submit'][] = [ContentEntityFormManager::class, 'submitFormElements'];
-    $form['#entity_builders'][] = [ContentEntityFormManager::class, 'entityBuilder'];
+    $form['actions']['submit']['#submit'][] = [get_class($this), 'submitFormElements'];
+    $form['#entity_builders'][] = [get_class($this), 'entityBuilder'];
 
     return $form;
   }
