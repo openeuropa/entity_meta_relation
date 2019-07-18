@@ -60,11 +60,4 @@ class EntityMetaRelationType extends ConfigEntityBundleBase {
    */
   protected $label;
 
-  /**
-   * {@inheritdoc}
-   */
-  public function shouldCreateNewRevision() {
-    return TRUE;
-  }
-
 }
