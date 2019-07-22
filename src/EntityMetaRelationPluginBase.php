@@ -7,6 +7,7 @@ namespace Drupal\emr;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -23,11 +24,19 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
   protected $entityFieldManager;
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManager
+   */
+  protected $entityTypeManager;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityFieldManager $entity_field_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityFieldManager $entity_field_manager, EntityTypeManager $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityFieldManager = $entity_field_manager;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -38,7 +47,8 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_field.manager')
+      $container->get('entity_field.manager'),
+      $container->get('entity_type.manager')
     );
   }
 
