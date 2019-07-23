@@ -126,12 +126,15 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function emrFieldsToCheck(array $fields = NULL) {
-    if (!is_null($fields)) {
-      $this->emrFieldsToCheck = $fields;
-    }
+  public function setEmrFieldsToCheck(array $fields) {
+    $this->emrFieldsToCheck = $fields;
+  }
 
-    return $this->emrFieldsToCheck();
+  /**
+   * {@inheritdoc}
+   */
+  public function getEmrFieldsToCheck() {
+    return $this->emrFieldsToCheck;
   }
 
   /**
@@ -148,11 +151,14 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function emrHostEntity(ContentEntityInterface $contentEntity = NULL) {
-    if (!empty($contentEntity)) {
-      $this->emrHostEntity = $contentEntity;
-    }
+  public function setEmrHostEntity(ContentEntityInterface $contentEntity = NULL) {
+    $this->emrHostEntity = $contentEntity;
+  }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getEmrHostEntity() {
     return $this->emrHostEntity;
   }
 
@@ -215,7 +221,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   public function postSave(EntityStorageInterface $storage, $update = TRUE) {
     // If the entity is being saved through the content entity form,
     // we save a new relationship to the host entity.
-    if (!empty($emrHostEntity = $this->emrHostEntity())) {
+    if (($emrHostEntity = $this->getEmrHostEntity()) && !empty($emrHostEntity)) {
       \Drupal::service('emr.manager')->createEntityMetaRelation($emrHostEntity->entity_meta_relation_bundle, $emrHostEntity, $this);
     }
     // Otherwise we need to copy previous relations if entity is not new.

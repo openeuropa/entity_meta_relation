@@ -41,7 +41,7 @@ class EntityMetaRelationManager implements EntityMetaRelationManagerInterface {
     $emptyEntity = TRUE;
 
     // Only act in case save was triggered by emr content entity form.
-    if (empty($entity_meta->emrFieldsToCheck())) {
+    if (empty($entity_meta->getEmrFieldsToCheck())) {
       return;
     }
 
@@ -52,9 +52,8 @@ class EntityMetaRelationManager implements EntityMetaRelationManagerInterface {
         ->loadUnchanged($entity_meta->id());
     }
 
-    $emrFieldsToCheck = $entity_meta->emrFieldsToCheck();
+    $emrFieldsToCheck = $entity_meta->getEmrFieldsToCheck();
     foreach ($emrFieldsToCheck as $field) {
-
       if (!is_string(($field))) {
         continue;
       }
@@ -160,6 +159,21 @@ class EntityMetaRelationManager implements EntityMetaRelationManagerInterface {
       $entityMetaRelation = $entityMetaRelationStorage->loadRevision($entityMetaRelationRevisionId);
       $entityMetaRelation->set($relation_field, $entity_meta);
       $entityMetaRelation->save();
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function updateEntityMetaRelatedStatus(ContentEntityInterface $contentEntity) {
+    $referencedEntities = $this->getRelatedEntityMeta($contentEntity);
+
+    // Groups referenced entities per bundle.
+    if (!empty($referencedEntities)) {
+      foreach ($referencedEntities as $referencedEntity) {
+        $contentEntity->isPublished() ? $referencedEntity->enable() : $referencedEntity->disable();
+        $referencedEntity->save();
+      }
     }
   }
 

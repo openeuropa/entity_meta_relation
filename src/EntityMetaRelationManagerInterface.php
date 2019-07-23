@@ -56,4 +56,12 @@ interface EntityMetaRelationManagerInterface {
    */
   public function copyEntityMetaRelations(ContentEntityInterface $entity_meta, string $relation_field): void;
 
+  /**
+   * Update status for entity meta related entities.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $contentEntity
+   *   The content entity.
+   */
+  public function updateEntityMetaRelatedStatus(ContentEntityInterface $contentEntity);
+
 }

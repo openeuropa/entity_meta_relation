@@ -56,17 +56,24 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
   public function disable();
 
   /**
-   * Gets/sets EMR fields to be checked.
+   * Sets EMR fields to be checked.
    *
    * These represent the fields that are visible on content form to be checked.
    *
    * @param array|null $fields
    *   The fields to check.
-   *
-   * @return mixed
-   *   Returns the fields to check if.
    */
-  public function emrFieldsToCheck(array $fields = NULL);
+  public function setEmrFieldsToCheck(array $fields);
+
+  /**
+   * Gets EMR fields to be checked.
+   *
+   * These represent the fields that are visible on content form to be checked.
+   *
+   * @return array|null
+   *   The fields to check.
+   */
+  public function getEmrFieldsToCheck();
 
   /**
    * Gets/sets EMR wrapped items.
@@ -85,7 +92,7 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
   public function emrWrappedItem(string $key, array $values = NULL);
 
   /**
-   * Gets/sets host entity in the entity meta.
+   * Sets host entity in the entity meta.
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface|null $contentEntity
    *   The content entity.
@@ -93,6 +100,14 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
    * @return mixed
    *   Returns the host entity if present.
    */
-  public function emrHostEntity(ContentEntityInterface $contentEntity = NULL);
+  public function setEmrHostEntity(ContentEntityInterface $contentEntity);
+
+  /**
+   * Gets host entity in the entity meta.
+   *
+   * @return mixed
+   *   Returns the host entity if present.
+   */
+  public function getEmrHostEntity();
 
 }
