@@ -101,14 +101,15 @@ abstract class EntityMetaRelationContentFormPluginBase extends EntityMetaRelatio
         $inline_form_handler->entityFormSubmit($entity_form, $form_state);
 
         // Fields to be considered.
-        $entity_form['#entity']->emr_fields = $form_state->get($entity_form['#ief_id']);
+        $entity_form['#entity']->emrFieldsChanged($form_state->get($entity_form['#ief_id']));
 
         // Saves host entity in a property to handle the relationships.
-        $entity_form['#entity']->emr_host_entity = $form_state->getFormObject()->getEntity();
-        $entity_form['#entity']->emr_host_entity->entity_meta_relation_bundle = $entity_form['#entity_meta_relation_bundle'];
+        $emrHostEntity = $form_state->getFormObject()->getEntity();
+        $emrHostEntity->entity_meta_relation_bundle = $entity_form['#entity_meta_relation_bundle'];
 
-        // Copy status from emr_host_entity.
-        $entity_form['#entity']->emr_host_entity->isPublished() ? $entity_form['#entity']->enable() : $entity_form['#entity']->disable();
+        // Copy status from $emrHostEntity.
+        $emrHostEntity->isPublished() ? $entity_form['#entity']->enable() : $entity_form['#entity']->disable();
+        $entity_form['#entity']->emrHostEntity($emrHostEntity);
 
         try {
           $inline_form_handler->save($entity_form['#entity']);

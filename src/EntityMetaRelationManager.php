@@ -7,6 +7,7 @@ namespace Drupal\emr;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\emr\Exception\EntityMetaEmptyException;
 
 /**
  * Handles relationship logic between content and meta entities.
@@ -28,6 +29,52 @@ class EntityMetaRelationManager implements EntityMetaRelationManagerInterface {
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager) {
     $this->entityTypeManager = $entity_type_manager;
+  }
+
+  /**
+   * Called to verify if entity meta values did change or are empty.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity_meta
+   *   The entity meta.
+   */
+  public function presaveEntityMeta(ContentEntityInterface $entity_meta) {
+    $emptyEntity = TRUE;
+
+    // Only act in case save was triggered by emr content entity form.
+    if (empty($entity_meta->emrFieldsToCheck())) {
+      return;
+    }
+
+    // Compare with previous revision.
+    if (!$entity_meta->isNew()) {
+      $latestRevision = \Drupal::entityTypeManager()
+        ->getStorage($entity_meta->getEntityTypeId())
+        ->loadUnchanged($entity_meta->id());
+    }
+
+    $emrFieldsToCheck = $entity_meta->emrFieldsToCheck();
+    foreach ($emrFieldsToCheck as $field) {
+
+      if (!is_string(($field))) {
+        continue;
+      }
+
+      // This field is not empty.
+      if (!$entity_meta->get($field)->isEmpty()) {
+        $emptyEntity = FALSE;
+      }
+
+      // Only save a new revision if important fields changed.
+      // If we encounter a change, we save a new revision.
+      if (!empty($latestRevision) && $entity_meta->get($field)->hasAffectingChanges($latestRevision->get($field)->filterEmptyItems(), $entity_meta->language()->getId())) {
+        $entity_meta->setNewRevision(TRUE);
+      }
+    }
+
+    // If all fields were empty, do not save the entity.
+    if ($emptyEntity) {
+      throw new EntityMetaEmptyException('Entity fields are empty');
+    }
   }
 
   /**

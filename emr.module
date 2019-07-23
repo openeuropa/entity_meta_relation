@@ -7,6 +7,7 @@
 
 declare(strict_types = 1);
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Render\Element;
 
 /**
@@ -30,5 +31,24 @@ function emr_inline_entity_form_entity_form_alter(&$reference_form, &$form_state
     }
 
     $form_state->set($reference_form['#ief_id'], $emr_fields);
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function emr_entity_meta_presave(ContentEntityInterface $entity_meta) {
+  \Drupal::service('emr.manager')->presaveEntityMeta($entity_meta);
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function emr_module_implements_alter(&$implementations, $hook) {
+  // Makes sure emr_entity_meta_presave() is the last executed from the chain.
+  if ($hook == 'entity_meta_presave') {
+    $group = $implementations['emr'];
+    unset($implementations['emr']);
+    $implementations['emr'] = $group;
   }
 }

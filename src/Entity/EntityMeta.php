@@ -4,12 +4,12 @@ declare(strict_types = 1);
 
 namespace Drupal\emr\Entity;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\emr\Exception\EntityMetaEmptyException;
 
 /**
  * Defines the entity meta entity class.
@@ -65,6 +65,27 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   use EntityChangedTrait;
 
   /**
+   * Fields that need to be checked for changes or emptyness.
+   *
+   * @var array
+   */
+  protected $emrFieldsToCheck;
+
+  /**
+   * The wrapped items to be handled by entity meta logic.
+   *
+   * @var array
+   */
+  protected $emrWrappedItems;
+
+  /**
+   * The emr host entityt that this entity meta is related to.
+   *
+   * @var \Drupal\Core\Entity\ContentEntityInterface
+   */
+  protected $emrHostEntity;
+
+  /**
    * {@inheritdoc}
    */
   public function isEnabled() {
@@ -100,6 +121,39 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   public function setCreatedTime($timestamp) {
     $this->set('created', $timestamp);
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function emrFieldsToCheck(array $fields = NULL) {
+    if (!is_null($fields)) {
+      $this->emrFieldsToCheck = $fields;
+    }
+
+    return $this->emrFieldsToCheck();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function emrWrappedItem(string $key, array $values = NULL) {
+    if (!is_null($values)) {
+      $this->emrWrappedItems[$key] = $values;
+    }
+
+    return $this->emrWrappedItems[$key];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function emrHostEntity(ContentEntityInterface $contentEntity = NULL) {
+    if (!empty($contentEntity)) {
+      $this->emrHostEntity = $contentEntity;
+    }
+
+    return $this->emrHostEntity;
   }
 
   /**
@@ -158,47 +212,11 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function preSave(EntityStorageInterface $storage) {
-    $emptyEntity = TRUE;
-
-    // Only act in case save was triggered by emr content entity form.
-    if (!empty($this->emr_fields)) {
-
-      // Compare with previous revision.
-      if (!$this->isNew()) {
-        $latestRevision = \Drupal::entityTypeManager()->getStorage($this->getEntityTypeId())->loadUnchanged($this->id());
-      }
-
-      foreach ($this->emr_fields as $field) {
-        // This field is not empty.
-        if (!$this->get($field)->isEmpty()) {
-          $emptyEntity = FALSE;
-        }
-
-        // Only save a new revision if important fields changed.
-        // If we encounter a change, we save a new revision.
-        if (!empty($latestRevision) && $this->get($field)->hasAffectingChanges($latestRevision->get($field)->filterEmptyItems(), $this->language()->getId())) {
-          $this->setNewRevision(TRUE);
-        }
-      }
-
-      // If all fields were empty, do not save the entity.
-      if ($emptyEntity) {
-        throw new EntityMetaEmptyException('Entity fields are empty');
-      }
-    }
-
-    parent::preSave($storage);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function postSave(EntityStorageInterface $storage, $update = TRUE) {
     // If the entity is being saved through the content entity form,
     // we save a new relationship to the host entity.
-    if (!empty($this->emr_host_entity)) {
-      \Drupal::service('emr.manager')->createEntityMetaRelation($this->emr_host_entity->entity_meta_relation_bundle, $this->emr_host_entity, $this);
+    if (!empty($emrHostEntity = $this->emrHostEntity())) {
+      \Drupal::service('emr.manager')->createEntityMetaRelation($emrHostEntity->entity_meta_relation_bundle, $emrHostEntity, $this);
     }
     // Otherwise we need to copy previous relations if entity is not new.
     elseif ($update) {
