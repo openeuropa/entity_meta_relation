@@ -27,13 +27,15 @@ interface EntityMetaRelationManagerInterface {
   /**
    * Gets related entities meta revisions ids.
    *
+   * @param string $entity_type
+   *   The entity type to get.
    * @param string $revision_id
    *   The revision id to compare.
    *
    * @return array
    *   The list of meta entities related with this content revision.
    */
-  public function getRelatedEntityMeta(string $revision_id): array;
+  public function getRelated(string $entity_type, string $revision_id): array;
 
   /**
    * Loads the associated meta entities with this content entity.

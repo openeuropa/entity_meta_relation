@@ -60,7 +60,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEqual($node_new->label(), 'Node test');
 
     // Asserts that node has no relations.
-    $entity_meta_relations = $entity_relation_manager->getRelatedEntityMeta($node_new->getRevisionId());
+    $entity_meta_relations = $entity_relation_manager->getRelated('entity_meta', $node_new->getRevisionId());
     $this->assertEqual($entity_meta_relations, []);
 
     // Create entity meta for bundle visual.
@@ -91,7 +91,7 @@ class EntityMetaRelationTest extends KernelTestBase {
 
     // Assert that node has relations.
     $related_entity_meta_pre_save_ids = $related_entity_meta_post_save_ids = $related_entity_meta_final_save_ids = [];
-    $related_entity_meta = $entity_relation_manager->getRelatedEntityMeta($node_new->getRevisionId());
+    $related_entity_meta = $entity_relation_manager->getRelated('entity_meta', $node_new->getRevisionId());
     $this->assertNotEmpty($related_entity_meta);
 
     array_walk($related_entity_meta, function ($entity_meta) use (&$related_entity_meta_pre_save_ids) {
@@ -103,7 +103,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $node_new->save();
 
     // Assert new node revision keeps having relationships.
-    $related_entity_meta = $entity_relation_manager->getRelatedEntityMeta($node_new->getRevisionId());
+    $related_entity_meta = $entity_relation_manager->getRelated('entity_meta', $node_new->getRevisionId());
     $this->assertNotEqual($related_entity_meta, []);
 
     array_walk($related_entity_meta, function ($entity_meta) use (&$related_entity_meta_post_save_ids) {
@@ -117,7 +117,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $meta_entity_new->save();
 
     // Assert node has updated relationships to new entity meta revisions.
-    $related_entity_meta = $entity_relation_manager->getRelatedEntityMeta($node_new->getRevisionId());
+    $related_entity_meta = $entity_relation_manager->getRelated('entity_meta', $node_new->getRevisionId());
     array_walk($related_entity_meta, function ($entity_meta) use (&$related_entity_meta_final_save_ids) {
       $related_entity_meta_final_save_ids[] += $entity_meta->getRevisionId();
     });

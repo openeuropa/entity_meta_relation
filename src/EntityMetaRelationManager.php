@@ -40,6 +40,15 @@ class EntityMetaRelationManager implements EntityMetaRelationManagerInterface {
   public function presaveEntityMeta(ContentEntityInterface $entity_meta) {
     $emptyEntity = TRUE;
 
+    if (empty($entity_meta->getEmrHostEntity())) {
+      $referencedEntities = $this->getRelated('node', $entity_meta->getLoadedRevisionId());
+
+      // Nothing to inject as references.
+      if (!empty($referencedEntities)) {
+        $entity_meta->setEmrHostEntity($referencedEntities[0]);
+      }
+    }
+
     // Only act in case save was triggered by emr content entity form.
     if (empty($entity_meta->getEmrFieldsToCheck())) {
       return;
@@ -109,16 +118,26 @@ class EntityMetaRelationManager implements EntityMetaRelationManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getRelatedEntityMeta(string $revision_id): array {
+  public function getRelated(string $entity_type, string $revision_id): array {
+
+    if ($entity_type == 'entity_meta') {
+      $ownField = 'emr_node_revision';
+      $relatedField = 'emr_meta_revision';
+    }
+    else {
+      $ownField = 'emr_meta_revision';
+      $relatedField = 'emr_node_revision';
+    }
+
     $referencedEntities = [];
     $metaRelationStorage = $this->entityTypeManager->getStorage('entity_meta_relation');
-    $metaRelationsRevisionIds = $metaRelationStorage->getQuery()->condition('emr_node_revision.target_revision_id', $revision_id)->execute();
+    $metaRelationsRevisionIds = $metaRelationStorage->getQuery()->condition($ownField . '.target_revision_id', $revision_id)->execute();
     $metaRelations = $metaRelationStorage->loadMultiple($metaRelationsRevisionIds);
 
     // Get all referenced entities.
     if (!empty($metaRelations)) {
       foreach ($metaRelations as $relation) {
-        $entity_meta = $relation->get('emr_meta_revision')->referencedEntities()[0];
+        $entity_meta = $relation->get($relatedField)->referencedEntities()[0];
         $entity_meta->entity_meta_relation_bundle = $relation->bundle();
         $referencedEntities[] = $entity_meta;
       }
@@ -139,7 +158,7 @@ class EntityMetaRelationManager implements EntityMetaRelationManagerInterface {
       return [];
     }
 
-    $referencedEntities = $this->getRelatedEntityMeta($revision_id);
+    $referencedEntities = $this->getRelated('entity_meta', $revision_id);
 
     // Groups referenced entities per bundle.
     if (!empty($referencedEntities)) {
@@ -155,7 +174,7 @@ class EntityMetaRelationManager implements EntityMetaRelationManagerInterface {
    * {@inheritdoc}
    */
   public function updateEntityMetaRelated(ContentEntityInterface $contentEntity) {
-    $referencedEntities = $this->getRelatedEntityMeta($contentEntity->getLoadedRevisionId());
+    $referencedEntities = $this->getRelated('entity_meta', $contentEntity->getLoadedRevisionId());
 
     // Change entity meta status depending on content entity status.
     if (!empty($referencedEntities)) {

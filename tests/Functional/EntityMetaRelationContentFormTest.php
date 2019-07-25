@@ -67,7 +67,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->getSession()->getPage()->hasContent("{$label} has been created");
     $node = $this->getOneEntityByLabel('node', $label);
     // Checks if the related entity meta have been properly created.
-    $entity_meta_relations = $emr_manager->getRelatedEntityMeta($node->getRevisionId());
+    $entity_meta_relations = $emr_manager->getRelated('entity_meta', $node->getRevisionId());
     $this->assertNotEmpty($entity_meta_relations);
     foreach ($entity_meta_relations as $entity_meta) {
       // Color was properly saved.
@@ -84,7 +84,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->getSession()->getPage()->selectFieldOption('Color', 'green');
     $this->getSession()->getPage()->pressButton('Save');
     $node_updated = $this->getOneEntityByLabel('node', 'Node example 2');
-    $entity_meta_relations = $emr_manager->getRelatedEntityMeta($node_updated->getRevisionId());
+    $entity_meta_relations = $emr_manager->getRelated('entity_meta', $node_updated->getRevisionId());
 
     $this->assertNotEmpty($entity_meta_relations);
     foreach ($entity_meta_relations as $entity_meta) {
@@ -102,7 +102,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->getSession()->getPage()->fillField('Title', 'Node example 3');
     $this->getSession()->getPage()->pressButton('Save');
     $node_updated_no_meta_changes = $this->getOneEntityByLabel('node', 'Node example 3');
-    $entity_meta_relations = $emr_manager->getRelatedEntityMeta($node_updated_no_meta_changes->getRevisionId());
+    $entity_meta_relations = $emr_manager->getRelated('entity_meta', $node_updated_no_meta_changes->getRevisionId());
 
     $this->assertNotEmpty($entity_meta_relations);
     foreach ($entity_meta_relations as $entity_meta) {
@@ -122,7 +122,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->getSession()->getPage()->selectFieldOption('Color', 'green');
     $this->getSession()->getPage()->pressButton('Save');
     $node_updated_no_revision = $this->getOneEntityByLabel('node', 'Node example 4');
-    $entity_meta_relations = $emr_manager->getRelatedEntityMeta($node_updated_no_revision->getRevisionId());
+    $entity_meta_relations = $emr_manager->getRelated('entity_meta', $node_updated_no_revision->getRevisionId());
 
     // Checks we keep having a single relation.
     $this->assertEqual(count($entity_meta_relations), 1);

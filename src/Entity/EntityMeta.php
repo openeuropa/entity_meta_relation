@@ -206,10 +206,6 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
     if (($emrHostEntity = $this->getEmrHostEntity()) && !empty($emrHostEntity)) {
       \Drupal::service('emr.manager')->createEntityMetaRelation($emrHostEntity->entity_meta_relation_bundle, $emrHostEntity, $this);
     }
-    // Otherwise we need to copy previous relations if entity is not new.
-    elseif ($update) {
-      \Drupal::service('emr.manager')->copyEntityMetaRelations($this, 'emr_meta_revision');
-    }
 
     parent::postSave($storage, $update);
   }
