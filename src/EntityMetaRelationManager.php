@@ -36,11 +36,14 @@ class EntityMetaRelationManager implements EntityMetaRelationManagerInterface {
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity_meta
    *   The entity meta.
+   *
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+   * @SuppressWarnings(PHPMD.NPathComplexity)
    */
   public function presaveEntityMeta(ContentEntityInterface $entity_meta) {
     $emptyEntity = TRUE;
 
-    if (empty($entity_meta->getEmrHostEntity())) {
+    if (!$entity_meta->isNew() && empty($entity_meta->getEmrHostEntity())) {
       $referencedEntities = $this->getRelated('node', $entity_meta->getLoadedRevisionId());
 
       // Nothing to inject as references.
