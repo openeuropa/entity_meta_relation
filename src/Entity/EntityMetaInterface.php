@@ -76,22 +76,6 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
   public function getEmrFieldsToCheck();
 
   /**
-   * Gets/sets EMR wrapped items.
-   *
-   * These will be used to save information before and after entity meta
-   * get saved.
-   *
-   * @param string $key
-   *   The key for the wrapped item.
-   * @param array|null $values
-   *   The values for the wrapped item.
-   *
-   * @return mixed
-   *   Returns the wrapped item for the key if present.
-   */
-  public function emrWrappedItem(string $key, array $values = NULL);
-
-  /**
    * Sets host entity in the entity meta.
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface|null $contentEntity

@@ -72,13 +72,6 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   protected $emrFieldsToCheck;
 
   /**
-   * The wrapped items to be handled by entity meta logic.
-   *
-   * @var array
-   */
-  protected $emrWrappedItems;
-
-  /**
    * The emr host entityt that this entity meta is related to.
    *
    * @var \Drupal\Core\Entity\ContentEntityInterface
@@ -135,17 +128,6 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
    */
   public function getEmrFieldsToCheck() {
     return $this->emrFieldsToCheck;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function emrWrappedItem(string $key, array $values = NULL) {
-    if (!is_null($values)) {
-      $this->emrWrappedItems[$key] = $values;
-    }
-
-    return $this->emrWrappedItems[$key];
   }
 
   /**

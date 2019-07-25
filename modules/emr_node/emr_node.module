@@ -22,11 +22,11 @@ function emr_node_form_node_form_alter(&$form, FormStateInterface &$form_state) 
  * Implements hook_node_update().
  */
 function emr_node_node_update(ContentEntityInterface $entity) {
-  // Copy previous relations when node is updated outside of the edit form.
-  if ($entity->isNewRevision() && (!isset($entity->emr_no_copy) || !$entity->emr_no_copy)) {
-    \Drupal::service('emr.manager')->copyEntityMetaRelations($entity, 'emr_node_revision');
+
+  // Acts only when edition was not done through content form.
+  if (!empty($entity->editingModeEmrActive)) {
+    return;
   }
 
-  // Update status for entity meta.
-  \Drupal::service('emr.manager')->updateEntityMetaRelatedStatus($entity);
+  \Drupal::service('emr.manager')->updateEntityMetaRelated($entity);
 }

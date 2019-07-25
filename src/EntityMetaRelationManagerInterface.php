@@ -27,13 +27,13 @@ interface EntityMetaRelationManagerInterface {
   /**
    * Gets related entities meta revisions ids.
    *
-   * @param Drupal\Core\Entity\ContentEntityInterface $content_entity
-   *   The content_entity.
+   * @param string $revision_id
+   *   The revision id to compare.
    *
    * @return array
    *   The list of meta entities related with this content revision.
    */
-  public function getRelatedEntityMeta(ContentEntityInterface $content_entity): array;
+  public function getRelatedEntityMeta(string $revision_id): array;
 
   /**
    * Loads the associated meta entities with this content entity.
@@ -47,21 +47,11 @@ interface EntityMetaRelationManagerInterface {
   public function loadBundledEntityMetaRelations(ContentEntityInterface $content_entity): array;
 
   /**
-   * Copies previously relations referencing entity meta.
-   *
-   * @param \Drupal\Core\Entity\ContentEntityInterface|\Drupal\Core\Entity\EntityInterface $entity_meta
-   *   The Entity Meta.
-   * @param string $relation_field
-   *   The relation field name to use.
-   */
-  public function copyEntityMetaRelations(ContentEntityInterface $entity_meta, string $relation_field): void;
-
-  /**
    * Update status for entity meta related entities.
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $contentEntity
    *   The content entity.
    */
-  public function updateEntityMetaRelatedStatus(ContentEntityInterface $contentEntity);
+  public function updateEntityMetaRelated(ContentEntityInterface $contentEntity);
 
 }

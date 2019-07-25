@@ -35,7 +35,7 @@ function emr_inline_entity_form_entity_form_alter(&$reference_form, &$form_state
 }
 
 /**
- * Implements hook_node_presave().
+ * Implements hook_entity_meta_presave().
  */
 function emr_entity_meta_presave(ContentEntityInterface $entity_meta) {
   \Drupal::service('emr.manager')->presaveEntityMeta($entity_meta);

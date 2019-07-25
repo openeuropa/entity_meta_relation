@@ -87,7 +87,7 @@ class ContentEntityFormManager implements ContentEntityFormManagerInterface {
    */
   public static function entityBuilder(string $entity_type, ContentEntityInterface $entity, array &$form, FormStateInterface $form_state) {
     // Don't copy previous relations if node is edited through the content form.
-    $entity->emr_no_copy = TRUE;
+    $entity->editingModeEmrActive = TRUE;
   }
 
 }
