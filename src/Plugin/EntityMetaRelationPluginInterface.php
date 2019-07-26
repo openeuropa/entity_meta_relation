@@ -2,10 +2,10 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\emr;
+namespace Drupal\emr\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 
 /**
  * Defines an interface for Task plugin plugins.
@@ -15,12 +15,12 @@ interface EntityMetaRelationPluginInterface extends PluginInspectionInterface {
   /**
    * Checks if the plugin is applicable to the passed content entity.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $content_entity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The content entity.
    *
    * @return bool
-   *   Return applicability of the plugin.
+   *   Whether the plugin is applicable.
    */
-  public function isApplicable(EntityInterface $content_entity): bool;
+  public function applies(ContentEntityInterface $entity): bool;
 
 }

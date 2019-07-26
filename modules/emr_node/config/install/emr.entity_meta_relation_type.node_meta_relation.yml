@@ -1,0 +1,5 @@
+langcode: en
+status: true
+dependencies: {  }
+id: node_meta_relation
+label: 'Entity Meta Relation bundle to be used for connecting Entity Metas with the Node entity type'

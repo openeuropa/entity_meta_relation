@@ -8,6 +8,7 @@ use Drupal\Component\Annotation\Plugin;
  * Defines an entity meta relation annotation object.
  *
  * @Annotation
+ * phpcs:disable Drupal.NamingConventions.ValidVariableName.LowerCamelName
  */
 class EntityMetaRelation extends Plugin {
 
@@ -35,5 +36,19 @@ class EntityMetaRelation extends Plugin {
    * @ingroup plugin_translatable
    */
   public $description;
+
+  /**
+   * The bundle of the EntityMeta entity type this plugin works with.
+   *
+   * @var string
+   */
+  public $entity_meta_bundle;
+
+  /**
+   * Whether the plugin should be embedded into a content form.
+   *
+   * @var string
+   */
+  public $content_form;
 
 }

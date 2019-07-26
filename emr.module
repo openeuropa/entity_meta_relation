@@ -7,48 +7,95 @@
 
 declare(strict_types = 1);
 
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Render\Element;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\emr\ContentFormHandlerInterface;
+
+/**
+ * Implements hook_form_alter().
+ */
+function emr_form_alter(&$form, FormStateInterface &$form_state) {
+  $form_object = $form_state->getFormObject();
+  if (!$form_object instanceof ContentEntityForm || $form_object->getOperation() === 'delete') {
+    return;
+  }
+
+  $entity = $form_object->getEntity();
+  if (!\Drupal::entityTypeManager()->hasHandler($entity->getEntityTypeId(), 'emr_content_form')) {
+    return;
+  }
+
+  $handler = \Drupal::entityTypeManager()->getHandler($entity->getEntityTypeId(), 'emr_content_form');
+  if ($handler instanceof ContentFormHandlerInterface) {
+    $form = $handler->addFormElements($form, $form_state, $entity);
+  }
+}
 
 /**
  * Implements hook_inline_entity_form_reference_form_alter().
  */
 function emr_inline_entity_form_entity_form_alter(&$reference_form, &$form_state) {
-
   // Hide non desirable fields for entity meta when show in inline entity form.
   if ($reference_form['#entity_type'] == 'entity_meta') {
     $reference_form['status']['#access'] = FALSE;
     $reference_form['created']['#access'] = FALSE;
     $reference_form['revision_log']['#access'] = FALSE;
-
-    // Add a new field value that contains all relevant field keys
-    // for elements that can have values.
-    $emr_fields = $reference_form['#emr_fields']['#value'] ?? [];
-    foreach ($reference_form as $id => $element) {
-      if (is_array($element) && !Element::property($id) && Element::isVisibleElement($element)) {
-        $emr_fields[] = $id;
-      }
-    }
-
-    $form_state->set($reference_form['#ief_id'], $emr_fields);
   }
 }
 
 /**
- * Implements hook_entity_meta_presave().
+ * Implements hook_entity_update().
  */
-function emr_entity_meta_presave(ContentEntityInterface $entity_meta) {
-  \Drupal::service('emr.manager')->presaveEntityMeta($entity_meta);
+function emr_entity_update(EntityInterface $entity) {
+  if (!$entity instanceof ContentEntityInterface) {
+    return;
+  }
+
+  $entity_type = $entity->getEntityType();
+  if (!$entity_type->get('entity_meta_relation_bundle')) {
+    return;
+  }
+
+  /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
+  $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
+  $storage->updateEntityMetaRelated($entity);
 }
 
 /**
- * Implements hook_module_implements_alter().
+ * Implements hook_entity_delete().
  */
-function emr_module_implements_alter(&$implementations, $hook) {
-  // Makes sure emr_entity_meta_presave() is the last executed from the chain.
-  if ($hook == 'entity_meta_presave') {
-    $group = $implementations['emr'];
-    unset($implementations['emr']);
-    $implementations['emr'] = $group;
+function emr_entity_delete(EntityInterface $entity) {
+  if (!$entity instanceof ContentEntityInterface) {
+    return;
+  }
+
+  $entity_type = $entity->getEntityType();
+  if (!$entity_type->get('entity_meta_relation_bundle')) {
+    return;
+  }
+
+  /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
+  $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
+  $meta_entities = $storage->getRelatedMetaEntities($entity);
+  foreach ($meta_entities as $meta_entity) {
+    $meta_entity->delete();
+  }
+
+  $entity_meta_relation_storage = \Drupal::entityTypeManager()->getStorage('entity_meta_relation');
+  $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
+
+  $ids = $entity_meta_relation_storage->getQuery()
+    ->condition("{$entity_meta_relation_content_field}.target_id", $entity->id())
+    ->execute();
+
+  if (!$ids) {
+    return [];
+  }
+
+  $entity_meta_relations = $entity_meta_relation_storage->loadMultiple($ids);
+  foreach ($entity_meta_relations as $entity_meta_relation) {
+    $entity_meta_relation->delete();
   }
 }

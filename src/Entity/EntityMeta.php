@@ -6,7 +6,6 @@ namespace Drupal\emr\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedTrait;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -21,6 +20,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   bundle_label = @Translation("Entity meta type"),
  *   handlers = {
  *     "views_data" = "Drupal\views\EntityViewsData",
+ *     "storage" = "Drupal\emr\EntityMetaStorage",
  *     "form" = {
  *       "add" = "Drupal\emr\Form\EntityMetaForm",
  *       "edit" = "Drupal\emr\Form\EntityMetaForm",
@@ -65,18 +65,11 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   use EntityChangedTrait;
 
   /**
-   * Fields that need to be checked for changes or emptyness.
-   *
-   * @var array
-   */
-  protected $emrFieldsToCheck;
-
-  /**
-   * The emr host entityt that this entity meta is related to.
+   * The "host" entity this entity meta relates to.
    *
    * @var \Drupal\Core\Entity\ContentEntityInterface
    */
-  protected $emrHostEntity;
+  protected $hostEntity;
 
   /**
    * {@inheritdoc}
@@ -119,29 +112,16 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function setEmrFieldsToCheck(array $fields) {
-    $this->emrFieldsToCheck = $fields;
+  public function setHostEntity(ContentEntityInterface $entity = NULL) {
+    $this->hostEntity = $entity;
+    return $this;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getEmrFieldsToCheck() {
-    return $this->emrFieldsToCheck;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setEmrHostEntity(ContentEntityInterface $contentEntity = NULL) {
-    $this->emrHostEntity = $contentEntity;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getEmrHostEntity() {
-    return $this->emrHostEntity;
+  public function getHostEntity() {
+    return $this->hostEntity;
   }
 
   /**
@@ -179,7 +159,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
       ->setLabel(t('Authored on'))
       ->setDescription(t('The time that the entity meta was created.'))
       ->setDisplayOptions('view', [
-        'label' => 'above',
+        'label' => 'above≠',
         'type' => 'timestamp',
         'weight' => 20,
       ])
@@ -195,19 +175,6 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
       ->setDescription(t('The time that the entity meta was last edited.'));
 
     return $fields;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
-    // If the entity is being saved through the content entity form,
-    // we save a new relationship to the host entity.
-    if (($emrHostEntity = $this->getEmrHostEntity()) && !empty($emrHostEntity)) {
-      \Drupal::service('emr.manager')->createEntityMetaRelation($emrHostEntity->entity_meta_relation_bundle, $emrHostEntity, $this);
-    }
-
-    parent::postSave($storage, $update);
   }
 
 }

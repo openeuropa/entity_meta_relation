@@ -2,8 +2,7 @@
 
 namespace Drupal\entity_meta_example\Plugin\EntityMetaRelation;
 
-use Drupal\emr\EntityMetaRelationPluginInterface;
-use Drupal\emr\EntityMetaRelationContentFormPluginBase;
+use Drupal\emr\Plugin\EntityMetaRelationContentFormPluginBase;
 
 /**
  * Plugin implementation of the entity_meta_relation.
@@ -11,11 +10,9 @@ use Drupal\emr\EntityMetaRelationContentFormPluginBase;
  * @EntityMetaRelation(
  *   id = "visual_configuration",
  *   label = @Translation("Visual configuration"),
- *   entity_meta_relation_bundle = "node_meta_relation",
  *   entity_meta_bundle = "visual",
+ *   content_form = TRUE,
  *   description = @Translation("Visual configuration.")
  * )
  */
-class VisualConfiguration extends EntityMetaRelationContentFormPluginBase implements EntityMetaRelationPluginInterface {
-
-}
+class VisualConfiguration extends EntityMetaRelationContentFormPluginBase {}

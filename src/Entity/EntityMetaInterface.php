@@ -56,42 +56,24 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
   public function disable();
 
   /**
-   * Sets EMR fields to be checked.
+   * Sets the "host" entity.
    *
-   * These represent the fields that are visible on content form to be checked.
+   * The "host" entity is the content entity which relates to this EntityMeta.
    *
-   * @param array|null $fields
-   *   The fields to check.
-   */
-  public function setEmrFieldsToCheck(array $fields);
-
-  /**
-   * Gets EMR fields to be checked.
-   *
-   * These represent the fields that are visible on content form to be checked.
-   *
-   * @return array|null
-   *   The fields to check.
-   */
-  public function getEmrFieldsToCheck();
-
-  /**
-   * Sets host entity in the entity meta.
-   *
-   * @param \Drupal\Core\Entity\ContentEntityInterface|null $contentEntity
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The content entity.
    *
-   * @return mixed
-   *   Returns the host entity if present.
+   * @return \Drupal\emr\Entity\EntityMetaInterface
+   *   The called entity meta relation entity.
    */
-  public function setEmrHostEntity(ContentEntityInterface $contentEntity);
+  public function setHostEntity(ContentEntityInterface $entity);
 
   /**
-   * Gets host entity in the entity meta.
+   * Gets the "host" entity.
    *
-   * @return mixed
+   * @return \Drupal\Core\Entity\ContentEntityInterface
    *   Returns the host entity if present.
    */
-  public function getEmrHostEntity();
+  public function getHostEntity();
 
 }

@@ -2,9 +2,9 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\emr;
+namespace Drupal\emr\Plugin;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -27,15 +27,13 @@ interface EntityMetaRelationContentFormPluginInterface {
    *   The form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
-   * @param \Drupal\Core\Entity\EntityInterface $contentEntity
-   *   The content entity.
-   * @param array $entity_meta_relations
-   *   The meta relations.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The entity.
    *
    * @return array
    *   The related meta entities keyed by bundle.
    */
-  public function build(array $form, FormStateInterface $form_state, EntityInterface $contentEntity, array $entity_meta_relations): array;
+  public function build(array $form, FormStateInterface $form_state, ContentEntityInterface $entity): array;
 
   /**
    * Builds the form.
