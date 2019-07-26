@@ -9,24 +9,26 @@ declare(strict_types = 1);
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\emr_node\NodeFormHandler;
 
 /**
- * Implements hook_form_node_form_alter().
+ * Implements hook_entity_type_alter().
+ *
+ * Adds the entity meta cotent form handler to the Node entity type.
  */
-function emr_node_form_node_form_alter(&$form, FormStateInterface &$form_state) {
-  $contentEntity = $form_state->getFormObject()->getEntity();
-  $form = \Drupal::service('emr.form_manager')->addFormElements($form, $form_state, $contentEntity);
-}
-
-/**
- * Implements hook_node_update().
- */
-function emr_node_node_update(ContentEntityInterface $entity) {
-
-  // Acts only when edition was not done through content form.
-  if (!empty($entity->editingModeEmrActive)) {
+function emr_node_entity_type_alter(array &$entity_types) {
+  if (!isset($entity_types['node'])) {
     return;
   }
 
-  \Drupal::service('emr.manager')->updateEntityMetaRelated($entity);
+  /** @var \Drupal\Core\Entity\EntityTypeInterface $entity_type */
+  $entity_type = $entity_types['node'];
+  if (!$entity_type->hasHandlerClass('emr_content_form')) {
+    $entity_type->setHandlerClass('emr_content_form', NodeFormHandler::class);
+  }
+
+  $entity_type->set('entity_meta_relation_bundle', 'node_meta_relation');
+  $entity_type->set('entity_meta_relation_content_field', 'emr_node_revision');
+  $entity_type->set('entity_meta_relation_meta_field', 'emr_meta_revision');
 }
+

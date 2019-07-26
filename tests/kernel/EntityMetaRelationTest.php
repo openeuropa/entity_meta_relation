@@ -46,7 +46,9 @@ class EntityMetaRelationTest extends KernelTestBase {
    */
   public function testEntitySave() {
 
-    $entity_relation_manager = \Drupal::service('emr.manager');
+    $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
+    /** @var \Drupal\node\NodeStorageInterface $node_storage */
+    $node_storage = \Drupal::entityTypeManager()->getStorage('node');
 
     // Create node.
     $node = Node::create([
@@ -58,10 +60,11 @@ class EntityMetaRelationTest extends KernelTestBase {
     // Asserts that node title was correctly saved.
     $node_new = Node::load($node->id());
     $this->assertEqual($node_new->label(), 'Node test');
+    $this->assertEquals(1, $node->getRevisionId());
 
     // Asserts that node has no relations.
-    $entity_meta_relations = $entity_relation_manager->getRelated('entity_meta', $node_new->getRevisionId());
-    $this->assertEqual($entity_meta_relations, []);
+    $entity_meta_relations = $entity_meta_storage->getRelatedMetaEntities($node_new);
+    $this->assertEmpty($entity_meta_relations);
 
     // Create entity meta for bundle visual.
     $meta_entity = EntityMeta::create([
@@ -72,8 +75,9 @@ class EntityMetaRelationTest extends KernelTestBase {
     $meta_entity->save();
 
     // Asserts that color was correctly saved.
-    $meta_entity_new = EntityMeta::load($meta_entity->id());
+    $meta_entity_new = $entity_meta_storage->load($meta_entity->id());
     $this->assertEqual($meta_entity_new->field_color->value, 'red');
+    $this->assertEquals(1, $meta_entity->getRevisionId());
 
     // Manually create relationship between the two.
     $entity_meta_relation = EntityMetaRelation::create([
@@ -89,41 +93,31 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEqual($entity_meta_relation_new->emr_meta_revision[0]->target_id, $meta_entity_new->getRevisionId());
     $this->assertEqual($entity_meta_relation_new->emr_node_revision[0]->target_id, $node_new->getRevisionId());
 
-    // Assert that node has relations.
-    $related_entity_meta_pre_save_ids = $related_entity_meta_post_save_ids = $related_entity_meta_final_save_ids = [];
-    $related_entity_meta = $entity_relation_manager->getRelated('entity_meta', $node_new->getRevisionId());
-    $this->assertNotEmpty($related_entity_meta);
-
-    array_walk($related_entity_meta, function ($entity_meta) use (&$related_entity_meta_pre_save_ids) {
-      $related_entity_meta_pre_save_ids[] += $entity_meta->getRevisionId();
-    });
+    // Assert that node has 1 meta relation.
+    $related_entity_meta_entities = $entity_meta_storage->getRelatedMetaEntities($node_new);
+    $this->assertCount(1, $related_entity_meta_entities);
+    $this->assertEquals(1, $related_entity_meta_entities[1]->getRevisionId());
 
     // Save node alone, should copy the relationships.
     $node_new->set('title', 'Node test updated');
+    $node_new->setNewRevision(TRUE);
     $node_new->save();
+    $node_new = $node_storage->loadRevision($node_storage->getLatestRevisionId($node->id()));
+    $this->assertEquals(2, $node_new->getRevisionId());
 
-    // Assert new node revision keeps having relationships.
-    $related_entity_meta = $entity_relation_manager->getRelated('entity_meta', $node_new->getRevisionId());
-    $this->assertNotEqual($related_entity_meta, []);
-
-    array_walk($related_entity_meta, function ($entity_meta) use (&$related_entity_meta_post_save_ids) {
-      $related_entity_meta_post_save_ids[] += $entity_meta->getRevisionId();
-    });
-
-    $this->assertEquals($related_entity_meta_post_save_ids, $related_entity_meta_pre_save_ids);
+    // Assert new node revision keeps having the relationship.
+    $related_entity_meta_entities = $entity_meta_storage->getRelatedMetaEntities($node_new);
+    $this->assertCount(1, $related_entity_meta_entities);
+    $this->assertEquals(1, $related_entity_meta_entities[1]->getRevisionId());
 
     // Save entity meta alone.
     $meta_entity_new->set('field_color', 'green');
     $meta_entity_new->save();
 
-    // Assert node has updated relationships to new entity meta revisions.
-    $related_entity_meta = $entity_relation_manager->getRelated('entity_meta', $node_new->getRevisionId());
-    array_walk($related_entity_meta, function ($entity_meta) use (&$related_entity_meta_final_save_ids) {
-      $related_entity_meta_final_save_ids[] += $entity_meta->getRevisionId();
-    });
-
-    $this->assertNotEmpty($related_entity_meta);
-    $this->assertEmpty(array_diff(array_values($related_entity_meta_post_save_ids), array_values($related_entity_meta_final_save_ids)));
+    // Assert relationships are updated to new entity meta revisions.
+    $related_entity_meta_entities = $entity_meta_storage->getRelatedMetaEntities($node_new);
+    $this->assertCount(1, $related_entity_meta_entities);
+    $this->assertEquals(2, $related_entity_meta_entities[1]->getRevisionId());
   }
 
 }

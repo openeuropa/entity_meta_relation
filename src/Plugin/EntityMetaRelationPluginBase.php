@@ -2,13 +2,16 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\emr;
+namespace Drupal\emr\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\emr\Entity\EntityMetaInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -63,11 +66,18 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
   /**
    * {@inheritdoc}
    */
+  public function getFormKey(): string {
+    return 'emr_plugins_' . $this->getPluginId();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function isApplicable(EntityInterface $content_entity): bool {
-    $content_bundle = $content_entity->bundle();
+    $entity_type = $content_entity->getEntityType();
 
     // Gets fields defined for the defined bundle.
-    $fields = $this->entityFieldManager->getFieldDefinitions('entity_meta_relation', $this->pluginDefinition['entity_meta_relation_bundle']);
+    $fields = $this->entityFieldManager->getFieldDefinitions('entity_meta_relation', $entity_type->get('entity_meta_relation_bundle'));
 
     /** @var \Drupal\Core\Field\FieldStorageDefinitionInterface $field_definition */
     foreach ($fields as $field_name => $field_definition) {
@@ -76,7 +86,7 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
 
         // Checks if the current content entity bundle
         // is referenceable by emr bundle used by the plugin.
-        if (in_array($content_bundle, $target_bundles)) {
+        if (in_array($content_entity->bundle(), $target_bundles)) {
           return TRUE;
         }
       }
@@ -85,4 +95,27 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
     return FALSE;
   }
 
+  /**
+   * Builds the form container for the plugin.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $key
+   *   The key to use for the container.
+   */
+  protected function buildFormContainer(array &$form, FormStateInterface $form_state, string $key) {
+    $form[$key] = [
+      '#type' => 'details',
+      '#title' => $this->label(),
+      '#group' => 'advanced',
+      '#open' => TRUE,
+    ];
+
+    $form[$key]['referenced_meta'] = [
+      '#type' => 'container',
+      '#attributes' => ['id' => 'edit-meta-reference'],
+    ];
+  }
 }

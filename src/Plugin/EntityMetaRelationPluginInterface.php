@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\emr;
+namespace Drupal\emr\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Entity\EntityInterface;

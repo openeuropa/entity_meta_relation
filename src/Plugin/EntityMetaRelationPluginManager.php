@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\emr;
+namespace Drupal\emr\Plugin;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -27,7 +27,7 @@ class EntityMetaRelationPluginManager extends DefaultPluginManager {
       'Plugin/EntityMetaRelation',
       $namespaces,
       $module_handler,
-      'Drupal\emr\EntityMetaRelationPluginInterface',
+      'Drupal\emr\Plugin\EntityMetaRelationPluginInterface',
       'Drupal\emr\Annotation\EntityMetaRelation'
     );
     $this->alterInfo('entity_meta_relation_info');

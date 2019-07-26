@@ -54,7 +54,8 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
    */
   public function testContentWithEntityMetaEditing(): void {
 
-    $emr_manager = \Drupal::service('emr.manager');
+    /** @var \EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
 
     // Saves new content entity.
     $label = 'Node example';
@@ -67,7 +68,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->getSession()->getPage()->hasContent("{$label} has been created");
     $node = $this->getOneEntityByLabel('node', $label);
     // Checks if the related entity meta have been properly created.
-    $entity_meta_relations = $emr_manager->getRelated('entity_meta', $node->getRevisionId());
+    $entity_meta_relations = $entity_meta_storage->getRelatedMetaEntities($node);
     $this->assertNotEmpty($entity_meta_relations);
     foreach ($entity_meta_relations as $entity_meta) {
       // Color was properly saved.
@@ -84,7 +85,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->getSession()->getPage()->selectFieldOption('Color', 'green');
     $this->getSession()->getPage()->pressButton('Save');
     $node_updated = $this->getOneEntityByLabel('node', 'Node example 2');
-    $entity_meta_relations = $emr_manager->getRelated('entity_meta', $node_updated->getRevisionId());
+    $entity_meta_relations = $entity_meta_storage->getRelatedMetaEntities($node_updated);
 
     $this->assertNotEmpty($entity_meta_relations);
     foreach ($entity_meta_relations as $entity_meta) {
@@ -102,7 +103,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->getSession()->getPage()->fillField('Title', 'Node example 3');
     $this->getSession()->getPage()->pressButton('Save');
     $node_updated_no_meta_changes = $this->getOneEntityByLabel('node', 'Node example 3');
-    $entity_meta_relations = $emr_manager->getRelated('entity_meta', $node_updated_no_meta_changes->getRevisionId());
+    $entity_meta_relations = $entity_meta_storage->getRelatedMetaEntities($node_updated_no_meta_changes);
 
     $this->assertNotEmpty($entity_meta_relations);
     foreach ($entity_meta_relations as $entity_meta) {
@@ -122,7 +123,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->getSession()->getPage()->selectFieldOption('Color', 'green');
     $this->getSession()->getPage()->pressButton('Save');
     $node_updated_no_revision = $this->getOneEntityByLabel('node', 'Node example 4');
-    $entity_meta_relations = $emr_manager->getRelated('entity_meta', $node_updated_no_revision->getRevisionId());
+    $entity_meta_relations = $entity_meta_storage->getRelatedMetaEntities($node_updated_no_revision);
 
     // Checks we keep having a single relation.
     $this->assertEqual(count($entity_meta_relations), 1);
