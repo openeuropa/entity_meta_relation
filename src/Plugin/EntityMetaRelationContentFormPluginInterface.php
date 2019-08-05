@@ -21,18 +21,6 @@ interface EntityMetaRelationContentFormPluginInterface {
   public function getFormKey(): string;
 
   /**
-   * Builds the form container for the plugin.
-   *
-   * @param array $form
-   *   The form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state.
-   * @param string $key
-   *   The key to use for the container.
-   */
-  public function buildFormContainer(array &$form, FormStateInterface $form_state, string $key);
-
-  /**
    * Builds the form.
    *
    * @param array $form

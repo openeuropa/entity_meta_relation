@@ -8,7 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 
 /**
- * Base class for plugins that need to be directly embedded in content forms.
+ * Base class for plugins that need to be embedded in content forms.
  */
 abstract class EntityMetaRelationContentFormPluginBase extends EntityMetaRelationPluginBase implements EntityMetaRelationPluginInterface, EntityMetaRelationContentFormPluginInterface, ContainerFactoryPluginInterface {
 
@@ -20,9 +20,16 @@ abstract class EntityMetaRelationContentFormPluginBase extends EntityMetaRelatio
   }
 
   /**
-   * {@inheritdoc}
+   * Builds the form container for the plugin.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $key
+   *   The key to use for the container.
    */
-  public function buildFormContainer(array &$form, FormStateInterface $form_state, string $key) {
+  protected function buildFormContainer(array &$form, FormStateInterface $form_state, string $key) {
     $form[$key] = [
       '#type' => 'details',
       '#title' => $this->label(),
