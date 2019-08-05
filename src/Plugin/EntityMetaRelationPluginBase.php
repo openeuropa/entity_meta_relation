@@ -8,7 +8,6 @@ use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -64,13 +63,6 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
   /**
    * {@inheritdoc}
    */
-  public function getFormKey(): string {
-    return 'emr_plugins_' . $this->getPluginId();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function applies(ContentEntityInterface $entity): bool {
     $entity_type = $entity->getEntityType();
     $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
@@ -93,30 +85,6 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
     }
 
     return FALSE;
-  }
-
-  /**
-   * Builds the form container for the plugin.
-   *
-   * @param array $form
-   *   The form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state.
-   * @param string $key
-   *   The key to use for the container.
-   */
-  protected function buildFormContainer(array &$form, FormStateInterface $form_state, string $key) {
-    $form[$key] = [
-      '#type' => 'details',
-      '#title' => $this->label(),
-      '#group' => 'advanced',
-      '#open' => TRUE,
-    ];
-
-    $form[$key]['referenced_meta'] = [
-      '#type' => 'container',
-      '#attributes' => ['id' => 'edit-meta-reference'],
-    ];
   }
 
 }
