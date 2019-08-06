@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Drupal\emr;
 
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\emr\Plugin\EntityMetaRelationContentFormPluginInterface;
@@ -14,6 +15,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Base form handler for content entity forms.
  */
 class ContentFormHandlerBase implements ContentFormHandlerInterface {
+
+  use DependencySerializationTrait;
 
   /**
    * The plugin manager.
