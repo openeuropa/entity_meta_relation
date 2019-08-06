@@ -66,6 +66,7 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
   public function applies(ContentEntityInterface $entity): bool {
     $entity_type = $entity->getEntityType();
     $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
+    $entity_meta_relation_meta_field = $entity_type->get('entity_meta_relation_meta_field');
     if (!$entity_meta_relation_content_field) {
       return FALSE;
     }
@@ -76,15 +77,25 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
       return FALSE;
     }
 
-    /** @var \Drupal\Core\Field\FieldConfigInterface $field_definition */
-    $field_definition = $fields[$entity_meta_relation_content_field];
-    $target_bundles = $field_definition->getSetting('handler_settings')['target_bundles'];
-
-    if (in_array($entity->bundle(), $target_bundles)) {
-      return TRUE;
+    /** @var \Drupal\Core\Field\FieldConfigInterface $content_field_definition */
+    $meta_field_definition = $fields[$entity_meta_relation_meta_field];
+    $target_meta_bundles = $meta_field_definition->getSetting('handler_settings')['target_bundles'];
+    // If the associated entity meta bundle used by the plugin is not available
+    // in the relationship, the plugin does not apply.
+    if (empty($this->pluginDefinition['entity_meta_bundle'] || !in_array($this->pluginDefinition['entity_meta_bundle'], $target_meta_bundles))) {
+      return FALSE;
     }
 
-    return FALSE;
+    /** @var \Drupal\Core\Field\FieldConfigInterface $field_definition */
+    $content_field_definition = $fields[$entity_meta_relation_content_field];
+    $target_content_bundles = $content_field_definition->getSetting('handler_settings')['target_bundles'];
+    // If current content bundle is not available in the relationship,
+    // the plugin does not apply.
+    if (!in_array($entity->bundle(), $target_content_bundles)) {
+      return FALSE;
+    }
+
+    return TRUE;
   }
 
 }
