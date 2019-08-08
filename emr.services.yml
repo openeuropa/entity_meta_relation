@@ -1,0 +1,4 @@
+services:
+  plugin.manager.emr:
+    class: Drupal\emr\Plugin\EntityMetaRelationPluginManager
+    parent: default_plugin_manager

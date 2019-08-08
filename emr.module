@@ -6,3 +6,96 @@
  */
 
 declare(strict_types = 1);
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\emr\ContentFormHandlerInterface;
+
+/**
+ * Implements hook_form_alter().
+ */
+function emr_form_alter(&$form, FormStateInterface &$form_state) {
+  $form_object = $form_state->getFormObject();
+  if (!$form_object instanceof ContentEntityForm || $form_object->getOperation() === 'delete') {
+    return;
+  }
+
+  $entity = $form_object->getEntity();
+  if (!\Drupal::entityTypeManager()->hasHandler($entity->getEntityTypeId(), 'emr_content_form')) {
+    return;
+  }
+
+  $handler = \Drupal::entityTypeManager()->getHandler($entity->getEntityTypeId(), 'emr_content_form');
+  if ($handler instanceof ContentFormHandlerInterface) {
+    $form = $handler->addFormElements($form, $form_state, $entity);
+  }
+}
+
+/**
+ * Implements hook_inline_entity_form_reference_form_alter().
+ */
+function emr_inline_entity_form_entity_form_alter(&$reference_form, &$form_state) {
+  // Hide non desirable fields for entity meta when show in inline entity form.
+  if ($reference_form['#entity_type'] == 'entity_meta') {
+    $reference_form['status']['#access'] = FALSE;
+    $reference_form['created']['#access'] = FALSE;
+    $reference_form['revision_log']['#access'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function emr_entity_update(EntityInterface $entity) {
+  if (!$entity instanceof ContentEntityInterface) {
+    return;
+  }
+
+  $entity_type = $entity->getEntityType();
+  if (!$entity_type->get('entity_meta_relation_bundle')) {
+    return;
+  }
+
+  /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
+  $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
+  $storage->updateEntityMetaRelated($entity);
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function emr_entity_delete(EntityInterface $entity) {
+  if (!$entity instanceof ContentEntityInterface) {
+    return;
+  }
+
+  $entity_type = $entity->getEntityType();
+  if (!$entity_type->get('entity_meta_relation_bundle')) {
+    return;
+  }
+
+  /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
+  $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
+  $meta_entities = $storage->getRelatedMetaEntities($entity);
+  foreach ($meta_entities as $meta_entity) {
+    $meta_entity->delete();
+  }
+
+  $entity_meta_relation_storage = \Drupal::entityTypeManager()->getStorage('entity_meta_relation');
+  $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
+
+  $ids = $entity_meta_relation_storage->getQuery()
+    ->condition("{$entity_meta_relation_content_field}.target_id", $entity->id())
+    ->execute();
+
+  if (!$ids) {
+    return;
+  }
+
+  $entity_meta_relations = $entity_meta_relation_storage->loadMultiple($ids);
+  foreach ($entity_meta_relations as $entity_meta_relation) {
+    $entity_meta_relation->delete();
+  }
+}

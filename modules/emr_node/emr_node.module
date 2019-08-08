@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Entity meta relation node module file.
+ */
+
+declare(strict_types = 1);
+
+use Drupal\emr_node\NodeFormHandler;
+
+/**
+ * Implements hook_entity_type_alter().
+ *
+ * Adds the entity meta content form handler to the Node entity type.
+ */
+function emr_node_entity_type_alter(array &$entity_types) {
+  if (!isset($entity_types['node'])) {
+    return;
+  }
+
+  /** @var \Drupal\Core\Entity\EntityTypeInterface $entity_type */
+  $entity_type = $entity_types['node'];
+  if (!$entity_type->hasHandlerClass('emr_content_form')) {
+    $entity_type->setHandlerClass('emr_content_form', NodeFormHandler::class);
+  }
+
+  $entity_type->set('entity_meta_relation_bundle', 'node_meta_relation');
+  $entity_type->set('entity_meta_relation_content_field', 'emr_node_revision');
+  $entity_type->set('entity_meta_relation_meta_field', 'emr_meta_revision');
+}

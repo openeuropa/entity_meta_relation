@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Drupal\emr\Entity;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
@@ -19,6 +20,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   bundle_label = @Translation("Entity meta type"),
  *   handlers = {
  *     "views_data" = "Drupal\views\EntityViewsData",
+ *     "storage" = "Drupal\emr\EntityMetaStorage",
  *     "form" = {
  *       "add" = "Drupal\emr\Form\EntityMetaForm",
  *       "edit" = "Drupal\emr\Form\EntityMetaForm",
@@ -30,7 +32,9 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     }
  *   },
  *   base_table = "entity_meta",
+ *   data_table = "entity_meta_field_data",
  *   revision_table = "entity_meta_revision",
+ *   revision_data_table = "entity_meta_field_revision",
  *   show_revision_ui = TRUE,
  *   translatable = TRUE,
  *   admin_permission = "administer entity meta types",
@@ -40,7 +44,8 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "bundle" = "bundle",
  *     "label" = "id",
  *     "langcode" = "langcode",
- *     "uuid" = "uuid"
+ *     "uuid" = "uuid",
+ *     "status" = "status"
  *   },
  *   revision_metadata_keys = {
  *     "revision_created" = "revision_timestamp",
@@ -63,16 +68,23 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   use EntityChangedTrait;
 
   /**
+   * The "host" entity this entity meta relates to.
+   *
+   * @var \Drupal\Core\Entity\ContentEntityInterface
+   */
+  protected $hostEntity;
+
+  /**
    * {@inheritdoc}
    */
-  public function isEnabled() {
+  public function isEnabled(): bool {
     return (bool) $this->get('status')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function enable() {
+  public function enable(): EntityMetaInterface {
     $this->set('status', TRUE);
     return $this;
   }
@@ -80,7 +92,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function disable() {
+  public function disable(): EntityMetaInterface {
     $this->set('status', FALSE);
     return $this;
   }
@@ -88,16 +100,31 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function getCreatedTime() {
+  public function getCreatedTime(): int {
     return $this->get('created')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setCreatedTime($timestamp) {
+  public function setCreatedTime($timestamp): EntityMetaInterface {
     $this->set('created', $timestamp);
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setHostEntity(ContentEntityInterface $entity = NULL): EntityMetaInterface {
+    $this->hostEntity = $entity;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHostEntity(): ?ContentEntityInterface {
+    return $this->hostEntity;
   }
 
   /**

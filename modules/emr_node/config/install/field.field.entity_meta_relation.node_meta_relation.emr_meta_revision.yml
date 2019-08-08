@@ -10,7 +10,7 @@ id: entity_meta_relation.node_meta_relation.emr_meta_revision
 field_name: emr_meta_revision
 entity_type: entity_meta_relation
 bundle: node_meta_relation
-label: 'Meta revision'
+label: 'Entity Meta revision'
 description: ''
 required: false
 translatable: false

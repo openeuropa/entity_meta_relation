@@ -63,14 +63,14 @@ class EntityMetaRelation extends RevisionableContentEntityBase implements Entity
   /**
    * {@inheritdoc}
    */
-  public function isEnabled() {
+  public function isEnabled(): bool {
     return (bool) $this->get('status')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function enable() {
+  public function enable(): EntityMetaRelationInterface {
     $this->set('status', TRUE);
     return $this;
   }
@@ -78,7 +78,7 @@ class EntityMetaRelation extends RevisionableContentEntityBase implements Entity
   /**
    * {@inheritdoc}
    */
-  public function disable() {
+  public function disable(): EntityMetaRelationInterface {
     $this->set('status', FALSE);
     return $this;
   }
@@ -93,7 +93,7 @@ class EntityMetaRelation extends RevisionableContentEntityBase implements Entity
   /**
    * {@inheritdoc}
    */
-  public function setCreatedTime($timestamp) {
+  public function setCreatedTime($timestamp): EntityMetaRelationInterface {
     $this->set('created', $timestamp);
     return $this;
   }

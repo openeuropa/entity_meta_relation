@@ -18,7 +18,7 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
    * @return int
    *   Creation timestamp of the entity meta.
    */
-  public function getCreatedTime();
+  public function getCreatedTime(): int;
 
   /**
    * Sets the entity meta creation timestamp.
@@ -29,7 +29,7 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\emr\Entity\EntityMetaInterface
    *   The called entity meta entity.
    */
-  public function setCreatedTime($timestamp);
+  public function setCreatedTime($timestamp): EntityMetaInterface;
 
   /**
    * Returns the entity meta status.
@@ -37,7 +37,7 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
    * @return bool
    *   TRUE if the entity meta is enabled, FALSE otherwise.
    */
-  public function isEnabled();
+  public function isEnabled(): bool;
 
   /**
    * Sets the entity meta status to TRUE.
@@ -45,7 +45,7 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\emr\Entity\EntityMetaInterface
    *   The called entity meta relation entity.
    */
-  public function enable();
+  public function enable(): EntityMetaInterface;
 
   /**
    * Sets the entity meta status to FALSE.
@@ -53,6 +53,27 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
    * @return \Drupal\emr\Entity\EntityMetaInterface
    *   The called entity meta relation entity.
    */
-  public function disable();
+  public function disable(): EntityMetaInterface;
+
+  /**
+   * Sets the "host" entity.
+   *
+   * The "host" entity is the content entity which relates to this EntityMeta.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The content entity.
+   *
+   * @return \Drupal\emr\Entity\EntityMetaInterface
+   *   The called entity meta relation entity.
+   */
+  public function setHostEntity(ContentEntityInterface $entity): EntityMetaInterface;
+
+  /**
+   * Gets the "host" entity.
+   *
+   * @return \Drupal\Core\Entity\ContentEntityInterface
+   *   Returns the host entity if present.
+   */
+  public function getHostEntity(): ?ContentEntityInterface;
 
 }
