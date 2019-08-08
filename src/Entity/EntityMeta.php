@@ -45,7 +45,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "label" = "id",
  *     "langcode" = "langcode",
  *     "uuid" = "uuid",
- *     "status" = "status",
+ *     "status" = "status"
  *   },
  *   revision_metadata_keys = {
  *     "revision_created" = "revision_timestamp",
