@@ -100,7 +100,7 @@ class ContentFormHandlerBase implements ContentFormHandlerInterface {
       /** @var \Drupal\emr\Plugin\EntityMetaRelationPluginInterface $plugin */
       $plugin = $this->pluginManager->createInstance($id);
       if ($plugin instanceof EntityMetaRelationContentFormPluginInterface && $plugin->applies($entity)) {
-        $form = $plugin->submit($form, $form_state);
+        $plugin->submit($form, $form_state);
       }
     }
   }
