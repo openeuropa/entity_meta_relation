@@ -32,7 +32,9 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     }
  *   },
  *   base_table = "entity_meta",
+ *   data_table = "entity_meta_field_data",
  *   revision_table = "entity_meta_revision",
+ *   revision_data_table = "entity_meta_field_revision",
  *   show_revision_ui = TRUE,
  *   translatable = TRUE,
  *   admin_permission = "administer entity meta types",
@@ -42,7 +44,8 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "bundle" = "bundle",
  *     "label" = "id",
  *     "langcode" = "langcode",
- *     "uuid" = "uuid"
+ *     "uuid" = "uuid",
+ *     "status" = "status",
  *   },
  *   revision_metadata_keys = {
  *     "revision_created" = "revision_timestamp",
