@@ -19,6 +19,13 @@ class ContentFormHandlerBase implements ContentFormHandlerInterface {
   use DependencySerializationTrait;
 
   /**
+   * The entity type.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeInterface
+   */
+  protected $entityType;
+
+  /**
    * The plugin manager.
    *
    * @var \Drupal\emr\Plugin\EntityMetaRelationPluginManager
@@ -28,21 +35,22 @@ class ContentFormHandlerBase implements ContentFormHandlerInterface {
   /**
    * Constructs the EntityMetaContentFormHandlerBase.
    *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entityType
    *   The entity type.
    * @param \Drupal\emr\Plugin\EntityMetaRelationPluginManager $pluginManager
    *   The entity meta relation plugin manager.
    */
-  public function __construct(EntityTypeInterface $entity_type, EntityMetaRelationPluginManager $pluginManager) {
+  public function __construct(EntityTypeInterface $entityType, EntityMetaRelationPluginManager $pluginManager) {
+    $this->entityType = $entityType;
     $this->pluginManager = $pluginManager;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
+  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entityType) {
     return new static(
-      $entity_type,
+      $entityType,
       $container->get('plugin.manager.emr')
     );
   }

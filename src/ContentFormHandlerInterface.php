@@ -11,7 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
  * Content entity form handler interface.
  *
  * Implemented by entity handlers responsible for injecting and handling the
- * entity meta relation plugin form elements in cotent entity forms.
+ * entity meta relation plugin form elements in content entity forms.
  */
 interface ContentFormHandlerInterface extends EntityHandlerInterface {
 

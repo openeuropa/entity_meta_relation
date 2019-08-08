@@ -12,7 +12,7 @@ use Drupal\Core\Plugin\DefaultPluginManager;
 class EntityMetaRelationPluginManager extends DefaultPluginManager {
 
   /**
-   * Constructs EntityMetaRelationPluginManager object.
+   * Constructs an EntityMetaRelationPluginManager object.
    *
    * @param \Traversable $namespaces
    *   An object that implements \Traversable which contains the root paths

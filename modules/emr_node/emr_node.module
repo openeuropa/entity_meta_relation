@@ -12,7 +12,7 @@ use Drupal\emr_node\NodeFormHandler;
 /**
  * Implements hook_entity_type_alter().
  *
- * Adds the entity meta cotent form handler to the Node entity type.
+ * Adds the entity meta content form handler to the Node entity type.
  */
 function emr_node_entity_type_alter(array &$entity_types) {
   if (!isset($entity_types['node'])) {

@@ -44,7 +44,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     }
 
     // Create or updates the entity meta relations for a given entity.
-    // When a new content entity is saved or updated, we need to  create or
+    // When a new content entity is saved or updated, we need to create or
     // update the EntityMetaRelation entity that connects it to an
     // EntityMeta entity. This means updating the revisions that the
     // EntityMetaRelation points to on the EntityMeta.
@@ -239,7 +239,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    * @return bool
    *   Whether it should make a new revision.
    */
-  protected function shouldMakeRevision(EntityMetaInterface $entity) {
+  protected function shouldMakeRevision(EntityMetaInterface $entity): bool {
     if ($entity->isNew()) {
       return TRUE;
     }

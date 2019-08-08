@@ -74,14 +74,14 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function isEnabled() {
+  public function isEnabled(): bool {
     return (bool) $this->get('status')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function enable() {
+  public function enable(): EntityMetaInterface {
     $this->set('status', TRUE);
     return $this;
   }
@@ -89,7 +89,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function disable() {
+  public function disable(): EntityMetaInterface {
     $this->set('status', FALSE);
     return $this;
   }
@@ -97,14 +97,14 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function getCreatedTime() {
+  public function getCreatedTime(): int {
     return $this->get('created')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setCreatedTime($timestamp) {
+  public function setCreatedTime($timestamp): EntityMetaInterface {
     $this->set('created', $timestamp);
     return $this;
   }
@@ -112,7 +112,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function setHostEntity(ContentEntityInterface $entity = NULL) {
+  public function setHostEntity(ContentEntityInterface $entity = NULL): EntityMetaInterface {
     $this->hostEntity = $entity;
     return $this;
   }
@@ -120,7 +120,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function getHostEntity() {
+  public function getHostEntity(): ?ContentEntityInterface {
     return $this->hostEntity;
   }
 
@@ -159,7 +159,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
       ->setLabel(t('Authored on'))
       ->setDescription(t('The time that the entity meta was created.'))
       ->setDisplayOptions('view', [
-        'label' => 'above≠',
+        'label' => 'above',
         'type' => 'timestamp',
         'weight' => 20,
       ])

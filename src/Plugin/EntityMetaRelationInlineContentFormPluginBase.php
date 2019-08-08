@@ -77,7 +77,7 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
    * @return bool
    *   Whether it should save or not.
    */
-  protected function shouldSaveEntity(EntityMetaInterface $entity) {
+  protected function shouldSaveEntity(EntityMetaInterface $entity): bool {
     $change_fields = $this->entityTypeManager->getStorage('entity_meta')->getChangeFields($entity);
     foreach ($change_fields as $field) {
       if (!$entity->get($field)->isEmpty()) {

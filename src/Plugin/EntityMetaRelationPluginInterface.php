@@ -8,7 +8,7 @@ use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 
 /**
- * Defines an interface for Task plugin plugins.
+ * Defines an interface for Entity meta relation plugins.
  */
 interface EntityMetaRelationPluginInterface extends PluginInspectionInterface {
 

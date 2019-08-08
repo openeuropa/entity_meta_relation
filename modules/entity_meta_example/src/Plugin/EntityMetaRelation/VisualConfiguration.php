@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Drupal\entity_meta_example\Plugin\EntityMetaRelation;
 
 use Drupal\emr\Plugin\EntityMetaRelationInlineContentFormPluginBase;
