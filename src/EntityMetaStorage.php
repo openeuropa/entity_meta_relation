@@ -30,16 +30,15 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    * {@inheritdoc}
    */
   public function doPostSave(EntityInterface $entity, $update) {
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     parent::doPostSave($entity, $update);
 
-    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
-    $entity_meta = $entity;
     // If we are saving this meta entity only for its status change, we don't
     // want to query for the associated relations because there is nothing there
     // to update. The content relation revision was updated in
     // self::updateEntityMetaRelated().
-    if (isset($entity_meta->status_change) && $entity_meta->status_change) {
-      $entity_meta->status_change = FALSE;
+    if (isset($entity->status_change) && $entity->status_change) {
+      $entity->status_change = FALSE;
       return;
     }
 
@@ -48,7 +47,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     // update the EntityMetaRelation entity that connects it to an
     // EntityMeta entity. This means updating the revisions that the
     // EntityMetaRelation points to on the EntityMeta.
-    $content_entity = $entity_meta->getHostEntity();
+    $content_entity = $entity->getHostEntity();
     if (!$content_entity) {
       return;
     }
@@ -63,7 +62,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     // If we are editing an item, check if we have relations to this revision.
     $ids = $entity_meta_relation_storage->getQuery()
       ->condition("{$entity_meta_relation_content_field}.target_revision_id", $content_entity->getRevisionId())
-      ->condition("{$entity_meta_relation_meta_field}.target_id", $entity_meta->id())
+      ->condition("{$entity_meta_relation_meta_field}.target_id", $entity->id())
       ->execute();
 
     // If no relations, create new ones.
@@ -71,13 +70,13 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       $relation = $entity_meta_relation_storage->create([
         'bundle' => $entity_meta_relation_bundle,
         $entity_meta_relation_content_field => $content_entity,
-        $entity_meta_relation_meta_field => $entity_meta,
+        $entity_meta_relation_meta_field => $entity,
       ]);
     }
     // Otherwise update existing ones.
     else {
       $relation = $entity_meta_relation_storage->loadRevision(key($ids));
-      $relation->set($entity_meta_relation_meta_field, $entity_meta);
+      $relation->set($entity_meta_relation_meta_field, $entity);
     }
 
     $relation->save();
