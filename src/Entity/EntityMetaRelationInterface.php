@@ -29,7 +29,7 @@ interface EntityMetaRelationInterface extends ContentEntityInterface, EntityChan
    * @return \Drupal\emr\Entity\EntityMetaRelationInterface
    *   The called entity meta relation entity.
    */
-  public function setCreatedTime($timestamp);
+  public function setCreatedTime($timestamp): EntityMetaRelationInterface;
 
   /**
    * Returns the entity meta relation status.
@@ -37,7 +37,7 @@ interface EntityMetaRelationInterface extends ContentEntityInterface, EntityChan
    * @return bool
    *   TRUE if the entity meta relation is enabled, FALSE otherwise.
    */
-  public function isEnabled();
+  public function isEnabled(): bool;
 
   /**
    * Sets the entity meta relation status to TRUE.
@@ -45,7 +45,7 @@ interface EntityMetaRelationInterface extends ContentEntityInterface, EntityChan
    * @return \Drupal\emr\Entity\EntityMetaRelationInterface
    *   The called entity meta relation entity.
    */
-  public function enable();
+  public function enable(): EntityMetaRelationInterface;
 
   /**
    * Sets the entity meta relation status to FALSE.
@@ -53,6 +53,6 @@ interface EntityMetaRelationInterface extends ContentEntityInterface, EntityChan
    * @return \Drupal\emr\Entity\EntityMetaRelationInterface
    *   The called entity meta relation entity.
    */
-  public function disable();
+  public function disable(): EntityMetaRelationInterface;
 
 }

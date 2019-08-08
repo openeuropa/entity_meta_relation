@@ -91,7 +91,7 @@ function emr_entity_delete(EntityInterface $entity) {
     ->execute();
 
   if (!$ids) {
-    return [];
+    return;
   }
 
   $entity_meta_relations = $entity_meta_relation_storage->loadMultiple($ids);
