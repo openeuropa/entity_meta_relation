@@ -21,7 +21,9 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
     $key = $this->getFormKey();
     $this->buildFormContainer($form, $form_state, $key);
 
-    $entity_meta_entities = $this->entityTypeManager->getStorage('entity_meta')->getBundledRelatedMetaEntities($entity);
+    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = $this->entityTypeManager->getStorage('entity_meta');
+    $entity_meta_entities = $entity_meta_storage->getBundledRelatedMetaEntities($entity);
     $pluginDefinition = $this->getPluginDefinition();
     $entity_meta_bundle = $pluginDefinition['entity_meta_bundle'];
 
@@ -61,6 +63,10 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
     $host_entity->isPublished() ? $entity->enable() : $entity->disable();
     $entity->setHostEntity($host_entity);
 
+    if ($this->shouldRemoveRelation($entity)) {
+      $this->entityTypeManager->getStorage('entity_meta')->unlinkRelation($entity, $host_entity);
+    }
+
     if (!$this->shouldSaveEntity($entity)) {
       return;
     }
@@ -86,6 +92,20 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
     }
 
     return FALSE;
+  }
+
+  protected function shouldRemoveRelation(EntityMetaInterface $entity): bool {
+    $change_fields = $this->entityTypeManager->getStorage('entity_meta')->getChangeFields($entity);
+    $remove = TRUE;
+
+    foreach ($change_fields as $field) {
+      if (!$entity->get($field)->isEmpty()) {
+        $remove = FALSE;
+        break;
+      }
+    }
+
+    return $remove;
   }
 
 }

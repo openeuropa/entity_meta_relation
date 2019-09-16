@@ -82,6 +82,42 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     $relation->save();
   }
 
+  public function unlinkRelation(EntityMetaInterface $entity_meta, ContentEntityInterface $content_entity) {
+    $content_entity_type = $content_entity->getEntityType();
+    $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
+
+    $entity_meta_relation_content_field = $content_entity_type->get('entity_meta_relation_content_field');
+    $entity_meta_relation_meta_field = $content_entity_type->get('entity_meta_relation_meta_field');
+    $entity_meta_relation_bundle = $content_entity_type->get('entity_meta_relation_bundle');
+
+    $ids = $entity_meta_relation_storage->getQuery()
+      ->condition("{$entity_meta_relation_content_field}.target_revision_id", $content_entity->getRevisionId())
+      ->condition("{$entity_meta_relation_meta_field}.target_id", $entity_meta->id())
+      ->execute();
+
+    if (!$ids) {
+      return;
+    }
+
+    $revision_id = key($ids);
+    /** @var \Drupal\Core\Entity\RevisionableInterface $revision */
+    $revision = $entity_meta_relation_storage->loadRevision($revision_id);
+
+    $revision_ids = $this->database->query(
+      'SELECT revision_id FROM {entity_meta_relation_revision} WHERE id=:id ORDER BY revision_id',
+      [':id' => $revision->id()]
+    )->fetchCol();
+
+    $delete_revision_id = array_pop($revision_ids);
+    $revision_id = array_pop($revision_ids);
+    /** @var \Drupal\Core\Entity\RevisionableInterface $revision */
+    $revision = $entity_meta_relation_storage->loadRevision($revision_id);
+    $revision->isDefaultRevision(TRUE);
+    $revision->save();
+    $entity_meta_relation_storage->deleteRevision($delete_revision_id);
+
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -158,6 +194,40 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     }
 
     return $relations;
+  }
+
+  public function deleteAllRelatedMetaEntities(ContentEntityInterface $content_entity): void {
+    $entity_type = $content_entity->getEntityType();
+
+    $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
+    $entity_meta_relation_meta_field = $entity_type->get('entity_meta_relation_meta_field');
+
+    /** @var \Drupal\Core\Entity\ContentEntityStorageInterface $entity_meta_relation_storage */
+    $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
+    $ids = $entity_meta_relation_storage->getQuery()
+      ->condition($entity_meta_relation_content_field . '.target_id', $content_entity->id())
+      ->allRevisions()
+      ->execute();
+
+    if (!$ids) {
+      return;
+    }
+
+    /** @var \Drupal\emr\Entity\EntityMetaRelationInterface[] $entity_meta_relations */
+    $entity_meta_relations = $entity_meta_relation_storage->loadMultiple($ids);
+
+    // If we are looking for related EntityMeta entities, we use the field that
+    // relate to the content entities and vice-versa.
+    foreach ($entity_meta_relations as $relation) {
+      $entity = $relation->get($entity_meta_relation_meta_field)->entity;
+      if ($entity instanceof EntityMetaInterface) {
+        $entity->delete();
+      }
+    }
+
+    foreach ($entity_meta_relations as $relation) {
+      $relation->delete();
+    }
   }
 
   /**

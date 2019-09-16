@@ -78,24 +78,5 @@ function emr_entity_delete(EntityInterface $entity) {
 
   /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
   $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
-  $meta_entities = $storage->getRelatedMetaEntities($entity);
-  foreach ($meta_entities as $meta_entity) {
-    $meta_entity->delete();
-  }
-
-  $entity_meta_relation_storage = \Drupal::entityTypeManager()->getStorage('entity_meta_relation');
-  $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
-
-  $ids = $entity_meta_relation_storage->getQuery()
-    ->condition("{$entity_meta_relation_content_field}.target_id", $entity->id())
-    ->execute();
-
-  if (!$ids) {
-    return;
-  }
-
-  $entity_meta_relations = $entity_meta_relation_storage->loadMultiple($ids);
-  foreach ($entity_meta_relations as $entity_meta_relation) {
-    $entity_meta_relation->delete();
-  }
+  $storage->deleteAllRelatedMetaEntities($entity);
 }
