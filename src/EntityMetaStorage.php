@@ -82,19 +82,23 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     $relation->save();
   }
 
-  public function unlinkRelation(EntityMetaInterface $entity_meta, ContentEntityInterface $content_entity) {
+  /**
+   * {@inheritdoc}
+   */
+  public function unlinkRelation(EntityMetaInterface $entity_meta, ContentEntityInterface $content_entity): void {
     $content_entity_type = $content_entity->getEntityType();
+    /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
     $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
-
     $entity_meta_relation_content_field = $content_entity_type->get('entity_meta_relation_content_field');
     $entity_meta_relation_meta_field = $content_entity_type->get('entity_meta_relation_meta_field');
-    $entity_meta_relation_bundle = $content_entity_type->get('entity_meta_relation_bundle');
 
     $ids = $entity_meta_relation_storage->getQuery()
       ->condition("{$entity_meta_relation_content_field}.target_revision_id", $content_entity->getRevisionId())
       ->condition("{$entity_meta_relation_meta_field}.target_id", $entity_meta->id())
       ->execute();
 
+    // There should normally only be one result, the last revision ID of the
+    // entity meta relation that links the content entity to the meta entity.
     if (!$ids) {
       return;
     }
@@ -103,19 +107,20 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     /** @var \Drupal\Core\Entity\RevisionableInterface $revision */
     $revision = $entity_meta_relation_storage->loadRevision($revision_id);
 
-    $revision_ids = $this->database->query(
-      'SELECT revision_id FROM {entity_meta_relation_revision} WHERE id=:id ORDER BY revision_id',
-      [':id' => $revision->id()]
-    )->fetchCol();
+    // Load all the revision IDs of this entity meta relation.
+    $revision_ids = $entity_meta_relation_storage->revisionIds($revision);
 
+    // Keep track of the last revision ID because this is the one we want
+    // to delete.
     $delete_revision_id = array_pop($revision_ids);
+    // Get the previous revision ID because we want to make this one the
+    // default.
     $revision_id = array_pop($revision_ids);
     /** @var \Drupal\Core\Entity\RevisionableInterface $revision */
     $revision = $entity_meta_relation_storage->loadRevision($revision_id);
     $revision->isDefaultRevision(TRUE);
     $revision->save();
     $entity_meta_relation_storage->deleteRevision($delete_revision_id);
-
   }
 
   /**
@@ -196,13 +201,16 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     return $relations;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function deleteAllRelatedMetaEntities(ContentEntityInterface $content_entity): void {
     $entity_type = $content_entity->getEntityType();
 
     $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
     $entity_meta_relation_meta_field = $entity_type->get('entity_meta_relation_meta_field');
 
-    /** @var \Drupal\Core\Entity\ContentEntityStorageInterface $entity_meta_relation_storage */
+    /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
     $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $ids = $entity_meta_relation_storage->getQuery()
       ->condition($entity_meta_relation_content_field . '.target_id', $content_entity->id())
@@ -215,9 +223,6 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
 
     /** @var \Drupal\emr\Entity\EntityMetaRelationInterface[] $entity_meta_relations */
     $entity_meta_relations = $entity_meta_relation_storage->loadMultiple($ids);
-
-    // If we are looking for related EntityMeta entities, we use the field that
-    // relate to the content entities and vice-versa.
     foreach ($entity_meta_relations as $relation) {
       $entity = $relation->get($entity_meta_relation_meta_field)->entity;
       if ($entity instanceof EntityMetaInterface) {
@@ -271,7 +276,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
     $entity_meta_relation_meta_field = $entity_type->get('entity_meta_relation_meta_field');
 
-    /** @var \Drupal\Core\Entity\ContentEntityStorageInterface $entity_meta_relation_storage */
+    /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
     $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $ids = $entity_meta_relation_storage->getQuery()
       ->condition($entity_meta_relation_content_field . '.target_revision_id', $entity->getRevisionId())

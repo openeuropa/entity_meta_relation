@@ -19,6 +19,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   bundle_label = @Translation("Entity Meta Relation type"),
  *   handlers = {
  *     "list_builder" = "Drupal\emr\EntityMetaRelationListBuilder",
+ *     "storage" = "Drupal\emr\EntityMetaRelationStorage",
  *     "views_data" = "Drupal\views\EntityViewsData",
  *     "form" = {
  *       "add" = "Drupal\emr\Form\EntityMetaRelationForm",

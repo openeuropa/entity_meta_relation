@@ -59,7 +59,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
   public function testContentWithEntityMetaEditing(): void {
     /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
     $entity_meta_storage = $this->container->get('entity_type.manager')->getStorage('entity_meta');
-    /** @var \Drupal\Core\Entity\Sql\SqlContentEntityStorage $entity_meta_storage */
+    /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
     $entity_meta_relation_storage = $this->container->get('entity_type.manager')->getStorage('entity_meta_relation');
 
     // Create a new content entity but don't specify any meta value.
@@ -157,6 +157,86 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->assertEquals($entity_meta->get('field_color')->value, 'red');
     // Revision changed.
     $this->assertEquals(3, $entity_meta->getRevisionId());
+  }
+
+  /**
+   * Tests that we can unset an entity meta relation in the form.
+   */
+  public function testRemoveMetaRelation(): void {
+    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = $this->container->get('entity_type.manager')->getStorage('entity_meta');
+    /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
+    $entity_meta_relation_storage = $this->container->get('entity_type.manager')->getStorage('entity_meta_relation');
+
+    // Create a new content entity with a meta value.
+    $label = 'Node example';
+    $this->drupalGet('node/add/entity_meta_example_ct');
+    $this->getSession()->getPage()->fillField('Title', $label);
+    $this->getSession()->getPage()->uncheckField('Published');
+    $this->getSession()->getPage()->fillField('Color', 'red');
+    $this->getSession()->getPage()->pressButton('Save');
+
+    $this->getSession()->getPage()->hasContent("{$label} has been created");
+    $node = $this->getEntityByLabel('node', $label);
+    // Checks if the related entity meta has been properly created.
+    $entity_meta_entities = $entity_meta_storage->getRelatedMetaEntities($node);
+    $this->assertCount(1, $entity_meta_entities);
+    // Only one entity meta relation entity should exist.
+    $this->assertCount(1, $entity_meta_relation_storage->loadMultiple());
+    $entity_meta = reset($entity_meta_entities);
+    // The first entity meta created so its ID should be 1.
+    $this->assertEquals(1, $entity_meta->id());
+
+    // Color was properly saved.
+    $this->assertEquals($entity_meta->get('field_color')->value, 'red');
+    // Status was properly set.
+    $this->assertFalse($entity_meta->get('status')->value);
+    $this->assertEquals(1, $entity_meta->getRevisionId());
+
+    // Edit the node and set the color to None.
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->getSession()->getPage()->fillField('Title', 'Node example 2');
+    $this->getSession()->getPage()->checkField('Published');
+    $this->getSession()->getPage()->selectFieldOption('Color', '- None -');
+    $this->getSession()->getPage()->pressButton('Save');
+    $node_updated = $this->getEntityByLabel('node', 'Node example 2');
+    $entity_meta_relation_storage->resetCache();
+    $entity_meta_entities = $entity_meta_storage->getRelatedMetaEntities($node_updated);
+    // There should be no entity meta for this node revision.
+    $this->assertEmpty($entity_meta_entities);
+
+    // There should still be only one revision of entity meta relations.
+    $entity_meta_relations = $entity_meta_relation_storage->loadMultiple();
+    $this->assertCount(1, $entity_meta_relations);
+    $entity_meta_relation = reset($entity_meta_relations);
+    $this->assertCount(1, $entity_meta_relation_storage->revisionIds($entity_meta_relation));
+
+    // Edit the node again and set another color.
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->getSession()->getPage()->fillField('Title', 'Node example 3');
+    $this->getSession()->getPage()->checkField('Published');
+    $this->getSession()->getPage()->selectFieldOption('Color', 'green');
+    $this->getSession()->getPage()->pressButton('Save');
+    $node_updated = $this->getEntityByLabel('node', 'Node example 3');
+    $entity_meta_relation_storage->resetCache();
+    $entity_meta_entities = $entity_meta_storage->getRelatedMetaEntities($node_updated);
+    // There should be 1 entity meta for this node revision with the new color.
+    $this->assertCount(1, $entity_meta_entities);
+    $entity_meta = reset($entity_meta_entities);
+    // Color on this entity meta was properly saved.
+    $this->assertEquals($entity_meta->get('field_color')->value, 'green');
+    // This entity meta referenced on this revision is brand new because the
+    // previous content revision did not reference one.
+    $this->assertEquals(2, $entity_meta->id());
+
+    // Load the previous content revision which had the entity meta with the
+    // color red.
+    $node = $this->container->get('entity_type.manager')->getStorage('node')->loadRevision(1);
+    $entity_meta_entities = $entity_meta_storage->getRelatedMetaEntities($node);
+    $this->assertCount(1, $entity_meta_entities);
+    $entity_meta = reset($entity_meta_entities);
+    $this->assertEquals(1, $entity_meta->id());
+    $this->assertEquals($entity_meta->get('field_color')->value, 'red');
   }
 
   /**

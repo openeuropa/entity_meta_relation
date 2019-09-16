@@ -64,7 +64,10 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
     $entity->setHostEntity($host_entity);
 
     if ($this->shouldRemoveRelation($entity)) {
-      $this->entityTypeManager->getStorage('entity_meta')->unlinkRelation($entity, $host_entity);
+      /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+      $entity_meta_storage = $this->entityTypeManager->getStorage('entity_meta');
+      $entity_meta_storage->unlinkRelation($entity, $host_entity);
+      return;
     }
 
     if (!$this->shouldSaveEntity($entity)) {
@@ -84,7 +87,9 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
    *   Whether it should save or not.
    */
   protected function shouldSaveEntity(EntityMetaInterface $entity): bool {
-    $change_fields = $this->entityTypeManager->getStorage('entity_meta')->getChangeFields($entity);
+    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = $this->entityTypeManager->getStorage('entity_meta');
+    $change_fields = $entity_meta_storage->getChangeFields($entity);
     foreach ($change_fields as $field) {
       if (!$entity->get($field)->isEmpty()) {
         return TRUE;
@@ -94,8 +99,22 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
     return FALSE;
   }
 
+  /**
+   * Checks whether the relation to this content entity should be removed.
+   *
+   * In case none of the "change" fields have values, the entity meta should
+   * be unlinked from this revision of the content entity.
+   *
+   * @param \Drupal\emr\Entity\EntityMetaInterface $entity
+   *   The entity meta entity.
+   *
+   * @return bool
+   *   Whether it should remove it or not.
+   */
   protected function shouldRemoveRelation(EntityMetaInterface $entity): bool {
-    $change_fields = $this->entityTypeManager->getStorage('entity_meta')->getChangeFields($entity);
+    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = $this->entityTypeManager->getStorage('entity_meta');
+    $change_fields = $entity_meta_storage->getChangeFields($entity);
     $remove = TRUE;
 
     foreach ($change_fields as $field) {
