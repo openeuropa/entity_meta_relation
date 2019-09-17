@@ -104,11 +104,11 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     }
 
     $revision_id = key($ids);
-    /** @var \Drupal\Core\Entity\RevisionableInterface $revision */
-    $revision = $entity_meta_relation_storage->loadRevision($revision_id);
+    /** @var \Drupal\Core\Entity\RevisionableInterface $entity_meta_relation */
+    $entity_meta_relation = $entity_meta_relation_storage->loadRevision($revision_id);
 
     // Load all the revision IDs of this entity meta relation.
-    $revision_ids = $entity_meta_relation_storage->revisionIds($revision);
+    $revision_ids = $entity_meta_relation_storage->revisionIds($entity_meta_relation);
 
     // Keep track of the last revision ID because this is the one we want
     // to delete.
