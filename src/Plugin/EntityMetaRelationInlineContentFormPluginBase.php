@@ -21,7 +21,9 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
     $key = $this->getFormKey();
     $this->buildFormContainer($form, $form_state, $key);
 
-    $entity_meta_entities = $this->entityTypeManager->getStorage('entity_meta')->getBundledRelatedMetaEntities($entity);
+    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = $this->entityTypeManager->getStorage('entity_meta');
+    $entity_meta_entities = $entity_meta_storage->getBundledRelatedMetaEntities($entity);
     $pluginDefinition = $this->getPluginDefinition();
     $entity_meta_bundle = $pluginDefinition['entity_meta_bundle'];
 
@@ -61,6 +63,13 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
     $host_entity->isPublished() ? $entity->enable() : $entity->disable();
     $entity->setHostEntity($host_entity);
 
+    if ($this->shouldRemoveRelation($entity)) {
+      /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+      $entity_meta_storage = $this->entityTypeManager->getStorage('entity_meta');
+      $entity_meta_storage->unlinkRelation($entity, $host_entity);
+      return;
+    }
+
     if (!$this->shouldSaveEntity($entity)) {
       return;
     }
@@ -78,7 +87,9 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
    *   Whether it should save or not.
    */
   protected function shouldSaveEntity(EntityMetaInterface $entity): bool {
-    $change_fields = $this->entityTypeManager->getStorage('entity_meta')->getChangeFields($entity);
+    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = $this->entityTypeManager->getStorage('entity_meta');
+    $change_fields = $entity_meta_storage->getChangeFields($entity);
     foreach ($change_fields as $field) {
       if (!$entity->get($field)->isEmpty()) {
         return TRUE;
@@ -86,6 +97,34 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
     }
 
     return FALSE;
+  }
+
+  /**
+   * Checks whether the relation to this content entity should be removed.
+   *
+   * In case none of the "change" fields have values, the entity meta should
+   * be unlinked from this revision of the content entity.
+   *
+   * @param \Drupal\emr\Entity\EntityMetaInterface $entity
+   *   The entity meta entity.
+   *
+   * @return bool
+   *   Whether it should remove it or not.
+   */
+  protected function shouldRemoveRelation(EntityMetaInterface $entity): bool {
+    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = $this->entityTypeManager->getStorage('entity_meta');
+    $change_fields = $entity_meta_storage->getChangeFields($entity);
+    $remove = TRUE;
+
+    foreach ($change_fields as $field) {
+      if (!$entity->get($field)->isEmpty()) {
+        $remove = FALSE;
+        break;
+      }
+    }
+
+    return $remove;
   }
 
 }
