@@ -42,6 +42,13 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
   /**
    * {@inheritdoc}
    */
+  public function preSubmit(array $form, FormStateInterface $form_state): void {
+    // By default entities are not presubmitted.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function submit(array $form, FormStateInterface $form_state): void {
     $host_entity = $form_state->getFormObject()->getEntity();
 

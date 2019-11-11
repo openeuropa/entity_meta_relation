@@ -79,6 +79,7 @@ class ContentFormHandlerBase implements ContentFormHandlerInterface {
     }
 
     if ($entity_meta_forms_added) {
+      array_unshift($form['actions']['submit']['#submit'], [$this, 'presubmitFormElements']);
       $form['actions']['submit']['#submit'][] = [$this, 'submitFormElements'];
     }
 
@@ -88,7 +89,33 @@ class ContentFormHandlerBase implements ContentFormHandlerInterface {
   /**
    * {@inheritdoc}
    */
+  public function presubmitFormElements(array &$form, FormStateInterface $form_state): void {
+    $this->invokePluginSubmission($form, $form_state, 'presubmit');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function submitFormElements(array &$form, FormStateInterface $form_state): void {
+    $this->invokePluginSubmission($form, $form_state);
+  }
+
+  /**
+   * Invokes plugin submission.
+   *
+   * By default this calls the submit callback, but the function name can be
+   * passed as an argument.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $callbackFunction
+   *   Invokes a different callback function for the submission.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   */
+  protected function invokePluginSubmission(array &$form, FormStateInterface $form_state, $callbackFunction = 'submit'): void {
     $entity = $form_state->getFormObject()->getEntity();
 
     $plugins = $this->pluginManager->getDefinitions();
@@ -100,7 +127,7 @@ class ContentFormHandlerBase implements ContentFormHandlerInterface {
       /** @var \Drupal\emr\Plugin\EntityMetaRelationPluginInterface $plugin */
       $plugin = $this->pluginManager->createInstance($id);
       if ($plugin instanceof EntityMetaRelationContentFormPluginInterface && $plugin->applies($entity)) {
-        $plugin->submit($form, $form_state);
+        $plugin->$callbackFunction($form, $form_state);
       }
     }
   }
