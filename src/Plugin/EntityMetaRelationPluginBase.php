@@ -91,7 +91,7 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
     $target_content_bundles = $content_field_definition->getSetting('handler_settings')['target_bundles'];
     // If current content bundle is not available in the relationship,
     // the plugin does not apply.
-    if (!in_array($entity->bundle(), $target_content_bundles)) {
+    if (!empty($target_content_bundles) && !in_array($entity->bundle(), $target_content_bundles)) {
       return FALSE;
     }
 
