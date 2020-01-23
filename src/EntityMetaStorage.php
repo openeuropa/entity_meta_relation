@@ -259,27 +259,29 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity to look for related entities.
-   * @param string|null $entity_type
+   * @param string|null $entity_type_id
    *   The entity type in case we're looking for content entities.
    *
    * @return \Drupal\Core\Entity\ContentEntityInterface[]
    *   The related entities.
    */
-  protected function getRelatedEntities(ContentEntityInterface $entity, string $entity_type = NULL): array {
-    if (!$entity_type) {
+  protected function getRelatedEntities(ContentEntityInterface $entity, string $entity_type_id = NULL): array {
+    if (!$entity_type_id) {
       $entity_type = $entity->getEntityType();
     }
     else {
-      $entity_type = $this->entityTypeManager->getDefinition($entity_type);
+      $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
     }
 
     $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
     $entity_meta_relation_meta_field = $entity_type->get('entity_meta_relation_meta_field');
 
+    $relation_field = (empty($entity_type_id) || $entity_type_id === 'entity_meta') ? $entity_meta_relation_content_field : $entity_meta_relation_meta_field;
+
     /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
     $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $ids = $entity_meta_relation_storage->getQuery()
-      ->condition($entity_meta_relation_content_field . '.target_revision_id', $entity->getRevisionId())
+      ->condition($relation_field . '.target_revision_id', $entity->getRevisionId())
       ->allRevisions()
       ->execute();
 

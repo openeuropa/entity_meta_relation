@@ -52,16 +52,23 @@ class EntityMetaRelationTest extends KernelTestBase {
     /** @var \Drupal\node\NodeStorageInterface $node_storage */
     $node_storage = $this->container->get('entity_type.manager')->getStorage('node');
 
-    /** @var \Drupal\node\NodeInterface $node */
-    $node = $node_storage->create([
+    /** @var \Drupal\node\NodeInterface $first_node */
+    $first_node = $node_storage->create([
       'type' => 'entity_meta_example',
       'title' => 'Node test',
     ]);
-    $node->save();
-    $this->assertEquals(1, $node->getRevisionId());
+    $first_node->save();
+    $this->assertEquals(1, $first_node->getRevisionId());
+
+    $second_node = $node_storage->create([
+      'type' => 'entity_meta_example',
+      'title' => 'Node test',
+    ]);
+    $second_node->save();
+    $this->assertEquals(2, $second_node->getRevisionId());
 
     // Asserts that node has no relations.
-    $entity_meta_relations = $entity_meta_storage->getRelatedMetaEntities($node);
+    $entity_meta_relations = $entity_meta_storage->getRelatedMetaEntities($second_node);
     $this->assertEmpty($entity_meta_relations);
 
     // Create entity meta for bundle "visual".
@@ -83,7 +90,7 @@ class EntityMetaRelationTest extends KernelTestBase {
 
     // Set a host entity onto the entity meta and re-save to make a relationship
     // between the two.
-    $entity_meta->setHostEntity($node);
+    $entity_meta->setHostEntity($second_node);
     $entity_meta->save();
 
     // No entity meta values have been changed so no new revision should have
@@ -104,30 +111,30 @@ class EntityMetaRelationTest extends KernelTestBase {
     // entity meta relation entity.
     $this->assertEqual(1, $entity_meta_relation->get('emr_meta_revision')->target_id);
     $this->assertEqual(1, $entity_meta_relation->get('emr_meta_revision')->target_revision_id);
-    $this->assertEqual(1, $entity_meta_relation->get('emr_node_revision')->target_id);
-    $this->assertEqual(1, $entity_meta_relation->get('emr_node_revision')->target_revision_id);
+    $this->assertEqual(2, $entity_meta_relation->get('emr_node_revision')->target_id);
+    $this->assertEqual(2, $entity_meta_relation->get('emr_node_revision')->target_revision_id);
 
     // Check that the storage method for finding related meta entities works.
-    $related_entity_meta_entities = $entity_meta_storage->getRelatedMetaEntities($node);
+    $related_entity_meta_entities = $entity_meta_storage->getRelatedMetaEntities($second_node);
     $this->assertCount(1, $related_entity_meta_entities);
     $this->assertEquals(1, $related_entity_meta_entities[1]->getRevisionId());
 
     // Update the node alone and check that the relation was updated to point
     // to the new node revision.
-    $node->set('title', 'Node test updated');
-    $node->setNewRevision(TRUE);
-    $node->save();
+    $second_node->set('title', 'Node test updated');
+    $second_node->setNewRevision(TRUE);
+    $second_node->save();
     $node_storage->resetCache();
-    $node_new = $node_storage->loadRevision($node_storage->getLatestRevisionId($node->id()));
-    $this->assertEquals(2, $node_new->getRevisionId());
+    $node_new = $node_storage->loadRevision($node_storage->getLatestRevisionId($second_node->id()));
+    $this->assertEquals(3, $node_new->getRevisionId());
     // Only one entity meta relation entities should still exist.
     $entity_meta_relation_storage->resetCache();
     $this->assertCount(1, $entity_meta_relation_storage->loadMultiple());
     $entity_meta_relation = $entity_meta_relation_storage->load(1);
     $this->assertEqual(1, $entity_meta_relation->get('emr_meta_revision')->target_id);
     $this->assertEqual(1, $entity_meta_relation->get('emr_meta_revision')->target_revision_id);
-    $this->assertEqual(1, $entity_meta_relation->get('emr_node_revision')->target_id);
-    $this->assertEqual(2, $entity_meta_relation->get('emr_node_revision')->target_revision_id);
+    $this->assertEqual(2, $entity_meta_relation->get('emr_node_revision')->target_id);
+    $this->assertEqual(3, $entity_meta_relation->get('emr_node_revision')->target_revision_id);
 
     // Check that the storage method for finding related meta entities works.
     $related_entity_meta_entities = $entity_meta_storage->getRelatedMetaEntities($node_new);
@@ -138,16 +145,16 @@ class EntityMetaRelationTest extends KernelTestBase {
     $entity_meta->set('field_color', 'green');
     $entity_meta->save();
     $node_storage->resetCache();
-    $node_new = $node_storage->loadRevision($node_storage->getLatestRevisionId($node->id()));
+    $node_new = $node_storage->loadRevision($node_storage->getLatestRevisionId($second_node->id()));
     // No change in the node itself.
-    $this->assertEquals(2, $node_new->getRevisionId());
+    $this->assertEquals(3, $node_new->getRevisionId());
     $entity_meta_relation_storage->resetCache();
     $this->assertCount(1, $entity_meta_relation_storage->loadMultiple());
     $entity_meta_relation = $entity_meta_relation_storage->load(1);
     $this->assertEqual(1, $entity_meta_relation->get('emr_meta_revision')->target_id);
     $this->assertEqual(2, $entity_meta_relation->get('emr_meta_revision')->target_revision_id);
-    $this->assertEqual(1, $entity_meta_relation->get('emr_node_revision')->target_id);
-    $this->assertEqual(2, $entity_meta_relation->get('emr_node_revision')->target_revision_id);
+    $this->assertEqual(2, $entity_meta_relation->get('emr_node_revision')->target_id);
+    $this->assertEqual(3, $entity_meta_relation->get('emr_node_revision')->target_revision_id);
 
     // Check that the storage method for finding related meta entities works.
     $related_entity_meta_entities = $entity_meta_storage->getRelatedMetaEntities($node_new);
@@ -160,7 +167,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $node = reset($nodes);
     // We used the latest entity meta to retrieve the related nodes, so the
     // revision ID of the retrieved node should be the latest.
-    $this->assertEqual(2, $node->getRevisionId());
+    $this->assertEqual(3, $node->getRevisionId());
 
     // Check that we can retrieve the related content entities of a meta entity
     // also using older revisions.
@@ -168,7 +175,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $nodes = $entity_meta_storage->getRelatedContentEntities($entity_meta, 'node');
     $this->assertCount(1, $nodes);
     $node = reset($nodes);
-    $this->assertEqual(1, $node->getRevisionId());
+    $this->assertEqual(2, $node->getRevisionId());
 
     // Check that the storage method for finding related meta entities works
     // also with older revisions.
