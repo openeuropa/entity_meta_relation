@@ -164,6 +164,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       // Set the host entity so that self::postSave() can know which entity is
       // actually being updated.
       $entity_meta->setHostEntity($entity);
+      $entity_meta->isDefaultRevision($entity->isDefaultRevision());
       $entity_meta->save();
     }
   }
