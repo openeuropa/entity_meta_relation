@@ -297,7 +297,6 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     $related_entities = [];
     // If we are looking for related EntityMeta entities, we use the field that
     // relate to the content entities and vice-versa.
-    $relation_field = $entity instanceof EntityMetaInterface ? $entity_meta_relation_content_field : $entity_meta_relation_meta_field;
     foreach ($entity_meta_relations as $relation) {
 
       // Avoid loading revisions of wrong bundle.
