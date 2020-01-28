@@ -277,10 +277,13 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
     $entity_meta_relation_meta_field = $entity_type->get('entity_meta_relation_meta_field');
 
+    $relation_field = $entity instanceof EntityMetaInterface ? $entity_meta_relation_meta_field : $entity_meta_relation_content_field;
+    $reverse_relation_field = $entity instanceof EntityMetaInterface ? $entity_meta_relation_content_field : $entity_meta_relation_meta_field;
+
     /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
     $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $ids = $entity_meta_relation_storage->getQuery()
-      ->condition($entity_meta_relation_content_field . '.target_revision_id', $entity->getRevisionId())
+      ->condition($relation_field . '.target_revision_id', $entity->getRevisionId())
       ->allRevisions()
       ->execute();
 
@@ -294,9 +297,14 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     $related_entities = [];
     // If we are looking for related EntityMeta entities, we use the field that
     // relate to the content entities and vice-versa.
-    $relation_field = $entity instanceof EntityMetaInterface ? $entity_meta_relation_content_field : $entity_meta_relation_meta_field;
     foreach ($entity_meta_relations as $relation) {
-      $entity = $relation->get($relation_field)->entity;
+
+      // Avoid loading revisions of wrong bundle.
+      if (!$relation->hasField($reverse_relation_field)) {
+        continue;
+      }
+
+      $entity = $relation->get($reverse_relation_field)->entity;
       $related_entities[$entity->id()] = $entity;
     }
 
