@@ -85,6 +85,52 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
   /**
    * {@inheritdoc}
    */
+  public function delete(array $entities) {
+    parent::delete($entities);
+
+    // For each entity meta that we delete, we make sure we delete all the
+    // associated entity meta relation entities. This is because once an entity
+    // meta is deleted for any reason, there is no more relation that needs to
+    // existing between it and any content entity.
+    /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
+    $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
+    $entity_meta_relation_fields = [];
+    // Determine the field names that reference the entity metas.
+    // @todo move this to a base field as it will always be the same field.
+    foreach ($this->entityTypeManager->getDefinitions() as $definition) {
+      if ($definition->get('entity_meta_relation_meta_field')) {
+        $entity_meta_relation_fields[] = $definition->get('entity_meta_relation_meta_field');
+      }
+    }
+
+    $entity_meta_relation_fields = array_unique($entity_meta_relation_fields);
+
+    // Get the entity meta IDs being deleted.
+    $entity_meta_ids = [];
+    foreach ($entities as $entity) {
+      $entity_meta_ids[] = $entity->id();
+    }
+
+    foreach ($entity_meta_relation_fields as $field_name) {
+      $ids = $entity_meta_relation_storage->getQuery()
+        ->condition("{$field_name}.target_id", $entity_meta_ids, 'IN')
+        ->execute();
+
+      if (!$ids) {
+        // This should not happen normally as relations should exist for entity
+        // metas.
+        continue;
+      }
+
+      // Delete all the associated relation entities.
+      $entity_meta_relations = $entity_meta_relation_storage->loadMultiple($ids);
+      $entity_meta_relation_storage->delete($entity_meta_relations);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function unlinkRelation(EntityMetaInterface $entity_meta, ContentEntityInterface $content_entity): void {
     $content_entity_type = $content_entity->getEntityType();
     /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
@@ -229,10 +275,6 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       if ($entity instanceof EntityMetaInterface) {
         $entity->delete();
       }
-    }
-
-    foreach ($entity_meta_relations as $relation) {
-      $relation->delete();
     }
   }
 

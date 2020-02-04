@@ -7,7 +7,6 @@ use Drupal\KernelTests\KernelTestBase;
 /**
  * Tests that the entity meta and entity meta relation entities are handled.
  *
- * @todo test the content entity deletes the metas
  * @todo test no relation duplicates are created
  */
 class EntityMetaRelationTest extends KernelTestBase {
@@ -187,6 +186,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     // Check that if we delete a content entity which has meta relations, they
     // get deleted as well.
     $node->delete();
+    $entity_meta_storage->resetCache();
     $this->assertEmpty($entity_meta_storage->loadMultiple());
     $this->assertEmpty($entity_meta_relation_storage->loadMultiple());
   }
