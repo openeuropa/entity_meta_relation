@@ -1,5 +1,18 @@
 # Change Log
 
+## [8.x-1.0-beta2](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta2) (2020-02-04)
+[Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta1...8.x-1.0-beta2)
+
+**Merged pull requests:**
+
+- OPENEUROPA-2777: Trigger and entity meta relation delete whenever an entity meta is deleted [\#18](https://github.com/openeuropa/entity_meta_relation/pull/18) ([upchuk](https://github.com/upchuk))
+- OPENEUROPA-2651: Fix bug with getRelatedEntities\(\). [\#17](https://github.com/openeuropa/entity_meta_relation/pull/17) ([hernani](https://github.com/hernani))
+- OPENEUROPA-2650: Handle default revision correctly. [\#15](https://github.com/openeuropa/entity_meta_relation/pull/15) ([hernani](https://github.com/hernani))
+- OPENEUROPA-2649: Support content entities without bundles. [\#14](https://github.com/openeuropa/entity_meta_relation/pull/14) ([hernani](https://github.com/hernani))
+- OPENEUROPA-2258: Undo use of PHP 7.2. [\#11](https://github.com/openeuropa/entity_meta_relation/pull/11) ([dxvargas](https://github.com/dxvargas))
+- OPENEUROPA-2258: Use PHP 7.2 in drone and docker image. [\#10](https://github.com/openeuropa/entity_meta_relation/pull/10) ([dxvargas](https://github.com/dxvargas))
+- OPENEUROPA-2258: Use PHP 7.2 in drone and docker image. [\#8](https://github.com/openeuropa/entity_meta_relation/pull/8) ([dxvargas](https://github.com/dxvargas))
+
 ## [8.x-1.0-beta1](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta1) (2019-10-17)
 **Merged pull requests:**
 
