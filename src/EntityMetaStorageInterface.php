@@ -87,6 +87,9 @@ interface EntityMetaStorageInterface extends EntityStorageInterface {
   /**
    * Deletes all the related meta entities.
    *
+   * We don't need to delete the relation entities because those are deleted
+   * in turn when an entity meta is deleted.
+   *
    * @param \Drupal\Core\Entity\ContentEntityInterface $content_entity
    *   The content entity.
    *
