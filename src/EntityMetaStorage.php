@@ -235,14 +235,14 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
   public function getBundledRelatedMetaEntities(ContentEntityInterface $content_entity): array {
     $relations = [];
 
-    $related_meta_entities = $this->getRelatedMetaEntities($content_entity);
+    $related_meta_entities = $content_entity->get('emr');
     if (!$related_meta_entities) {
       return [];
     }
 
     // Group referenced entities per bundle.
     foreach ($related_meta_entities as $meta_entity) {
-      $relations[$meta_entity->bundle()][] = $meta_entity;
+      $relations[$meta_entity->entity->bundle()][] = $meta_entity->entity;
     }
 
     return $relations;
