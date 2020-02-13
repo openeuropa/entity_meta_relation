@@ -7,9 +7,7 @@
 
 declare(strict_types = 1);
 
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\ContentEntityForm;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Form\FormStateInterface;
@@ -56,48 +54,13 @@ function emr_entity_base_field_info(EntityTypeInterface $entity_type) {
   }
 
   // Add emr computed field to have the related entity metas.
-  $fields['emr'] = BaseFieldDefinition::create('entity_reference')
-    ->setName('emr')
-    ->setLabel(t('Emr'))
+  $fields['emr_entity_metas'] = BaseFieldDefinition::create('entity_reference_revisions')
+    ->setName('emr_entity_metas')
+    ->setLabel(t('Emr entity metas'))
     ->setComputed(TRUE)
-    ->setClass('\Drupal\emr\EmrItemList')
+    ->setClass('\Drupal\emr\EmrEntityMetasItemList')
+    ->setSetting('target_type', 'entity_meta')
     ->setDisplayConfigurable('view', FALSE);
 
   return $fields;
-}
-
-/**
- * Implements hook_entity_update().
- */
-function emr_entity_update(EntityInterface $entity) {
-  if (!$entity instanceof ContentEntityInterface) {
-    return;
-  }
-
-  $entity_type = $entity->getEntityType();
-  if (!$entity_type->get('entity_meta_relation_bundle')) {
-    return;
-  }
-
-  /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
-  $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
-  $storage->updateEntityMetaRelated($entity);
-}
-
-/**
- * Implements hook_entity_delete().
- */
-function emr_entity_delete(EntityInterface $entity) {
-  if (!$entity instanceof ContentEntityInterface) {
-    return;
-  }
-
-  $entity_type = $entity->getEntityType();
-  if (!$entity_type->get('entity_meta_relation_bundle')) {
-    return;
-  }
-
-  /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
-  $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
-  $storage->deleteAllRelatedMetaEntities($entity);
 }

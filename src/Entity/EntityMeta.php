@@ -116,7 +116,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
    * {@inheritdoc}
    */
   public function setHostEntity(ContentEntityInterface $entity = NULL): EntityMetaInterface {
-    $this->hostEntity = $entity;
+    $this->set('emr_host_entity', $entity);
     return $this;
   }
 
@@ -124,7 +124,13 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
    * {@inheritdoc}
    */
   public function getHostEntity(): ?ContentEntityInterface {
-    return $this->hostEntity;
+    $host_entity = $this->get('emr_host_entity');
+
+    if (!$host_entity->isEmpty()) {
+      return $host_entity->first()->entity;
+    }
+
+    return NULL;
   }
 
   /**
@@ -176,6 +182,14 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity meta was last edited.'));
+
+    // Add emr computed field to have the related entity metas.
+    $fields['emr_host_entity'] = BaseFieldDefinition::create('entity_reference_revisions')
+      ->setName('Emr host name')
+      ->setLabel(t('Emr host name'))
+      ->setComputed(TRUE)
+      ->setClass('\Drupal\emr\EmrHostEntityItemList')
+      ->setDisplayConfigurable('view', FALSE);
 
     return $fields;
   }

@@ -79,7 +79,8 @@ class ContentFormHandlerBase implements ContentFormHandlerInterface {
     }
 
     if ($entity_meta_forms_added) {
-      $form['actions']['submit']['#submit'][] = [$this, 'submitFormElements'];
+      // Add submissions of entity meta before entity is saved.
+      array_unshift($form['actions']['submit']['#submit'], [$this, 'submitFormElements']);
     }
 
     return $form;

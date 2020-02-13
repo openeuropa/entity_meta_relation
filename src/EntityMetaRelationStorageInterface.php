@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Drupal\emr;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\emr\Entity\EntityMetaRelationInterface;
 
@@ -22,5 +23,16 @@ interface EntityMetaRelationStorageInterface extends EntityStorageInterface {
    *   The revision IDs (in ascending order).
    */
   public function revisionIds(EntityMetaRelationInterface $entity_meta_relation): array;
+
+  /**
+   * Return content field id used for this relation.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The entity.
+   *
+   * @return string|null
+   *   The field name.
+   */
+  public function getContentFieldName(ContentEntityInterface $entity): ?string;
 
 }
