@@ -50,8 +50,8 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
 
         $id = $value->uuid();
 
-        if (!isset($this->list[$delta])) {
-          $this->list[$id] = $this->createItem($delta, $value);
+        if (!isset($this->list[$id])) {
+          $this->list[$id] = $this->createItem($id, $value);
         }
         else {
           $this->list[$id]->setValue($value, FALSE);
