@@ -16,6 +16,8 @@ class EntityMetaRelationTest extends KernelTestBase {
    */
   protected static $modules = [
     'entity_meta_example',
+    'entity_meta_audio',
+    'entity_meta_visual',
     'emr',
     'emr_node',
     'node',
@@ -37,7 +39,10 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->installEntitySchema('entity_meta');
     $this->installEntitySchema('entity_meta_relation');
     $this->installSchema('node', 'node_access');
-    $this->installConfig(['emr', 'emr_node', 'entity_meta_example']);
+    $this->installConfig(
+      ['emr', 'emr_node', 'entity_meta_example',
+        'entity_meta_audio', 'entity_meta_visual',
+      ]);
   }
 
   /**
