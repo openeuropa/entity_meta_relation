@@ -9,7 +9,7 @@ use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 /**
  * Item list for a computed field that stores related entity metas.
  */
-class EmrEntityMetasItemList extends EntityReferenceRevisionsFieldItemList {
+class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList {
 
   use ComputedItemListTrait;
 
@@ -22,8 +22,45 @@ class EmrEntityMetasItemList extends EntityReferenceRevisionsFieldItemList {
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::service('entity_type.manager');
     $entity_metas = $entity_type_manager->getStorage('entity_meta')->getRelatedEntities($entity);
+    /** @var Drupal\emr\Entity\EntityMetaInterface $entity_meta */
     foreach ($entity_metas as $entity_meta_id => $entity_meta) {
-      $this->list[] = $this->createItem(count($this->list), $entity_meta);
+      $id = $entity_meta->uuid();
+      $this->list[$id] = $this->createItem(count($this->list), $entity_meta);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setValue($values, $notify = TRUE) {
+    if (!isset($values) || $values === []) {
+      $this->list = [];
+    }
+    else {
+      // Only arrays are supported.
+      if (!is_array($values)) {
+        $values = [0 => $values];
+      }
+
+      foreach (array_values($values) as $delta => $value) {
+
+        if (!$value instanceof EntityMetaInterface) {
+          continue;
+        }
+
+        $id = $value->uuid();
+
+        if (!isset($this->list[$delta])) {
+          $this->list[$id] = $this->createItem($delta, $value);
+        }
+        else {
+          $this->list[$id]->setValue($value, FALSE);
+        }
+      }
+    }
+    // Notify the parent of any changes.
+    if ($notify && isset($this->parent)) {
+      $this->parent->onChange($this->name);
     }
   }
 

@@ -58,7 +58,7 @@ function emr_entity_base_field_info(EntityTypeInterface $entity_type) {
     ->setName('emr_entity_metas')
     ->setLabel(t('Emr entity metas'))
     ->setComputed(TRUE)
-    ->setClass('\Drupal\emr\EmrEntityMetasItemList')
+    ->setClass('\Drupal\emr\ComputedEntityMetasItemList')
     ->setSetting('target_type', 'entity_meta')
     ->setDisplayConfigurable('view', FALSE);
 

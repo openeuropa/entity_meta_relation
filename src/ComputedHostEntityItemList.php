@@ -8,7 +8,7 @@ use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 /**
  * Item list for a computed field that stores related host entity.
  */
-class EmrHostEntityItemList extends EntityReferenceRevisionsFieldItemList {
+class ComputedHostEntityItemList extends EntityReferenceRevisionsFieldItemList {
 
   use ComputedItemListTrait;
 

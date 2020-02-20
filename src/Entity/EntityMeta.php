@@ -188,7 +188,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
       ->setName('Emr host name')
       ->setLabel(t('Emr host name'))
       ->setComputed(TRUE)
-      ->setClass('\Drupal\emr\EmrHostEntityItemList')
+      ->setClass('\Drupal\emr\ComputedHostEntityItemList')
       ->setDisplayConfigurable('view', FALSE);
 
     return $fields;
