@@ -6,5 +6,7 @@ core: 8.x
 
 dependencies:
   - emr_node:emr_node
+  - entity_meta_visual:entity_meta_visual
+  - entity_meta_audio:entity_meta_audio
   - drupal:options
   - drupal:menu_ui
