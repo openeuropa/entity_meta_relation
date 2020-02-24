@@ -30,6 +30,19 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
   }
 
   /**
+   * Attach entity meta.
+   *
+   * @param \Drupal\emr\Entity\EntityMetaInterface $entity
+   *   The entity meta.
+   */
+  public function attach(EntityMetaInterface $entity): void {
+    $values = $this->list;
+    $id = $entity->uuid();
+    $values[$id] = $entity;
+    $this->setValue($values, TRUE);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function setValue($values, $notify = TRUE) {
@@ -57,6 +70,9 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
           $this->list[$id]->setValue($value, FALSE);
         }
       }
+
+      // Truncate extraneous pre-existing values.
+      $this->list = array_slice($this->list, 0, count($values));
     }
     // Notify the parent of any changes.
     if ($notify && isset($this->parent)) {

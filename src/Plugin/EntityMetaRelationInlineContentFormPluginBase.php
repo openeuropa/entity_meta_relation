@@ -71,7 +71,7 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
       $entity->setNewRevision(TRUE);
     }
 
-    $host_entity->set('emr_entity_metas', $entity);
+    $host_entity->get('emr_entity_metas')->attach($entity);
   }
 
   /**
