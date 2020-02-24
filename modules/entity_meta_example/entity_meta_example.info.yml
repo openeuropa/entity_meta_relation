@@ -8,5 +8,6 @@ dependencies:
   - emr_node:emr_node
   - entity_meta_visual:entity_meta_visual
   - entity_meta_audio:entity_meta_audio
+  - entity_meta_speed:entity_meta_speed
   - drupal:options
   - drupal:menu_ui
