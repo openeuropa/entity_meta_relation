@@ -18,6 +18,7 @@ use Drupal\emr\Plugin\EntityMetaRelationContentFormPluginBase;
  *   label = @Translation("Speed"),
  *   entity_meta_bundle = "speed",
  *   content_form = TRUE,
+ *   entity_meta_wrapper_class = "\Drupal\entity_meta_speed\SpeedEntityMetaWrapper",
  *   description = @Translation("Speed.")
  * )
  */
@@ -37,25 +38,8 @@ class SpeedConfiguration extends EntityMetaRelationContentFormPluginBase {
   protected function buildEntity(FormStateInterface $form_state): ?EntityMetaInterface {
     /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
     $entity = $form_state->getFormObject()->getEntity();
-
-    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
-    $entity_meta_storage = $this->entityTypeManager->getStorage('entity_meta');
-
-    $entity_meta_entities = $entity_meta_storage->getBundledRelatedMetaEntities($entity);
-    $pluginDefinition = $this->getPluginDefinition();
-    $entity_meta_bundle = $pluginDefinition['entity_meta_bundle'];
-
-    if (empty($entity_meta_entities[$entity_meta_bundle])) {
-      $entity_meta = $entity_meta_storage->create([
-        'bundle' => $entity_meta_bundle,
-        'status' => $entity->isPublished(),
-      ]);
-    }
-    else {
-      $entity_meta = $entity_meta_entities[$entity_meta_bundle][0];
-    }
-
-    $entity_meta->set('field_gear', $form_state->getValue('gear'));
+    $entity_meta = $this->entityMetaStorage->getSingleEntityMeta($entity, $this->getPluginDefinition()['entity_meta_bundle']);
+    $entity_meta->getWrapper()->setGear($form_state->getValue('gear'));
     $entity_meta->setHostEntity($entity);
     $entity_meta->isDefaultRevision($entity->isDefaultRevision());
     return $entity_meta;
@@ -65,24 +49,20 @@ class SpeedConfiguration extends EntityMetaRelationContentFormPluginBase {
    * {@inheritdoc}
    */
   public function build(array $form, FormStateInterface $form_state, ContentEntityInterface $entity): array {
-    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
-    $entity_meta_storage = $this->entityTypeManager->getStorage('entity_meta');
-
-    $entity_meta_bundle = $this->getPluginDefinition()['entity_meta_bundle'];
-    $entity_meta_entities = $entity_meta_storage->getBundledRelatedMetaEntities($entity);
+    $entity_meta = $this->entityMetaStorage->getSingleEntityMeta($entity, $this->getPluginDefinition()['entity_meta_bundle']);
 
     // Get possible values.
     $field_definitions = $this->entityFieldManager->getFieldStorageDefinitions('entity_meta');
     $options = options_allowed_values($field_definitions['field_gear'], $entity);
 
     // Add none option.
-    $options = array_merge(['' => $this->t('None')], $options);
+    $options = array_merge(['' => $this->t('- None -')], $options);
     $key = $this->getFormKey();
     $this->buildFormContainer($form, $form_state, $key);
     $form[$key]['referenced_meta']['gear'] = [
       '#type' => 'select',
       '#options' => $options,
-      '#default_value' => $entity_meta_entities[$entity_meta_bundle][0]->field_gear->value ?? '',
+      '#default_value' => $entity_meta->getWrapper()->getGear() ?? '',
       '#title' => $this->t('Gear'),
     ];
 
@@ -98,8 +78,11 @@ class SpeedConfiguration extends EntityMetaRelationContentFormPluginBase {
       return;
     }
 
-    $host_entity = $form_state->getFormObject()->getEntity();
+    if (!$this->entityMetaStorage->shouldSaveEntity($entity_meta)) {
+      return;
+    }
 
+    $host_entity = $form_state->getFormObject()->getEntity();
     $host_entity->get('emr_entity_metas')->attach($entity_meta);
   }
 

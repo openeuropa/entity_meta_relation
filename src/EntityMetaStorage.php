@@ -260,6 +260,41 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
   /**
    * {@inheritdoc}
    */
+  public function getSingleEntityMeta(ContentEntityInterface $entity, string $entity_meta_bundle): EntityMetaInterface {
+    $entity_meta_entities = $this->getBundledRelatedMetaEntities($entity);
+
+    if (empty($entity_meta_entities[$entity_meta_bundle])) {
+      $entity_meta = $this->create([
+        'bundle' => $entity_meta_bundle,
+        'status' => $entity->isPublished(),
+      ]);
+    }
+    else {
+      $entity_meta = $entity_meta_entities[$entity_meta_bundle][0];
+    }
+
+    return $entity_meta;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function shouldSaveEntity(EntityMetaInterface $entity): bool {
+    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = $this->entityTypeManager->getStorage('entity_meta');
+    $change_fields = $entity_meta_storage->getChangeFields($entity);
+    foreach ($change_fields as $field) {
+      if (!$entity->get($field)->isEmpty()) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function shouldMakeRevision(EntityMetaInterface $entity): bool {
     if ($entity->isNew()) {
       return TRUE;

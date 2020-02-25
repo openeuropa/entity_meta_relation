@@ -23,6 +23,21 @@ interface EntityMetaStorageInterface extends EntityStorageInterface {
   public function getBundledRelatedMetaEntities(ContentEntityInterface $entity): array;
 
   /**
+   * Returns the unique entity meta from the passed bundle.
+   *
+   * In case an entity meta is not available it initiates one.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The content entity.
+   * @param string $entity_meta_bundle
+   *   The entity meta bundle.
+   *
+   * @return \Drupal\emr\Entity\EntityMetaInterface
+   *   The EntityMeta entity
+   */
+  public function getSingleEntityMeta(ContentEntityInterface $entity, string $entity_meta_bundle): EntityMetaInterface;
+
+  /**
    * Queries and returns for related entities.
    *
    * This can either be from the direction of an EntityMeta (returning related
@@ -79,5 +94,16 @@ interface EntityMetaStorageInterface extends EntityStorageInterface {
    *   Whether it should make a new revision.
    */
   public function shouldMakeRevision(EntityMetaInterface $entity): bool;
+
+  /**
+   * Checks whether the meta entity should be saved or not.
+   *
+   * @param \Drupal\emr\Entity\EntityMetaInterface $entity
+   *   The entity meta entity.
+   *
+   * @return bool
+   *   Whether it should save or not.
+   */
+  public function shouldSaveEntity(EntityMetaInterface $entity): bool;
 
 }

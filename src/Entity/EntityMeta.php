@@ -9,6 +9,8 @@ use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\emr\EntityMetaWrapper;
+use Drupal\emr\EntityMetaWrapperFactory;
 
 /**
  * Defines the entity meta entity class.
@@ -75,6 +77,21 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   protected $hostEntity;
 
   /**
+   * The entity meta wrapper.
+   *
+   * @var \Drupal\emr\EntityMetaWrapper
+   */
+  protected $entityMetaWrapper;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $values, $entity_type, $bundle = FALSE, $translations = []) {
+    parent::__construct($values, $entity_type, $bundle, $translations);
+    $this->entityMetaWrapper = EntityMetaWrapperFactory::create($this);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function isEnabled(): bool {
@@ -131,6 +148,16 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
     }
 
     return NULL;
+  }
+
+  /**
+   * Gets the entity meta wrapper for this entity.
+   *
+   * @return \Drupal\emr\EntityMetaWrapper
+   *   The entity meta wrapper.
+   */
+  public function getWrapper(): EntityMetaWrapper {
+    return $this->entityMetaWrapper;
   }
 
   /**

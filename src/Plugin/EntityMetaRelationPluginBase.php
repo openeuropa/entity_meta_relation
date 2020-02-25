@@ -31,12 +31,20 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
   protected $entityTypeManager;
 
   /**
+   * The entity meta storage.
+   *
+   * @var \Drupal\emr\EntityMetaStorageInterface
+   */
+  protected $entityMetaStorage;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityFieldManagerInterface $entity_field_manager, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityFieldManager = $entity_field_manager;
     $this->entityTypeManager = $entity_type_manager;
+    $this->entityMetaStorage = $this->entityTypeManager->getStorage('entity_meta');
   }
 
   /**
