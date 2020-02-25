@@ -62,6 +62,7 @@ class EntityMetaRelationInstaller {
    */
   public function installEntityMetaTypeOnContentEntityType(string $entity_meta_type, string $entity_type, array $bundles = []): void {
     $definition = $this->entityTypeManager->getDefinition($entity_type);
+
     $entity_meta_relation_bundle = $definition->get('entity_meta_relation_bundle');
     $entity_meta_relation_content_field = $definition->get('entity_meta_relation_content_field');
     $entity_meta_relation_meta_field = $definition->get('entity_meta_relation_meta_field');
@@ -87,6 +88,20 @@ class EntityMetaRelationInstaller {
     $handler_settings['target_bundles'] = array_unique(array_merge($handler_settings['target_bundles'], [$entity_meta_type]));
     $field_config->setSetting('handler_settings', $handler_settings);
     $field_config->save();
+
+    // Sets correct 3rd party settings.
+    $bundle_entity_storage = $this->entityTypeManager->getStorage($definition->getBundleEntityType());
+    foreach ($bundles as $bundle_id) {
+      /** @var \Drupal\Core\Config\Entity\ConfigEntityBundleBase $bundle */
+      $bundle = $bundle_entity_storage->load($bundle_id);
+      $entity_meta_bundles = $bundle->getThirdPartySetting('emr', 'entity_meta_bundles');
+      if (empty($entity_meta_bundles) || !in_array($entity_meta_type, $entity_meta_bundles)) {
+        $entity_meta_bundles[] = $entity_meta_type;
+        $bundle->setThirdPartySetting('emr', 'entity_meta_bundles', $entity_meta_bundles);
+        $bundle->save();
+      }
+    }
+
   }
 
 }

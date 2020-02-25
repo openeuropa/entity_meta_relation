@@ -103,6 +103,16 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
       return FALSE;
     }
 
+    // If this entity has a bundle, checks that the plugin is applicable to it.
+    if (!empty($entity->bundle())) {
+      $bundle_storage = $this->entityTypeManager->getStorage($entity->getEntityType()->getBundleEntityType());
+      $bundle = $bundle_storage->load($entity->bundle());
+      $entity_meta_bundles = $bundle->getThirdPartySetting('emr', 'entity_meta_bundles');
+      if (!in_array($this->pluginDefinition['entity_meta_bundle'], $entity_meta_bundles)) {
+        return FALSE;
+      }
+    }
+
     return TRUE;
   }
 
