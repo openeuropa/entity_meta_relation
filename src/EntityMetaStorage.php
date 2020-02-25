@@ -4,16 +4,100 @@ declare(strict_types = 1);
 
 namespace Drupal\emr;
 
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Cache\MemoryCache\MemoryCacheInterface;
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Field\FieldConfigInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\emr\Entity\EntityMetaInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Storage handler for the entity meta entities.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaStorageInterface {
+
+  /**
+   * The entity meta wrapper factory.
+   *
+   * @var \Drupal\emr\EntityMetaWrapperFactoryInterface
+   */
+  protected $entityMetaWrapperFactory;
+
+  /**
+   * Constructs a SqlContentEntityStorage object.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type definition.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database connection to be used.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache
+   *   The cache backend to be used.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   The language manager.
+   * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface|null $memory_cache
+   *   The memory cache backend to be used.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle info.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\emr\EntityMetaWrapperFactoryInterface $entity_meta_wrapper_factory
+   *   The entity meta wrapper factory.
+   */
+  public function __construct(EntityTypeInterface $entity_type, Connection $database, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, LanguageManagerInterface $language_manager, MemoryCacheInterface $memory_cache = NULL, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, EntityTypeManagerInterface $entity_type_manager = NULL, EntityMetaWrapperFactoryInterface $entity_meta_wrapper_factory) {
+    parent::__construct($entity_type, $database, $entity_field_manager, $cache, $language_manager, $memory_cache, $entity_type_bundle_info, $entity_type_manager);
+    $this->entityMetaWrapperFactory = $entity_meta_wrapper_factory;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
+    return new static(
+      $entity_type,
+      $container->get('database'),
+      $container->get('entity_field.manager'),
+      $container->get('cache.entity'),
+      $container->get('language_manager'),
+      $container->get('entity.memory_cache'),
+      $container->get('entity_type.bundle.info'),
+      $container->get('entity_type.manager'),
+      $container->get('emr.entity_meta_wrapper.factory')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function create(array $values = []) {
+    // Guarantee wrapper.
+    $entity = parent::create($values);
+    $entity->setWrapper($this->entityMetaWrapperFactory->create($entity));
+    return $entity;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function postLoad(array &$entities) {
+    parent::postLoad($entities);
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
+    foreach ($entities as &$entity) {
+      // Injects the wrapper in the entity.
+      $entity->setWrapper($this->entityMetaWrapperFactory->create($entity));
+    }
+  }
 
   /**
    * {@inheritdoc}

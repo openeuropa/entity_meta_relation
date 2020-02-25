@@ -5,27 +5,35 @@ declare(strict_types = 1);
 namespace Drupal\emr;
 
 use Drupal\emr\Entity\EntityMetaInterface;
+use Drupal\emr\Plugin\EntityMetaRelationPluginManager;
 
 /**
  * Factory class EntityMetaWrapper entities.
  */
-class EntityMetaWrapperFactory {
+class EntityMetaWrapperFactory implements EntityMetaWrapperFactoryInterface {
 
   /**
-   * Create a new entity meta wrapper.
+   * The plugin manager.
    *
-   * Instantiate a new entity meta wrapper or a more specific class in case it
-   * finds a plugin mapping an entity meta wrapper class to this bundle.
-   *
-   * @param \Drupal\emr\Entity\EntityMetaInterface $entity_meta
-   *   The entity meta.
-   *
-   * @return \Drupal\emr\EntityMetaWrapper
-   *   The entity meta wrapper.
+   * @var \Drupal\emr\Plugin\EntityMetaRelationPluginManager
    */
-  public static function create(EntityMetaInterface $entity_meta) {
-    $plugin_manager = \Drupal::service('plugin.manager.emr');
-    $plugins = $plugin_manager->getDefinitions();
+  protected $pluginManager;
+
+  /**
+   * EntityMetaWrapperFactory constructor.
+   *
+   * @param \Drupal\emr\Plugin\EntityMetaRelationPluginManager $pluginManager
+   *   The plugin manager.
+   */
+  public function __construct(EntityMetaRelationPluginManager $pluginManager) {
+    $this->pluginManager = $pluginManager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function create(EntityMetaInterface $entity_meta) {
+    $plugins = $this->pluginManager->getDefinitions();
 
     // Try to find a plugin with a wrapper that applies to this bundle.
     foreach ($plugins as $id => $definition) {
