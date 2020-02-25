@@ -69,15 +69,4 @@ interface EntityMetaStorageInterface extends EntityStorageInterface {
    */
   public function shouldMakeRevision(EntityMetaInterface $entity): bool;
 
-  /**
-   * Checks whether the meta entity should be saved or not.
-   *
-   * @param \Drupal\emr\Entity\EntityMetaInterface $entity
-   *   The entity meta entity.
-   *
-   * @return bool
-   *   Whether it should save or not.
-   */
-  public function shouldSaveEntity(EntityMetaInterface $entity): bool;
-
 }

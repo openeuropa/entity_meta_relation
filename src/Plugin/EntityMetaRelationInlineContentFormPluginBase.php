@@ -55,15 +55,6 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     $entity = $entity_form['#entity'];
     $entity->setHostEntity($host_entity);
-
-    if (!$this->entityMetaStorage->shouldSaveEntity($entity)) {
-      return;
-    }
-
-    if ($this->entityMetaStorage->shouldMakeRevision($entity)) {
-      $entity->setNewRevision(TRUE);
-    }
-
     $host_entity->get('emr_entity_metas')->attach($entity);
   }
 

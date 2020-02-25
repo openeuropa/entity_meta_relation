@@ -36,10 +36,44 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
    *   The entity meta.
    */
   public function attach(EntityMetaInterface $entity): void {
+    // If there are no changes, don't attach.
+    if (!$this->shouldAttach($entity)) {
+      return;
+    }
+
     $values = $this->list;
     $id = $entity->uuid();
     $values[$id] = $entity;
     $this->setValue($values, TRUE);
+  }
+
+  /**
+   * Checks whether the meta entity should be attached or not.
+   *
+   * Entity is only attached in case it has changes.
+   *
+   * @param \Drupal\emr\Entity\EntityMetaInterface $entity
+   *   The entity meta entity.
+   *
+   * @return bool
+   *   Whether it should save or not.
+   */
+  protected function shouldAttach(EntityMetaInterface $entity): bool {
+    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = $entity_type_manager = \Drupal::service('entity_type.manager')->getStorage('entity_meta');
+
+    if ($entity === NULL) {
+      return FALSE;
+    }
+
+    $change_fields = $entity_meta_storage->getChangeFields($entity);
+    foreach ($change_fields as $field) {
+      if (!$entity->get($field)->isEmpty()) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
   /**

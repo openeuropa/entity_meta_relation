@@ -75,14 +75,6 @@ class SpeedConfiguration extends EntityMetaRelationContentFormPluginBase {
    */
   public function submit(array $form, FormStateInterface $form_state): void {
     $entity_meta = $this->buildEntity($form_state);
-    if ($entity_meta === NULL) {
-      return;
-    }
-
-    if (!$this->entityMetaStorage->shouldSaveEntity($entity_meta)) {
-      return;
-    }
-
     $host_entity = $form_state->getFormObject()->getEntity();
     $host_entity->get('emr_entity_metas')->attach($entity_meta);
   }

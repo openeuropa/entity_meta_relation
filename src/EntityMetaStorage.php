@@ -325,22 +325,6 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
   /**
    * {@inheritdoc}
    */
-  public function shouldSaveEntity(EntityMetaInterface $entity): bool {
-    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
-    $entity_meta_storage = $this->entityTypeManager->getStorage('entity_meta');
-    $change_fields = $entity_meta_storage->getChangeFields($entity);
-    foreach ($change_fields as $field) {
-      if (!$entity->get($field)->isEmpty()) {
-        return TRUE;
-      }
-    }
-
-    return FALSE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function shouldMakeRevision(EntityMetaInterface $entity): bool {
     if ($entity->isNew()) {
       return TRUE;
