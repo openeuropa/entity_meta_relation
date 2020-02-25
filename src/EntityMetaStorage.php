@@ -217,25 +217,6 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
   /**
    * {@inheritdoc}
    */
-  public function getBundledRelatedMetaEntities(ContentEntityInterface $content_entity): array {
-    $relations = [];
-
-    $related_meta_entities = $content_entity->get('emr_entity_metas');
-    if (!$related_meta_entities) {
-      return [];
-    }
-
-    // Group referenced entities per bundle.
-    foreach ($related_meta_entities as $meta_entity) {
-      $relations[$meta_entity->entity->bundle()][] = $meta_entity->entity;
-    }
-
-    return $relations;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function deleteAllRelatedMetaEntities(ContentEntityInterface $content_entity): void {
     $entity_type = $content_entity->getEntityType();
 
@@ -339,25 +320,6 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     }
 
     return $related_entities;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSingleEntityMeta(ContentEntityInterface $entity, string $entity_meta_bundle): EntityMetaInterface {
-    $entity_meta_entities = $this->getBundledRelatedMetaEntities($entity);
-
-    if (empty($entity_meta_entities[$entity_meta_bundle])) {
-      $entity_meta = $this->create([
-        'bundle' => $entity_meta_bundle,
-        'status' => $entity->isPublished(),
-      ]);
-    }
-    else {
-      $entity_meta = $entity_meta_entities[$entity_meta_bundle][0];
-    }
-
-    return $entity_meta;
   }
 
   /**

@@ -38,7 +38,8 @@ class SpeedConfiguration extends EntityMetaRelationContentFormPluginBase {
   protected function buildEntity(FormStateInterface $form_state): ?EntityMetaInterface {
     /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
     $entity = $form_state->getFormObject()->getEntity();
-    $entity_meta = $this->entityMetaStorage->getSingleEntityMeta($entity, $this->getPluginDefinition()['entity_meta_bundle']);
+    $entity_meta = $entity->get('emr_entity_metas')->getEntityMeta($this->getPluginDefinition()['entity_meta_bundle']);
+
     $entity_meta->getWrapper()->setGear($form_state->getValue('gear'));
     $entity_meta->setHostEntity($entity);
     $entity_meta->isDefaultRevision($entity->isDefaultRevision());
@@ -49,7 +50,7 @@ class SpeedConfiguration extends EntityMetaRelationContentFormPluginBase {
    * {@inheritdoc}
    */
   public function build(array $form, FormStateInterface $form_state, ContentEntityInterface $entity): array {
-    $entity_meta = $this->entityMetaStorage->getSingleEntityMeta($entity, $this->getPluginDefinition()['entity_meta_bundle']);
+    $entity_meta = $entity->get('emr_entity_metas')->getEntityMeta($this->getPluginDefinition()['entity_meta_bundle']);
 
     // Get possible values.
     $field_definitions = $this->entityFieldManager->getFieldStorageDefinitions('entity_meta');

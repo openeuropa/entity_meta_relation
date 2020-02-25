@@ -12,32 +12,6 @@ use Drupal\emr\Entity\EntityMetaInterface;
 interface EntityMetaStorageInterface extends EntityStorageInterface {
 
   /**
-   * Returns the related meta entities of a content entity, grouped by bundle.
-   *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   *   The content entity.
-   *
-   * @return \Drupal\emr\Entity\EntityMetaInterface[]
-   *   The EntityMeta entities
-   */
-  public function getBundledRelatedMetaEntities(ContentEntityInterface $entity): array;
-
-  /**
-   * Returns the unique entity meta from the passed bundle.
-   *
-   * In case an entity meta is not available it initiates one.
-   *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   *   The content entity.
-   * @param string $entity_meta_bundle
-   *   The entity meta bundle.
-   *
-   * @return \Drupal\emr\Entity\EntityMetaInterface
-   *   The EntityMeta entity
-   */
-  public function getSingleEntityMeta(ContentEntityInterface $entity, string $entity_meta_bundle): EntityMetaInterface;
-
-  /**
    * Queries and returns for related entities.
    *
    * This can either be from the direction of an EntityMeta (returning related

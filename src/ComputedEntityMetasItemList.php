@@ -43,6 +43,46 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
   }
 
   /**
+   * Get the first entity meta of the defined type attached in this field.
+   *
+   * @param string $entity_meta_bundle
+   *   The entity meta type.
+   *
+   * @return \Drupal\emr\Entity\EntityMetaInterface
+   *   The entity meta.
+   */
+  public function getEntityMeta(string $entity_meta_bundle): EntityMetaInterface {
+
+    if (empty($this->list)) {
+      $this->computeValue();
+    }
+
+    $entity = $this->getEntity();
+    $entity_meta_storage = $entity_type_manager = \Drupal::service('entity_type.manager')->getStorage('entity_meta');
+
+    foreach ($this->list as $item) {
+      if (!$item->entity instanceof EntityMetaInterface) {
+        continue;
+      }
+
+      if ($item->entity->bundle() == $entity_meta_bundle) {
+        $entity_meta = $item->entity;
+        break;
+      }
+    }
+
+    if (empty($entity_meta)) {
+      /** @var \Drupal\emr\EntityMetaWrapper $entity_meta */
+      $entity_meta = $entity_meta_storage->create([
+        'bundle' => $entity_meta_bundle,
+        'status' => $entity->isPublished(),
+      ]);
+    }
+
+    return $entity_meta;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function setValue($values, $notify = TRUE) {
