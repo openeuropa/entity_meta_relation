@@ -14,6 +14,13 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
   use ComputedItemListTrait;
 
   /**
+   * Entity metas marked to dettach from the entity.
+   *
+   * @var array
+   */
+  protected $itemsToDettach = [];
+
+  /**
    * {@inheritdoc}
    */
   protected function computeValue() {
@@ -45,6 +52,16 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
     $id = $entity->uuid();
     $values[$id] = $entity;
     $this->setValue($values, TRUE);
+  }
+
+  /**
+   * Dettach entity meta.
+   *
+   * @param \Drupal\emr\Entity\EntityMetaInterface $entity
+   *   The entity meta.
+   */
+  public function dettach(EntityMetaInterface $entity): void {
+    $this->itemsToDettach[] = $entity->uuid();
   }
 
   /**
@@ -118,8 +135,13 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
 
   /**
    * {@inheritdoc}
+   *
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
    */
   public function setValue($values, $notify = TRUE) {
+    // Used to clear extraneous values.
+    $value_attached = FALSE;
+
     if (!isset($values) || $values === []) {
       $this->list = [];
     }
@@ -127,8 +149,10 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
       // Only arrays are supported.
       if (!is_array($values)) {
         $values = [0 => $values];
+        $value_attached = TRUE;
       }
 
+      $new_entity_metas = [];
       foreach (array_values($values) as $delta => $value) {
 
         if (!$value instanceof EntityMetaInterface) {
@@ -136,6 +160,7 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
         }
 
         $id = $value->uuid();
+        $new_entity_metas[] = $id;
 
         if (!isset($this->list[$id])) {
           $this->list[$id] = $this->createItem($id, $value);
@@ -145,8 +170,14 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
         }
       }
 
-      // Truncate extraneous pre-existing values.
-      $this->list = array_slice($this->list, 0, count($values));
+      // Mark to dettach extraneous pre-existing values.
+      if ($value_attached) {
+        foreach ($this->list as $item) {
+          if (!in_array($item->entity->uuid(), $new_entity_metas)) {
+            $this->itemsToDettach[] = $item->entity->uuid();
+          }
+        }
+      }
     }
     // Notify the parent of any changes.
     if ($notify && isset($this->parent)) {
@@ -171,6 +202,10 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
     foreach ($this->list as $item) {
       if (!$item->entity instanceof EntityMetaInterface) {
         continue;
+      }
+
+      if (in_array($item->entity->uuid(), $this->items_to_dettach)) {
+        $item->entity->markToDettach();
       }
 
       // Copy status from the host entity.

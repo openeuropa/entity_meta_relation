@@ -76,4 +76,17 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
    */
   public function getHostEntity(): ?ContentEntityInterface;
 
+  /**
+   * Mark this entity to dettach it from content entity.
+   */
+  public function markToDettach(): void;
+
+  /**
+   * Is the entity marked to be detached.
+   *
+   * @return bool
+   *   True in case entity is marked to be dettached.
+   */
+  public function shouldDettach(): bool;
+
 }

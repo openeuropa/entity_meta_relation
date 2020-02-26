@@ -83,6 +83,13 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   protected $entityMetaWrapper;
 
   /**
+   * Is the entity marked to be dettached.
+   *
+   * @var bool
+   */
+  protected $markedToDettach;
+
+  /**
    * {@inheritdoc}
    */
   public function isEnabled(): bool {
@@ -159,6 +166,24 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
    */
   public function setWrapper(EntityMetaWrapperInterface $entityMetaWrapper): void {
     $this->entityMetaWrapper = $entityMetaWrapper;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function markToDettach(): void {
+    $this->markedToDettach = TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function shouldDettach(): bool {
+    if (isset($this->markedToDettach) && $this->markedToDettach) {
+      return TRUE;
+    }
+
+    return FALSE;
   }
 
   /**

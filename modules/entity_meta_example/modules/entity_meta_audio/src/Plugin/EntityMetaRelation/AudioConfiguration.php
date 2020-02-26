@@ -14,6 +14,7 @@ use Drupal\emr\Plugin\EntityMetaRelationInlineContentFormPluginBase;
  *   label = @Translation("Audio configuration"),
  *   entity_meta_bundle = "audio",
  *   content_form = TRUE,
+ *   entity_meta_wrapper_class = "\Drupal\entity_meta_audio\AudioEntityMetaWrapper",
  *   description = @Translation("Audio configuration.")
  * )
  */

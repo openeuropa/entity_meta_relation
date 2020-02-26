@@ -112,6 +112,8 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
 
   /**
    * {@inheritdoc}
+   *
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
    */
   public function doPostSave(EntityInterface $entity, $update) {
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
@@ -148,6 +150,19 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       ->condition("{$entity_meta_relation_content_field}.target_id", $content_entity->id())
       ->condition("{$entity_meta_relation_meta_field}.target_id", $entity->id())
       ->execute();
+
+    // If entity is marked to be dettached and it is not saving a new revision.
+    if ($entity->shouldDettach() && (!$entity->isNewRevision()) && !empty($ids)) {
+      // We need to delete existing relations.
+      $relation = $entity_meta_relation_storage->loadRevision(key($ids));
+      $relation->delete();
+      return;
+    }
+    // Otherwise, if the entity is creating a new revision, we won't save
+    // the relation.
+    elseif ($entity->shouldDettach()) {
+      return;
+    }
 
     // If no relations, create new ones.
     if (empty($ids)) {
@@ -326,6 +341,11 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    * {@inheritdoc}
    */
   public function shouldMakeRevision(EntityMetaInterface $entity): bool {
+
+    if ($entity->isNewRevision()) {
+      return TRUE;
+    }
+
     if ($entity->isNew()) {
       return TRUE;
     }
