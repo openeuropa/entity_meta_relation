@@ -6,8 +6,6 @@ use Drupal\KernelTests\KernelTestBase;
 
 /**
  * Tests that the entity meta and entity meta relation entities are handled.
- *
- * @todo test no relation duplicates are created
  */
 class EntityMetaRelationTest extends KernelTestBase {
 
@@ -39,7 +37,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->installEntitySchema('node');
     $this->installEntitySchema('entity_meta');
     $this->installEntitySchema('entity_meta_relation');
-    $this->installSchema('node', 'node_access');
+    $this->installSchema('node', 'node_access', 'emr_node');
     $this->installConfig(
       ['emr', 'emr_node', 'entity_meta_example',
         'entity_meta_audio', 'entity_meta_visual', 'entity_meta_speed',
