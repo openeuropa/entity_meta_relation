@@ -70,6 +70,8 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
 
   /**
    * {@inheritdoc}
+   *
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
    */
   public function applies(ContentEntityInterface $entity): bool {
     $entity_type = $entity->getEntityType();
@@ -108,7 +110,7 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
       $bundle_storage = $this->entityTypeManager->getStorage($entity->getEntityType()->getBundleEntityType());
       $bundle = $bundle_storage->load($entity->bundle());
       $entity_meta_bundles = $bundle->getThirdPartySetting('emr', 'entity_meta_bundles');
-      if (!in_array($this->pluginDefinition['entity_meta_bundle'], $entity_meta_bundles)) {
+      if (!empty($entity_meta_bundles) && !in_array($this->pluginDefinition['entity_meta_bundle'], $entity_meta_bundles)) {
         return FALSE;
       }
     }
