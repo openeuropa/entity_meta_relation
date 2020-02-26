@@ -514,7 +514,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $entity_meta_speed = $second_node->get('emr_entity_metas')->getEntityMeta('speed');
     $entity_meta_audio = $second_node->get('emr_entity_metas')->getEntityMeta('audio');
     $related_entity_meta_entities = $entity_meta_storage->getRelatedEntities($second_node);
-    // $this->assertCount(0, $related_entity_meta_entities);
+    $this->assertCount(0, $related_entity_meta_entities);
     $this->assertNull($entity_meta_speed->id());
     $this->assertNull($entity_meta_audio->id());
 
@@ -564,7 +564,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $entity_meta_speed = $second_node_original_revision->get('emr_entity_metas')->getEntityMeta('speed');
     $entity_meta_audio = $second_node_original_revision->get('emr_entity_metas')->getEntityMeta('audio');
     $related_entity_meta_entities = $entity_meta_storage->getRelatedEntities($second_node_original_revision, $second_node_original_revision_id);
-    // $this->assertCount(2, $related_entity_meta_entities);
+    $this->assertCount(2, $related_entity_meta_entities);
     $this->assertEqual($entity_meta_speed->getWrapper()->getGear(), '3');
     $this->assertEqual($entity_meta_audio->getWrapper()->getVolume(), 'low');
 
