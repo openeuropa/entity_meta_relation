@@ -487,6 +487,7 @@ class EntityMetaRelationTest extends KernelTestBase {
 
     // Detach first entity meta.
     $second_node->get('emr_entity_metas')->dettach($entity_meta_audio);
+    $second_node->get('emr_entity_metas')->dettach($entity_meta_audio);
     $second_node->save();
     $node_storage->resetCache();
     $entity_meta_storage->resetCache();
@@ -517,7 +518,73 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertNull($entity_meta_speed->id());
     $this->assertNull($entity_meta_audio->id());
 
-    // @TODO: Repeat the test increasing the revision.
+    // Repeat test but now creating new revisions.
+    $entity_meta_audio->getWrapper()->setVolume('low');
+    $entity_meta_speed->getWrapper()->setGear('3');
+
+    $second_node->setNewRevision(TRUE);
+    $second_node->get('emr_entity_metas')->attach($entity_meta_speed);
+    $second_node->get('emr_entity_metas')->attach($entity_meta_audio);
+    $second_node->save();
+    $node_storage->resetCache();
+    $entity_meta_storage->resetCache();
+    $entity_meta_relation_storage->resetCache();
+    $second_node = $node_storage->load(2);
+
+    $second_node_original_revision_id = $second_node->getRevisionId();
+
+    $this->assertEquals(4, $second_node->getRevisionId());
+    $entity_meta_speed = $second_node->get('emr_entity_metas')->getEntityMeta('speed');
+    $entity_meta_audio = $second_node->get('emr_entity_metas')->getEntityMeta('audio');
+    $related_entity_meta_entities = $entity_meta_storage->getRelatedEntities($second_node);
+    $this->assertCount(2, $related_entity_meta_entities);
+    $this->assertEqual($entity_meta_speed->getWrapper()->getGear(), '3');
+    $this->assertEqual($entity_meta_audio->getWrapper()->getVolume(), 'low');
+
+    $second_node->setNewRevision(TRUE);
+    $entity_meta_audio = $second_node->get('emr_entity_metas')->getEntityMeta('audio');
+    $second_node->get('emr_entity_metas')->dettach($entity_meta_audio);
+    $second_node->save();
+    $node_storage->resetCache();
+    $entity_meta_storage->resetCache();
+    $entity_meta_relation_storage->resetCache();
+
+    $second_node = $node_storage->load(2);
+    $this->assertEquals(5, $second_node->getRevisionId());
+    $entity_meta_speed = $second_node->get('emr_entity_metas')->getEntityMeta('speed');
+    $entity_meta_audio = $second_node->get('emr_entity_metas')->getEntityMeta('audio');
+    $related_entity_meta_entities = $entity_meta_storage->getRelatedEntities($second_node);
+    $this->assertCount(1, $related_entity_meta_entities);
+    $this->assertEqual($entity_meta_speed->getWrapper()->getGear(), '3');
+    $this->assertNull($entity_meta_audio->id());
+
+    // Check original revision is untouched.
+    $second_node_original_revision = $node_storage->loadRevision($second_node_original_revision_id);
+    $this->assertEquals(4, $second_node_original_revision->getRevisionId());
+    $entity_meta_speed = $second_node_original_revision->get('emr_entity_metas')->getEntityMeta('speed');
+    $entity_meta_audio = $second_node_original_revision->get('emr_entity_metas')->getEntityMeta('audio');
+    $related_entity_meta_entities = $entity_meta_storage->getRelatedEntities($second_node_original_revision, $second_node_original_revision_id);
+    // $this->assertCount(2, $related_entity_meta_entities);
+    $this->assertEqual($entity_meta_speed->getWrapper()->getGear(), '3');
+    $this->assertEqual($entity_meta_audio->getWrapper()->getVolume(), 'low');
+
+    // Detach second entity meta.
+    $second_node->setNewRevision(TRUE);
+    $entity_meta_speed->setHostEntity($second_node);
+    $second_node->get('emr_entity_metas')->dettach($entity_meta_speed);
+    $second_node->save();
+    $node_storage->resetCache();
+    $entity_meta_storage->resetCache();
+    $entity_meta_relation_storage->resetCache();
+
+    $second_node = $node_storage->load(2);
+    $this->assertEquals(6, $second_node->getRevisionId());
+    $entity_meta_speed = $second_node->get('emr_entity_metas')->getEntityMeta('speed');
+    $entity_meta_audio = $second_node->get('emr_entity_metas')->getEntityMeta('audio');
+    $related_entity_meta_entities = $entity_meta_storage->getRelatedEntities($second_node);
+    $this->assertCount(0, $related_entity_meta_entities);
+    $this->assertNull($entity_meta_speed->id());
+    $this->assertNull($entity_meta_audio->id());
   }
 
   /**

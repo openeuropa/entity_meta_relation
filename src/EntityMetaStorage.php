@@ -152,7 +152,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       ->execute();
 
     // If entity is marked to be dettached and it is not saving a new revision.
-    if ($entity->shouldDettach() && (!$entity->isNewRevision()) && !empty($ids)) {
+    if ($entity->shouldDeleteRelations() && !empty($ids)) {
       // We need to delete existing relations.
       $relation = $entity_meta_relation_storage->loadRevision(key($ids));
       $relation->delete();
@@ -160,7 +160,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     }
     // Otherwise, if the entity is creating a new revision, we won't save
     // the relation.
-    elseif ($entity->shouldDettach()) {
+    elseif ($entity->shouldSkipRelations()) {
       return;
     }
 

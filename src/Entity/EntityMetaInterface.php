@@ -77,16 +77,29 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
   public function getHostEntity(): ?ContentEntityInterface;
 
   /**
-   * Mark this entity to dettach it from content entity.
+   * Mark this entity to skip create relations when being saved.
    */
-  public function markToDettach(): void;
+  public function markToSkipRelations(): void;
 
   /**
-   * Is the entity marked to be detached.
+   * Mark this entity to delete relations to current revision when being saved.
+   */
+  public function markToDeleteRelations(): void;
+
+  /**
+   * Should relations to current revision be deleted.
    *
    * @return bool
-   *   True in case entity is marked to be dettached.
+   *   Returns true in case current relations should be deleted when saving.
    */
-  public function shouldDettach(): bool;
+  public function shouldDeleteRelations(): bool;
+
+  /**
+   * Should relations to current revision be skipped when saving.
+   *
+   * @return bool
+   *   Returns true in case current relations should be skipped when saving.
+   */
+  public function shouldSkipRelations(): bool;
 
 }

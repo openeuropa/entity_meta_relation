@@ -83,11 +83,18 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   protected $entityMetaWrapper;
 
   /**
-   * Is the entity marked to be dettached.
+   * The entity meta should not create new relationships to its host entity.
    *
    * @var bool
    */
-  protected $markedToDettach;
+  protected $skipRelations = FALSE;
+
+  /**
+   * The entity meta will delete existing relationships to its host entity.
+   *
+   * @var bool
+   */
+  protected $deleteRelations = FALSE;
 
   /**
    * {@inheritdoc}
@@ -171,19 +178,29 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function markToDettach(): void {
-    $this->markedToDettach = TRUE;
+  public function markToSkipRelations(): void {
+    $this->skipRelations = TRUE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function shouldDettach(): bool {
-    if (isset($this->markedToDettach) && $this->markedToDettach) {
-      return TRUE;
-    }
+  public function markToDeleteRelations(): void {
+    $this->deleteRelations = TRUE;
+  }
 
-    return FALSE;
+  /**
+   * {@inheritdoc}
+   */
+  public function shouldDeleteRelations(): bool {
+    return $this->deleteRelations;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function shouldskipRelations(): bool {
+    return $this->skipRelations;
   }
 
   /**

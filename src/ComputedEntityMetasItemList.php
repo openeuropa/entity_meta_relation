@@ -14,11 +14,18 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
   use ComputedItemListTrait;
 
   /**
-   * Entity metas marked to dettach from the entity.
+   * Entities to be marked to skip relations.
    *
    * @var array
    */
-  protected $itemsToDettach = [];
+  protected $entitiesToSkipRelations = [];
+
+  /**
+   * Entities to be marked to delete relations.
+   *
+   * @var array
+   */
+  protected $entitiesToDeleteRelations = [];
 
   /**
    * {@inheritdoc}
@@ -61,7 +68,14 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
    *   The entity meta.
    */
   public function dettach(EntityMetaInterface $entity): void {
-    $this->itemsToDettach[] = $entity->uuid();
+    $id = $entity->uuid();
+    // Reset item because of changes in host entity.
+    if ($this->getEntity()->isNewRevision()) {
+      $this->entitiesToSkipRelations[] = $id;
+    }
+    else {
+      $this->entitiesToDeleteRelations[] = $id;
+    }
   }
 
   /**
@@ -137,10 +151,10 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
    * {@inheritdoc}
    *
    * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+   * @SuppressWarnings(PHPMD.NPathComplexity)
    */
   public function setValue($values, $notify = TRUE) {
-    // Used to clear extraneous values.
-    $value_attached = FALSE;
+    $old_values_ids = array_keys($this->list);
 
     if (!isset($values) || $values === []) {
       $this->list = [];
@@ -149,36 +163,41 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
       // Only arrays are supported.
       if (!is_array($values)) {
         $values = [0 => $values];
-        $value_attached = TRUE;
       }
 
-      $new_entity_metas = [];
       foreach (array_values($values) as $delta => $value) {
+        // Id can be different deppending what we have attached.
+        $id = $value instanceof EntityMetaInterface ? $value->uuid() : $value->entity->uuid();
+
+        // Remove from old ids for future pruning.
+        $key = array_search($id, $old_values_ids);
+        if ($key !== FALSE) {
+          unset($old_values_ids[$key]);
+        }
 
         if (!$value instanceof EntityMetaInterface) {
           continue;
         }
 
-        $id = $value->uuid();
-        $new_entity_metas[] = $id;
-
         if (!isset($this->list[$id])) {
           $this->list[$id] = $this->createItem($id, $value);
         }
         else {
-          $this->list[$id]->setValue($value, FALSE);
+          $this->list[$id]->setValue($value, TRUE);
         }
       }
-
-      // Mark to dettach extraneous pre-existing values.
-      if ($value_attached) {
-        foreach ($this->list as $item) {
-          if (!in_array($item->entity->uuid(), $new_entity_metas)) {
-            $this->itemsToDettach[] = $item->entity->uuid();
-          }
+      // If the value was not attached, clean extraneous values.
+      if (!empty($old_values_ids)) {
+        $content_entity = $this->getEntity();
+        if ($content_entity->isNewRevision()) {
+          $this->entitiesToSkipRelations = array_merge($old_values_ids, $this->entitiesToSkipRelations);
+        }
+        else {
+          $this->entitiesToDeleteRelations = array_merge($old_values_ids, $this->entitiesToDeleteRelations);
         }
       }
     }
+
     // Notify the parent of any changes.
     if ($notify && isset($this->parent)) {
       $this->parent->onChange($this->name);
@@ -204,8 +223,12 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
         continue;
       }
 
-      if (in_array($item->entity->uuid(), $this->items_to_dettach)) {
-        $item->entity->markToDettach();
+      $id = $item->entity->uuid();
+      if (in_array($id, $this->entitiesToSkipRelations)) {
+        $item->entity->markToSkipRelations();
+      }
+      if (in_array($id, $this->entitiesToDeleteRelations)) {
+        $item->entity->markToDeleteRelations();
       }
 
       // Copy status from the host entity.
