@@ -42,4 +42,12 @@ class ComputedHostEntityItemList extends EntityReferenceRevisionsFieldItemList {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getConstraints() {
+    // We don't want to validate any constraints related with entity reference.
+    return [];
+  }
+
 }
