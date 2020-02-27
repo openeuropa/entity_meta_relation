@@ -34,6 +34,11 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
   protected function computeValue() {
     $entity = $this->getEntity();
 
+    // No need to compute again.
+    if (!empty($this->list)) {
+      return;
+    }
+
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::service('entity_type.manager');
     $entity_metas = $entity_type_manager->getStorage('entity_meta')->getRelatedEntities($entity);
@@ -209,6 +214,13 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
     if ($notify && isset($this->parent)) {
       $this->parent->onChange($this->name);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preSave() {
+    // Override default method from entity reference revisions.
   }
 
   /**
