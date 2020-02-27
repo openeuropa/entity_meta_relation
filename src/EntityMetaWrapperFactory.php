@@ -37,7 +37,7 @@ class EntityMetaWrapperFactory implements EntityMetaWrapperFactoryInterface {
 
     // Try to find a plugin with a wrapper that applies to this bundle.
     foreach ($plugins as $id => $definition) {
-      if ($definition['entity_meta_bundle'] == $entity_meta->bundle() && !empty($definition['entity_meta_wrapper_class'])) {
+      if (!empty($definition['entity_meta_bundle']) && $definition['entity_meta_bundle'] == $entity_meta->bundle() && !empty($definition['entity_meta_wrapper_class'])) {
         $wrapper_class = $definition['entity_meta_wrapper_class'];
         break;
       }

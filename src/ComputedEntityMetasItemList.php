@@ -2,6 +2,7 @@
 
 namespace Drupal\emr;
 
+use Drupal\Component\Uuid\Uuid;
 use Drupal\Core\TypedData\ComputedItemListTrait;
 use Drupal\emr\Entity\EntityMetaInterface;
 use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
@@ -165,9 +166,15 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
         $values = [0 => $values];
       }
 
-      foreach (array_values($values) as $delta => $value) {
+      foreach ($values as $delta => $value) {
+
         // Id can be different deppending what we have attached.
-        $id = $value instanceof EntityMetaInterface ? $value->uuid() : $value->entity->uuid();
+        if (Uuid::isValid($delta)) {
+          $id = $delta;
+        }
+        else {
+          $id = $value instanceof EntityMetaInterface ? $value->uuid() : $value->entity->uuid();
+        }
 
         // Remove from old ids for future pruning.
         $key = array_search($id, $old_values_ids);

@@ -42,7 +42,6 @@ class SpeedConfiguration extends EntityMetaRelationContentFormPluginBase {
 
     $entity_meta->getWrapper()->setGear($form_state->getValue('gear'));
     $entity_meta->setHostEntity($entity);
-    $entity_meta->isDefaultRevision($entity->isDefaultRevision());
     return $entity_meta;
   }
 
@@ -54,10 +53,9 @@ class SpeedConfiguration extends EntityMetaRelationContentFormPluginBase {
 
     // Get possible values.
     $field_definitions = $this->entityFieldManager->getFieldStorageDefinitions('entity_meta');
-    $options = options_allowed_values($field_definitions['field_gear'], $entity);
 
-    // Add none option.
-    $options = array_merge(['' => $this->t('- None -')], $options);
+    // Add options.
+    $options = ['' => $this->t('- None -')] + options_allowed_values($field_definitions['field_gear'], $entity);
     $key = $this->getFormKey();
     $this->buildFormContainer($form, $form_state, $key);
     $form[$key]['referenced_meta']['gear'] = [
