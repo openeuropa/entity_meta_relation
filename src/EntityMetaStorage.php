@@ -115,6 +115,16 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    *
    * @SuppressWarnings(PHPMD.CyclomaticComplexity)
    */
+  protected function doPreSave(EntityInterface $entity) {
+    $entity->isDefaultRevision($entity->getHostEntity()->isDefaultRevision());
+    parent::doPreSave($entity);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+   */
   public function doPostSave(EntityInterface $entity, $update) {
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     parent::doPostSave($entity, $update);
