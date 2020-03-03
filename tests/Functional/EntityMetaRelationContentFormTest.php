@@ -338,7 +338,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->assertTrue($speed_meta->get('status')->value);
 
     // Revision changed.
-    $this->assertEquals(4, $visual_meta->getRevisionId());
+    $this->assertEquals(6, $visual_meta->getRevisionId());
 
     // Do not save color but update the node.
     $this->drupalGet('node/' . $node->id() . '/edit');
@@ -368,7 +368,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->assertTrue($speed_meta->get('status')->value);
 
     // Revision did not change.
-    $this->assertEquals(4, $visual_meta->getRevisionId());
+    $this->assertEquals(6, $visual_meta->getRevisionId());
 
     // Do not create a new revision but change color.
     $this->drupalGet('node/' . $node->id() . '/edit');
@@ -391,7 +391,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     // Color was changed.
     $this->assertEquals($visual_meta->get('field_color')->value, 'red');
     // Revision not changed.
-    $this->assertEquals(4, $visual_meta->getRevisionId());
+    $this->assertEquals(6, $visual_meta->getRevisionId());
   }
 
   /**

@@ -250,6 +250,10 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
         $item->entity->markToDeleteRelations();
       }
 
+      if ($this->getEntity()->isPublished() != $item->entity->isEnabled()) {
+        $item->entity->setNewRevision(TRUE);
+      }
+
       // Copy status from the host entity.
       $this->getEntity()->isPublished() ? $item->entity->enable() : $item->entity->disable();
       $item->entity->setHostEntity($this->getEntity());
