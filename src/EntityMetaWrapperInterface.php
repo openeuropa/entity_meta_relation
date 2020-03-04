@@ -7,16 +7,16 @@ namespace Drupal\emr;
 use Drupal\emr\Entity\EntityMetaInterface;
 
 /**
- * Wrapper entity meta entities.
+ * Represents entity meta wrappers.
  */
 interface EntityMetaWrapperInterface {
 
   /**
-   * EntityMetaWrapperInterface constructor.
+   * Returns the entity meta.
    *
-   * @param \Drupal\emr\Entity\EntityMetaInterface $entity_meta
+   * @return \Drupal\emr\Entity\EntityMetaInterface
    *   The entity meta.
    */
-  public function __construct(EntityMetaInterface $entity_meta);
+  public function getEntityMeta(): EntityMetaInterface;
 
 }

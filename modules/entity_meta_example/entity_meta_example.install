@@ -11,8 +11,10 @@ declare(strict_types = 1);
  * Implements hook_install().
  */
 function entity_meta_example_install() {
-  \Drupal::service('emr.installer')->installEntityMetaTypeOnContentEntityType('visual', 'node', ['entity_meta_example_ct']);
-  \Drupal::service('emr.installer')->installEntityMetaTypeOnContentEntityType('audio', 'node', ['entity_meta_multi_example_ct']);
-  \Drupal::service('emr.installer')->installEntityMetaTypeOnContentEntityType('visual', 'node', ['entity_meta_multi_example_ct']);
-  \Drupal::service('emr.installer')->installEntityMetaTypeOnContentEntityType('speed', 'node', ['entity_meta_multi_example_ct']);
+  /** @var \Drupal\emr\EntityMetaRelationInstaller $installer */
+  $installer = \Drupal::service('emr.installer');
+  $installer->installEntityMetaTypeOnContentEntityType('visual', 'node', ['entity_meta_example_ct']);
+  $installer->installEntityMetaTypeOnContentEntityType('audio', 'node', ['entity_meta_multi_example_ct']);
+  $installer->installEntityMetaTypeOnContentEntityType('visual', 'node', ['entity_meta_multi_example_ct']);
+  $installer->installEntityMetaTypeOnContentEntityType('speed', 'node', ['entity_meta_multi_example_ct']);
 }

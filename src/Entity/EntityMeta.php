@@ -69,13 +69,6 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   use EntityChangedTrait;
 
   /**
-   * The "host" entity this entity meta relates to.
-   *
-   * @var \Drupal\Core\Entity\ContentEntityInterface
-   */
-  protected $hostEntity;
-
-  /**
    * The entity meta wrapper.
    *
    * @var \Drupal\emr\EntityMetaWrapper
@@ -95,6 +88,19 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
    * @var bool
    */
   protected $deleteRelations = FALSE;
+
+  /**
+   * Whether the host entity is in the process of a revert.
+   *
+   * This flag is set by the ComputedEntityMetasItemList whenever the host
+   * entity is saved without having any metas in the list but by having the
+   * loaded revision different than the current one, indicating a revert or
+   * indicating that the entity meta being added to the list is not in fact
+   * changing so a new revision should not be made.
+   *
+   * @var bool
+   */
+  protected $hostEntityIsReverting = FALSE;
 
   /**
    * {@inheritdoc}
@@ -156,20 +162,14 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   }
 
   /**
-   * Gets the entity meta wrapper for this entity.
-   *
-   * @return \Drupal\emr\EntityMetaWrapper
-   *   The entity meta wrapper.
+   * {@inheritdoc}
    */
   public function getWrapper(): EntityMetaWrapperInterface {
     return $this->entityMetaWrapper;
   }
 
   /**
-   * Sets the entity meta wrapper for this entity.
-   *
-   * @param \Drupal\emr\EntityMetaWrapperInterface $entityMetaWrapper
-   *   The entity meta wrapper.
+   * {@inheritdoc}
    */
   public function setWrapper(EntityMetaWrapperInterface $entityMetaWrapper): void {
     $this->entityMetaWrapper = $entityMetaWrapper;
@@ -199,8 +199,22 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function shouldskipRelations(): bool {
+  public function shouldSkipRelations(): bool {
     return $this->skipRelations;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isHostEntityIsReverting(): bool {
+    return $this->hostEntityIsReverting;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setHostEntityIsReverting(bool $hostEntityIsReverting): void {
+    $this->hostEntityIsReverting = $hostEntityIsReverting;
   }
 
   /**
@@ -253,12 +267,12 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity meta was last edited.'));
 
-    // Add emr computed field to have the related entity metas.
+    // Add a computed field to reference the host entity.
     $fields['emr_host_entity'] = BaseFieldDefinition::create('entity_reference_revisions')
       ->setName('Emr host name')
       ->setLabel(t('Emr host name'))
       ->setComputed(TRUE)
-      ->setClass('\Drupal\emr\ComputedHostEntityItemList')
+      ->setClass('\Drupal\emr\Field\ComputedHostEntityItemList')
       ->setDisplayConfigurable('view', FALSE);
 
     return $fields;

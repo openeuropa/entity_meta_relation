@@ -4,12 +4,13 @@ namespace Drupal\emr;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\RevisionableStorageInterface;
 use Drupal\emr\Entity\EntityMetaInterface;
 
 /**
  * Interface for the storage handler of EntityMeta entities.
  */
-interface EntityMetaStorageInterface extends EntityStorageInterface {
+interface EntityMetaStorageInterface extends EntityStorageInterface, RevisionableStorageInterface {
 
   /**
    * Gets a list of revision IDs for a specific entity meta.
@@ -29,16 +30,15 @@ interface EntityMetaStorageInterface extends EntityStorageInterface {
    * content entities) or from that of a content entity (returning EntityMeta
    * entities).
    *
+   * Note that this will return the last revision of the target entities
+   *
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    *   The entity to look for related entities.
-   * @param int|null $revision_id
-   *   Specific revision_id. -1 can be used to get relations to all revisions
-   *   of the entity.
    *
    * @return \Drupal\Core\Entity\ContentEntityInterface[]
    *   The related entities.
    */
-  public function getRelatedEntities(ContentEntityInterface $entity, int $revision_id = NULL): array;
+  public function getRelatedEntities(ContentEntityInterface $entity): array;
 
   /**
    * Deletes all the related meta entities.
@@ -52,6 +52,17 @@ interface EntityMetaStorageInterface extends EntityStorageInterface {
    * @see emr_entity_delete()
    */
   public function deleteAllRelatedMetaEntities(ContentEntityInterface $content_entity): void;
+
+  /**
+   * Deletes all the revisions of entity meta relation entities.
+   *
+   * These are the revisions that reference the current revision of the passed
+   * host entity.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $content_entity
+   *   The content entity.
+   */
+  public function deleteAllRelatedEntityMetaRelationRevisions(ContentEntityInterface $content_entity): void;
 
   /**
    * Returns the fields that should indicate if the entity has changed.

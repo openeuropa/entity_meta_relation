@@ -12,10 +12,24 @@ use Drupal\emr\Entity\EntityMetaInterface;
 class EntityMetaWrapper implements EntityMetaWrapperInterface {
 
   /**
+   * The entity meta.
+   *
+   * @var \Drupal\emr\Entity\EntityMetaInterface
+   */
+  protected $entityMeta;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(EntityMetaInterface $entity_meta) {
-    $this->entity_meta = $entity_meta;
+    $this->entityMeta = $entity_meta;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityMeta(): EntityMetaInterface {
+    return $this->entityMeta;
   }
 
 }

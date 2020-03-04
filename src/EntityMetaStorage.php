@@ -34,7 +34,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
   protected $entityMetaWrapperFactory;
 
   /**
-   * Constructs a SqlContentEntityStorage object.
+   * Constructs a EntityMetaStorage object.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type definition.
@@ -81,7 +81,8 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    * {@inheritdoc}
    */
   public function create(array $values = []) {
-    // Guarantee wrapper.
+    // Set the wrapper on the EntityMeta.
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     $entity = parent::create($values);
     $entity->setWrapper($this->entityMetaWrapperFactory->create($entity));
     return $entity;
@@ -104,7 +105,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     parent::postLoad($entities);
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     foreach ($entities as &$entity) {
-      // Injects the wrapper in the entity.
+      // Set the wrapper on the EntityMeta.
       $entity->setWrapper($this->entityMetaWrapperFactory->create($entity));
     }
   }
@@ -125,30 +126,9 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    *
    * @SuppressWarnings(PHPMD.CyclomaticComplexity)
    */
-  protected function doPreSave(EntityInterface $entity) {
-    if (!empty($entity->getHostEntity())) {
-      $entity->isDefaultRevision($entity->getHostEntity()->isDefaultRevision());
-    }
-    parent::doPreSave($entity);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-   */
   public function doPostSave(EntityInterface $entity, $update) {
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     parent::doPostSave($entity, $update);
-
-    // If we are saving this meta entity only for its status change, we don't
-    // want to query for the associated relations because there is nothing there
-    // to update. The content relation revision was updated in
-    // self::updateEntityMetaRelated().
-    if (isset($entity->status_change) && $entity->status_change) {
-      $entity->status_change = FALSE;
-      return;
-    }
 
     // Create or updates the entity meta relations for a given entity.
     // When a new content entity is saved or updated, we need to create or
@@ -168,16 +148,34 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     $entity_meta_relation_bundle = $content_entity_type->get('entity_meta_relation_bundle');
 
     // If we are editing an item, check if we have relations to this revision.
+    // There should only be one ID because there can only be one relation
+    // between a content entity and a meta.
     $ids = $entity_meta_relation_storage->getQuery()
       ->condition("{$entity_meta_relation_content_field}.target_id", $content_entity->id())
       ->condition("{$entity_meta_relation_meta_field}.target_id", $entity->id())
       ->execute();
 
-    // If entity is marked to be dettached and it is not saving a new revision.
+    // If entity is marked to be detached and it is not saving a new revision.
     if ($entity->shouldDeleteRelations() && !empty($ids)) {
-      // We need to delete existing relations.
-      $relation = $entity_meta_relation_storage->loadRevision(key($ids));
-      $relation->delete();
+      $relation = $entity_meta_relation_storage->loadRevision(reset($ids));
+      $revision_ids = $entity_meta_relation_storage->revisionIds($relation);
+      if (count($revision_ids) === 1) {
+        $relation->delete();
+        return;
+      }
+
+      // We need to delete existing relation revision.
+      $revision_ids = $entity_meta_relation_storage->getQuery()
+        ->condition('id', reset($ids))
+        ->condition("{$entity_meta_relation_content_field}.target_revision_id", $content_entity->getRevisionId())
+        ->condition("{$entity_meta_relation_meta_field}.target_id", $entity->id())
+        ->allRevisions()
+        ->execute();
+
+      foreach ($revision_ids as $revision_id => $id) {
+        $entity_meta_relation_storage->deleteRevision($revision_id);
+      }
+
       return;
     }
     // Otherwise, if the entity is creating a new revision, we won't save
@@ -253,6 +251,61 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
 
   /**
    * {@inheritdoc}
+   *
+   * Drupal core does not allow the deletion of default revisions. But in some
+   * cases, we need to delete a revision that is marked as default. So before
+   * we can do that, we need to make the previous revision the default one to
+   * allow the deletion.
+   */
+  public function deleteRevision($revision_id) {
+    /** @var \Drupal\Core\Entity\RevisionableInterface $revision */
+    $revision = $this->loadRevision($revision_id);
+    if (!$revision instanceof EntityMetaInterface) {
+      // It's possible that by the time this revision delete is requested, the
+      // actual revision might have been deleted by the EntityReferenceRevision
+      // field. So we don't want to do anything in this case.
+      parent::deleteRevision($revision_id);
+      return;
+    }
+
+    if (!$revision->isDefaultRevision()) {
+      // If it's not the default revision we just defer to the parent to delete
+      // it.
+      parent::deleteRevision($revision_id);
+      return;
+    }
+
+    // Query to see if there are more than 1 revisions of this entity. If there
+    // is only one, we again don't do anything because it is expected it will
+    // happen elsewhere (deletion of the entire entity).
+    $revision_ids = $this
+      ->getQuery()
+      ->condition('id', $revision->id())
+      ->allRevisions()
+      ->execute();
+
+    if (count($revision_ids) === 1) {
+      parent::deleteRevision($revision_id);
+      return;
+    }
+
+    // Mark the previous revision as the default and then defer to the parent
+    // to perform the deletion.
+    array_pop($revision_ids);
+    end($revision_ids);
+    $revision_id_to_default = key($revision_ids);
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $revision_to_default */
+    $revision_to_default = $this->loadRevision($revision_id_to_default);
+    $revision_to_default->isDefaultRevision(TRUE);
+    $revision_to_default->setNewRevision(FALSE);
+    $revision_to_default->markToSkipRelations();
+    $revision_to_default->save();
+
+    parent::deleteRevision($revision_id);
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function deleteAllRelatedMetaEntities(ContentEntityInterface $content_entity): void {
     $entity_type = $content_entity->getEntityType();
@@ -284,12 +337,13 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
   /**
    * {@inheritdoc}
    */
-  public function deleteRevisionRelatedMetaEntities(ContentEntityInterface $content_entity): void {
+  public function deleteAllRelatedEntityMetaRelationRevisions(ContentEntityInterface $content_entity): void {
     $entity_type = $content_entity->getEntityType();
 
     $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
-    $entity_meta_relation_meta_field = $entity_type->get('entity_meta_relation_meta_field');
 
+    // Find all the revisions of EntityMetaRelation that point to the current
+    // revision of this entity.
     /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
     $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $ids = $entity_meta_relation_storage->getQuery()
@@ -301,11 +355,14 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       return;
     }
 
-    // Delete relations.
+    // Delete all the found revisions.
     foreach ($ids as $revision_id => $id) {
       $relation = $entity_meta_relation_storage->loadRevision($revision_id);
-      $entity_meta_revision_id = $relation->get($entity_meta_relation_meta_field)->target_revision_id;
-      // Avoid recursiveness.
+      // When deleting a revision that has an entity reference revision field
+      // that points to another entity revision, the EntityReferenceRevision
+      // field will attempt to delete the target entity revision as well. But
+      // we don't want that so we need to update temporarily this value to
+      // prevent it from doing so.
       $relation->setNewRevision(FALSE);
       $relation->set($entity_meta_relation_content_field, NULL);
       $relation->save();
@@ -333,31 +390,31 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    *
    * @SuppressWarnings(PHPMD.CyclomaticComplexity)
    */
-  public function getRelatedEntities(ContentEntityInterface $entity, int $revision_id = NULL): array {
-
+  public function getRelatedEntities(ContentEntityInterface $entity): array {
     $entity_type = $entity->getEntityType();
-    $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
-    $entity_meta_relation_meta_field = $entity_type->get('entity_meta_relation_meta_field');
-    $relation_field = $entity instanceof EntityMetaInterface ? 'emr_meta_revision' : $entity_meta_relation_content_field;
+    // This is the field name that points to the passed entity.
+    $relation_field_name = NULL;
+    // This is the field name that points to entity related to the passed
+    // entity. We will determine this using the relation in the loop below.
+    $reverse_relation_field_name = NULL;
+    $target_field = 'target_revision_id';
+    $target_id = $entity->getRevisionId();
 
-    // Get all revisions of this content entity.
-    if ($revision_id === -1) {
-      $target_field = 'target_id';
-      $target_id = $entity->id();
-    }
-    elseif (!empty($revision_id)) {
-      $target_field = 'target_revision_id';
-      $target_id = $revision_id;
+    if ($entity instanceof EntityMetaInterface) {
+      // @todo get this dynamically from the available entity meta relation
+      // bundles.
+      $relation_field_name = 'emr_meta_revision';
     }
     else {
-      $target_field = 'target_revision_id';
-      $target_id = $entity->getRevisionId();
+      // Any host entity.
+      $relation_field_name = $entity_type->get('entity_meta_relation_content_field');
     }
 
+    // Load all the relation revisions that point to the passed entity.
     /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
     $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $ids = $entity_meta_relation_storage->getQuery()
-      ->condition($relation_field . '.' . $target_field, $target_id)
+      ->condition($relation_field_name . '.' . $target_field, $target_id)
       ->allRevisions()
       ->execute();
 
@@ -366,26 +423,31 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     }
 
     /** @var \Drupal\emr\Entity\EntityMetaRelationInterface[] $entity_meta_relations */
-    $entity_meta_relations = $entity_meta_relation_storage->loadMultipleRevisions(array_keys($ids));
+    $entity_meta_relation_revisions = $entity_meta_relation_storage->loadMultipleRevisions(array_keys($ids));
 
     $related_entities = [];
-    // If we are looking for related EntityMeta entities, we use the field that
-    // relate to the content entities and vice-versa.
-    foreach ($entity_meta_relations as $relation) {
 
-      $reverse_relation_field = $entity instanceof EntityMetaInterface ? $entity_meta_relation_storage->getContentFieldName($relation) : $entity_meta_relation_meta_field;
+    /** @var \Drupal\emr\Entity\EntityMetaRelationInterface $relation */
+    foreach ($entity_meta_relation_revisions as $relation) {
+      if ($entity instanceof EntityMetaInterface) {
+        $reverse_relation_field_name = $entity_meta_relation_storage->getRelationFieldName($relation, EntityMetaRelationStorageInterface::RELATION_FIELD_TARGET_CONTENT);
+      }
+      else {
+        $reverse_relation_field_name = $entity_type->get('entity_meta_relation_meta_field');
+      }
 
       // Avoid loading revisions of wrong bundle.
-      if (!$relation->hasField($reverse_relation_field)) {
+      if (!$relation->hasField($reverse_relation_field_name)) {
         continue;
       }
 
-      $related_entity = $relation->get($reverse_relation_field)->entity;
-      $id = $related_entity->getEntityTypeId() . ':' . $related_entity->id();
-      // Only original revisions.
-      if ($related_entity->getEntityTypeId() == 'entity_meta' || empty($related_entities[$id])) {
-        $related_entities[$related_entity->getEntityTypeId() . ':' . $related_entity->id()] = $related_entity;
+      $related_entity = $relation->get($reverse_relation_field_name)->entity;
+      if (!$related_entity instanceof ContentEntityInterface) {
+        continue;
       }
+
+      $id = $related_entity->getEntityTypeId() . ':' . $related_entity->id();
+      $related_entities[$id] = $related_entity;
     }
 
     return $related_entities;
@@ -393,9 +455,11 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
 
   /**
    * {@inheritdoc}
+   *
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+   * @SuppressWarnings(PHPMD.NPathComplexity)
    */
   public function shouldMakeRevision(EntityMetaInterface $entity): bool {
-
     if ($entity->isNewRevision()) {
       return TRUE;
     }
@@ -404,22 +468,37 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       return TRUE;
     }
 
-    // Host entity is keeping the revision, we will follow.
+    // Host entity is keeping the revision, we will follow by not making a new
+    // revision either.
     if (!empty($entity->getHostEntity()) && ($entity->getHostEntity()->getLoadedRevisionId() == $entity->getHostEntity()->getRevisionId())) {
       return FALSE;
     }
 
-    $change_fields = $this->getChangeFields($entity);
+    if ($entity->isHostEntityIsReverting()) {
+      // We don't want to make a new revision of the meta if the host entity
+      // is reverting.
+      return FALSE;
+    }
 
-    // In case there are revisions, load the latest revision to compare against.
-    $revision_id = $this->getLatestRevisionId($entity->id());
-    /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
-    $revision = $this->loadRevision($revision_id);
+    // When determining if there are field changes, we try to compare the
+    // current field values with the original ones. These can be set on the
+    // entity elsewhere or, if not, we load the latest entity revision and
+    // compare to that.
+    $change_fields = $this->getChangeFields($entity);
+    $original = $entity->_original instanceof EntityMetaInterface ? $entity->_original : NULL;
+
+    if (!$original) {
+      // In case there are revisions, load the latest revision to compare
+      // against.
+      $original_id = $this->getLatestRevisionId($entity->id());
+      /** @var \Drupal\Core\Entity\ContentEntityInterface $original */
+      $original = $this->loadRevision($original_id);
+    }
 
     foreach ($change_fields as $field) {
       // Only save a new revision if important fields changed.
       // If we encounter a change, we save a new revision.
-      if (!empty($revision) && $entity->get($field)->hasAffectingChanges($revision->get($field)->filterEmptyItems(), $entity->language()->getId())) {
+      if (!empty($original) && $entity->get($field)->hasAffectingChanges($original->get($field)->filterEmptyItems(), $entity->language()->getId())) {
         return TRUE;
       }
     }

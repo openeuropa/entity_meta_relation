@@ -6,6 +6,7 @@ namespace Drupal\emr\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
+use Drupal\emr\EntityMetaWrapperInterface;
 
 /**
  * Provides an interface defining an entity meta entity.
@@ -101,5 +102,37 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
    *   Returns true in case current relations should be skipped when saving.
    */
   public function shouldSkipRelations(): bool;
+
+  /**
+   * Gets the wrapper for this entity meta.
+   *
+   * @return \Drupal\emr\EntityMetaWrapperInterface
+   *   The entity meta wrapper.
+   */
+  public function getWrapper(): EntityMetaWrapperInterface;
+
+  /**
+   * Sets the wrapper for this entity meta.
+   *
+   * @param \Drupal\emr\EntityMetaWrapperInterface $entityMetaWrapper
+   *   The entity meta wrapper.
+   */
+  public function setWrapper(EntityMetaWrapperInterface $entityMetaWrapper): void;
+
+  /**
+   * Checks if the host entity is reverting.
+   *
+   * @return bool
+   *   Whether it's being reverted.
+   */
+  public function isHostEntityIsReverting(): bool;
+
+  /**
+   * Sets whether the host entity is reverting.
+   *
+   * @param bool $hostEntityIsReverting
+   *   Whether it's being reverted.
+   */
+  public function setHostEntityIsReverting(bool $hostEntityIsReverting): void;
 
 }

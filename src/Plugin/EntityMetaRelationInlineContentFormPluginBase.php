@@ -19,13 +19,13 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
   public function build(array $form, FormStateInterface $form_state, ContentEntityInterface $entity): array {
     $key = $this->getFormKey();
     $this->buildFormContainer($form, $form_state, $key);
-    $entity_meta = $entity->get('emr_entity_metas')->getEntityMeta($this->getPluginDefinition()['entity_meta_bundle']);
-    $pluginDefinition = $this->getPluginDefinition();
+    $plugin_definition = $this->getPluginDefinition();
+    $entity_meta = $entity->get('emr_entity_metas')->getEntityMeta($plugin_definition['entity_meta_bundle']);
 
     $form[$key]['referenced_meta'][$this->getPluginId()] = [
       '#type' => 'inline_entity_form',
       '#entity_type' => 'entity_meta',
-      '#bundle' => $pluginDefinition['entity_meta_bundle'],
+      '#bundle' => $plugin_definition['entity_meta_bundle'],
       '#save_entity' => TRUE,
       '#form_mode' => 'default',
       '#default_value' => $entity_meta ?? NULL,
@@ -54,7 +54,6 @@ abstract class EntityMetaRelationInlineContentFormPluginBase extends EntityMetaR
 
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     $entity = $entity_form['#entity'];
-    $entity->setHostEntity($host_entity);
     $host_entity->get('emr_entity_metas')->attach($entity);
   }
 

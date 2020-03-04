@@ -27,7 +27,7 @@ class SpeedConfiguration extends EntityMetaRelationContentFormPluginBase {
   use StringTranslationTrait;
 
   /**
-   * Builds entity meta from the values of the $form_state.
+   * Builds the entity meta from the values of the $form_state.
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
@@ -38,10 +38,10 @@ class SpeedConfiguration extends EntityMetaRelationContentFormPluginBase {
   protected function buildEntity(FormStateInterface $form_state): ?EntityMetaInterface {
     /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
     $entity = $form_state->getFormObject()->getEntity();
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
     $entity_meta = $entity->get('emr_entity_metas')->getEntityMeta($this->getPluginDefinition()['entity_meta_bundle']);
 
     $entity_meta->getWrapper()->setGear($form_state->getValue('gear'));
-    $entity_meta->setHostEntity($entity);
     return $entity_meta;
   }
 

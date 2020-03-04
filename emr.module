@@ -50,15 +50,17 @@ function emr_inline_entity_form_entity_form_alter(&$reference_form, &$form_state
  */
 function emr_entity_base_field_info(EntityTypeInterface $entity_type) {
   if (!$entity_type->get('entity_meta_relation_bundle')) {
-    return;
+    // If the entity type is not connected with an EntityMeta, we don't need to
+    // do anything.
+    return [];
   }
 
   // Add emr computed field to have the related entity metas.
   $fields['emr_entity_metas'] = BaseFieldDefinition::create('entity_reference_revisions')
     ->setName('emr_entity_metas')
-    ->setLabel(t('Emr entity metas'))
+    ->setLabel(t('Entity metas'))
     ->setComputed(TRUE)
-    ->setClass('\Drupal\emr\ComputedEntityMetasItemList')
+    ->setClass('\Drupal\emr\Field\ComputedEntityMetasItemList')
     ->setSetting('target_type', 'entity_meta')
     ->setDisplayConfigurable('view', FALSE);
 

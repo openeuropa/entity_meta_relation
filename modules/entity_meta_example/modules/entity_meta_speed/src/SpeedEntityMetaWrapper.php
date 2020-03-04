@@ -12,13 +12,13 @@ use Drupal\emr\EntityMetaWrapper;
 class SpeedEntityMetaWrapper extends EntityMetaWrapper {
 
   /**
-   * Get the gear.
+   * Gets the gear.
    *
    * @return string
    *   The gear.
    */
   public function getGear(): ?string {
-    return $this->entity_meta->field_gear->value;
+    return $this->getEntityMeta()->get('field_gear')->value;
   }
 
   /**
@@ -27,8 +27,8 @@ class SpeedEntityMetaWrapper extends EntityMetaWrapper {
    * @param string $gear
    *   The gear.
    */
-  public function setGear(string $gear) {
-    $this->entity_meta->set('field_gear', $gear);
+  public function setGear(string $gear): void {
+    $this->getEntityMeta()->set('field_gear', $gear);
   }
 
 }

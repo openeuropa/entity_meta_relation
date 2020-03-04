@@ -12,13 +12,13 @@ use Drupal\emr\EntityMetaWrapper;
 class AudioEntityMetaWrapper extends EntityMetaWrapper {
 
   /**
-   * Get the volume.
+   * Gets the volume.
    *
    * @return string
    *   The volume.
    */
   public function getVolume(): ?string {
-    return $this->entity_meta->field_volume->value;
+    return $this->getEntityMeta()->get('field_volume')->value;
   }
 
   /**
@@ -27,8 +27,8 @@ class AudioEntityMetaWrapper extends EntityMetaWrapper {
    * @param string $volume
    *   The volume.
    */
-  public function setVolume(string $volume) {
-    $this->entity_meta->set('field_volume', $volume);
+  public function setVolume(string $volume): void {
+    $this->getEntityMeta()->set('field_volume', $volume);
   }
 
 }
