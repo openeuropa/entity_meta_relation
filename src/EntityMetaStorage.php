@@ -90,6 +90,16 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
   /**
    * {@inheritdoc}
    */
+  public function revisionIds(EntityMetaInterface $entity_meta): array {
+    return $this->database->query(
+      'SELECT revision_id FROM {' . $this->getRevisionTable() . '} WHERE id=:id ORDER BY revision_id',
+      [':id' => $entity_meta->id()]
+    )->fetchCol();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function postLoad(array &$entities) {
     parent::postLoad($entities);
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
@@ -268,6 +278,38 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       if ($entity instanceof EntityMetaInterface) {
         $entity->delete();
       }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteRevisionRelatedMetaEntities(ContentEntityInterface $content_entity): void {
+    $entity_type = $content_entity->getEntityType();
+
+    $entity_meta_relation_content_field = $entity_type->get('entity_meta_relation_content_field');
+    $entity_meta_relation_meta_field = $entity_type->get('entity_meta_relation_meta_field');
+
+    /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
+    $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
+    $ids = $entity_meta_relation_storage->getQuery()
+      ->condition($entity_meta_relation_content_field . '.target_revision_id', $content_entity->getRevisionId())
+      ->allRevisions()
+      ->execute();
+
+    if (!$ids) {
+      return;
+    }
+
+    // Delete relations.
+    foreach ($ids as $revision_id => $id) {
+      $relation = $entity_meta_relation_storage->loadRevision($revision_id);
+      $entity_meta_revision_id = $relation->get($entity_meta_relation_meta_field)->target_revision_id;
+      // Avoid recursiveness.
+      $relation->setNewRevision(FALSE);
+      $relation->set($entity_meta_relation_content_field, NULL);
+      $relation->save();
+      $entity_meta_relation_storage->deleteRevision($revision_id);
     }
   }
 

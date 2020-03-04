@@ -12,6 +12,17 @@ use Drupal\emr\Entity\EntityMetaInterface;
 interface EntityMetaStorageInterface extends EntityStorageInterface {
 
   /**
+   * Gets a list of revision IDs for a specific entity meta.
+   *
+   * @param \Drupal\emr\Entity\EntityMetaInterface $entity_meta
+   *   The entity meta.
+   *
+   * @return int[]
+   *   The revision IDs (in ascending order).
+   */
+  public function revisionIds(EntityMetaInterface $entity_meta): array;
+
+  /**
    * Queries and returns for related entities.
    *
    * This can either be from the direction of an EntityMeta (returning related

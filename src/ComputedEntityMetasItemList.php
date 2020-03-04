@@ -273,4 +273,14 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
     $storage->deleteAllRelatedMetaEntities($entity);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteRevision() {
+    parent::deleteRevision();
+    /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
+    $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
+    $storage->deleteRevisionRelatedMetaEntities($this->getEntity());
+  }
+
 }
