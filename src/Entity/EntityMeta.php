@@ -6,6 +6,7 @@ namespace Drupal\emr\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -220,6 +221,23 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+
+    if ($this->isNew() || isset($this->original)) {
+      return;
+    }
+
+    // If no original is set, set itself. This is needed because an entity meta
+    // entity is possible to not be found in a load even if it does exist, due
+    // to it missing a default revision. In this case, the loadUnchanged() won't
+    // find it and core expects this original key there.
+    $this->original = $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array {
 
     $fields = parent::baseFieldDefinitions($entity_type);
@@ -274,6 +292,18 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
       ->setComputed(TRUE)
       ->setClass('\Drupal\emr\Field\ComputedHostEntityItemList')
       ->setDisplayConfigurable('view', FALSE);
+
+    // Marker that the entity meta maps to the default revision of its host
+    // entity. We are not using the core default revision because it's possible
+    // that a given meta entity should have absolutely no default revisions due
+    // to its host detaching the meta on its own default revision. So a strict
+    // one to one mapping between the host default revision and the meta
+    // default revision is not possible.
+    $fields['emr_default_revision'] = BaseFieldDefinition::create('boolean')
+      ->setRevisionable(TRUE)
+      ->setLabel(t('Default revision'))
+      ->setDescription(t('A boolean indicating whether the entity meta revision maps to the default revision of the host entity.'))
+      ->setDefaultValue(FALSE);
 
     return $fields;
   }

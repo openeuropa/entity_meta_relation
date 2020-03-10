@@ -23,7 +23,7 @@ interface EntityMetaItemListInterface {
   public function attach(EntityMetaInterface $entity): void;
 
   /**
-   * Dettach an entity meta.
+   * Detach an entity meta.
    *
    * EntityMeta entities are removed from the existing list. When this happens,
    * they can either be marked to have their EntityMetaRelation revision skipped
@@ -35,7 +35,7 @@ interface EntityMetaItemListInterface {
    * @see self::entitiesToSkipRelations
    * @see self::entitiesToDeleteRelations
    */
-  public function dettach(EntityMetaInterface $entity): void;
+  public function detach(EntityMetaInterface $entity): void;
 
   /**
    * Get the first entity meta of the defined type attached in this field.

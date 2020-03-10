@@ -105,7 +105,8 @@ class EntityMetaRelationStorage extends SqlContentEntityStorage implements Entit
     /** @var \Drupal\emr\Entity\EntityMetaRelationInterface $relation */
     foreach ($entities as $relation) {
       $field_name = $this->getRelationFieldName($relation, EntityMetaRelationStorageInterface::RELATION_FIELD_TARGET_META);
-      $entity_meta = $relation->get($field_name)->entity;
+      $target_revision_id = $relation->get($field_name)->target_revision_id;
+      $entity_meta = \Drupal::entityTypeManager()->getStorage('entity_meta')->loadRevision($target_revision_id);
       if (!$entity_meta instanceof EntityMetaInterface) {
         continue;
       }

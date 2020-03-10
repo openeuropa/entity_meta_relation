@@ -114,8 +114,32 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    * {@inheritdoc}
    */
   public function save(EntityInterface $entity) {
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     if ($this->shouldMakeRevision($entity)) {
       $entity->setNewRevision(TRUE);
+    }
+
+    if ($entity->isNew() && $entity->isDefaultRevision()) {
+      // If the created entity meta is the default revision by core standards,
+      // we mark the custom field the same way. This is for cases in which it
+      // doesn't have a host entity.
+      $entity->set('emr_default_revision', TRUE);
+    }
+
+    $host_entity = $entity->getHostEntity();
+    if (!$host_entity) {
+      parent::save($entity);
+      return;
+    }
+
+    if ($host_entity->isDefaultRevision()) {
+      // If the host entity is the default revision, we indicate this meta to
+      // be the same.
+      $entity->set('emr_default_revision', TRUE);
+    }
+    else {
+      // Otherwise, we mark it as non-default.
+      $entity->set('emr_default_revision', FALSE);
     }
 
     parent::save($entity);
@@ -125,10 +149,36 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    * {@inheritdoc}
    *
    * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+   * @SuppressWarnings(PHPMD.NPathComplexity)
    */
   public function doPostSave(EntityInterface $entity, $update) {
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     parent::doPostSave($entity, $update);
+
+    $default_revision = (bool) $entity->get('emr_default_revision')->value;
+    // If the current entity being saved has been marked as the default
+    // revision, we need to go through all its other revisions and mark them
+    // as not default.
+    if ($default_revision) {
+      $current = $entity->getRevisionId();
+      $revision_ids = $this->revisionIds($entity);
+      foreach ($revision_ids as $id) {
+        if ($id === $current || is_null($current)) {
+          continue;
+        }
+        /** @var \Drupal\emr\Entity\EntityMetaInterface $revision */
+        $revision = $this->loadRevision($id);
+        $revision->getHostEntity();
+        $revision->set('emr_default_revision', FALSE);
+        $revision->setNewRevision(FALSE);
+        $revision->markToSkipRelations();
+        // Set the original to the same value so that we can later determine
+        // there was in fact no change and a new revision should not be created
+        // for this.
+        $revision->_original = $revision;
+        $revision->save();
+      }
+    }
 
     // Create or updates the entity meta relations for a given entity.
     // When a new content entity is saved or updated, we need to create or
@@ -441,7 +491,10 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
         continue;
       }
 
-      $related_entity = $relation->get($reverse_relation_field_name)->entity;
+      $target_revision_id = $relation->get($reverse_relation_field_name)->target_revision_id;
+      $target_type = $relation->get($reverse_relation_field_name)->getFieldDefinition()->getFieldStorageDefinition()->getSetting('target_type');
+      $storage = $entity instanceof EntityMetaInterface ? $this->entityTypeManager->getStorage($target_type) : $this;
+      $related_entity = $storage->loadRevision($target_revision_id);
       if (!$related_entity instanceof ContentEntityInterface) {
         continue;
       }
@@ -504,6 +557,125 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     }
 
     return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Overriding the method to build the query starting from the revisions
+   * table so that we can mimic the core "default revision" logic by checking
+   * a field value on the revision table.
+   */
+  protected function buildQuery($ids, $revision_ids = FALSE) {
+    // Use the revision table as the base table in the query.
+    $query = $this->database->select($this->revisionTable, 'revision');
+
+    $query->addTag($this->entityTypeId . '_load_multiple');
+
+    if ($revision_ids) {
+      if (!is_array($revision_ids)) {
+        // phpcs:ignore
+        @trigger_error('Passing a single revision ID to "\Drupal\Core\Entity\Sql\SqlContentEntityStorage::buildQuery()" is deprecated in drupal:8.5.x and will be removed before drupal:9.0.0. An array of revision IDs should be given instead. See https://www.drupal.org/node/2924915', E_USER_DEPRECATED);
+      }
+
+      $query->condition("revision.{$this->revisionKey}", $revision_ids, 'IN');
+    }
+    else {
+      // If we are not querying for particular revision IDs, join on the
+      // revision data table and include only the default revisions by using the
+      // "emr_default_revision" field.
+      $query->join($this->revisionDataTable, 'revision_data', "revision.{$this->revisionKey} = revision_data.{$this->revisionKey} AND revision_data.emr_default_revision = 1");
+    }
+
+    // Join back into the main entity table.
+    $query->join($this->baseTable, 'base', "revision.{$this->idKey} = base.{$this->idKey}");
+
+    // Add fields from the {entity} table.
+    $table_mapping = $this->getTableMapping();
+    $entity_fields = $table_mapping->getAllColumns($this->baseTable);
+
+    if ($this->revisionTable) {
+      // Add all fields from the {entity_revision} table.
+      $entity_revision_fields = $table_mapping->getAllColumns($this->revisionTable);
+      $entity_revision_fields = array_combine($entity_revision_fields, $entity_revision_fields);
+      // The ID field is provided by entity, so remove it.
+      unset($entity_revision_fields[$this->idKey]);
+
+      // Remove all fields from the base table that are also fields by the same
+      // name in the revision table.
+      $entity_field_keys = array_flip($entity_fields);
+      foreach ($entity_revision_fields as $name) {
+        if (isset($entity_field_keys[$name])) {
+          unset($entity_fields[$entity_field_keys[$name]]);
+        }
+      }
+      $query->fields('revision', $entity_revision_fields);
+
+      // Compare revision ID of the base and revision table, if equal then this
+      // is the default revision.
+      $query->addExpression('CASE base.' . $this->revisionKey . ' WHEN revision.' . $this->revisionKey . ' THEN 1 ELSE 0 END', 'isDefaultRevision');
+    }
+
+    $query->fields('base', $entity_fields);
+
+    if ($ids) {
+      $query->condition("base.{$this->idKey}", $ids, 'IN');
+    }
+
+    return $query;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Overriding the method to allow the mapping of the storage records from the
+   * revision tables since the storage queries are now relying on the revisions
+   * tables primarily.
+   */
+  protected function getFromStorage(array $ids = NULL) {
+    $entities = [];
+
+    if (!empty($ids)) {
+      // Sanitize IDs. Before feeding ID array into buildQuery, check whether
+      // it is empty as this would load all entities.
+      $ids = $this->cleanIds($ids);
+    }
+
+    if ($ids === NULL || $ids) {
+      // Build and execute the query.
+      $query_result = $this->buildQuery($ids)->execute();
+      $records = $query_result->fetchAllAssoc($this->idKey);
+
+      if (!$records) {
+        return $entities;
+      }
+
+      // Map the loaded records into entity objects and according fields. But
+      // first, key the array on the revision ID so we ensure we retrieve the
+      // values from the correct table.
+      $revision_records = [];
+      foreach ($records as $record) {
+        $revision_records[$record->{$this->revisionKey}] = $record;
+      }
+      $objects = $this->mapFromStorageRecords($revision_records, TRUE);
+      if (!$objects) {
+        return $entities;
+      }
+
+      // If we have built entity objects, key them back as IDs.
+      foreach ($objects as $entity) {
+        $entities[$entity->id()] = $entity;
+      }
+    }
+
+    return $entities;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getQueryServiceName() {
+    return 'emr.entity_meta.query.sql';
   }
 
 }

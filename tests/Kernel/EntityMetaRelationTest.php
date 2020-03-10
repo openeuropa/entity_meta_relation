@@ -277,9 +277,8 @@ class EntityMetaRelationTest extends KernelTestBase {
     ]);
     $entity_meta_visual->save();
     $this->entityMetaStorage->resetCache();
-    $entity_meta_visual = $this->entityMetaStorage->load(1);
+    $entity_meta_visual = $this->entityMetaStorage->loadRevision(1);
     $this->assertEquals('red', $entity_meta_visual->get('field_color')->value);
-    $this->assertEquals(1, $entity_meta_visual->getRevisionId());
 
     // Create entity meta for bundle "audio".
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta_audio */
@@ -289,10 +288,9 @@ class EntityMetaRelationTest extends KernelTestBase {
     ]);
     $entity_meta_audio->save();
     $this->entityMetaStorage->resetCache();
-    $entity_meta_audio = $this->entityMetaStorage->load(2);
+    $entity_meta_audio = $this->entityMetaStorage->loadRevision(2);
     $this->assertEquals('low', $entity_meta_audio->get('field_volume')->value);
-    $this->assertEquals($entity_meta_audio->getWrapper()->getVolume(), 'low');
-    $this->assertEquals(2, $entity_meta_audio->getRevisionId());
+    $this->assertEquals('low', $entity_meta_audio->getWrapper()->getVolume());
 
     // No host entity was specified so there should be no relations between the
     // the node and the entity meta.
@@ -618,7 +616,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     // There are 4 entity meta revisions, two for each meta.
     $this->assertCount(4, $this->entityMetaStorage->getQuery()->allRevisions()->execute());
 
-    $this->getEntityMetaList($node)->dettach($entity_meta_audio);
+    $this->getEntityMetaList($node)->detach($entity_meta_audio);
     $node->save();
     $this->nodeStorage->resetCache();
     $this->entityMetaStorage->resetCache();
@@ -659,7 +657,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEquals(2, $entity_meta_audio->id());
 
     // Detach also from this node revision without making a new revision.
-    $this->getEntityMetaList($old_node_revision)->dettach($entity_meta_audio);
+    $this->getEntityMetaList($old_node_revision)->detach($entity_meta_audio);
     $old_node_revision->save();
 
     // It was the last relation revision so it should have been deleted.
@@ -675,7 +673,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $node = $this->nodeStorage->load(2);
 
     // Detach the speed entity entity meta from the last node revision as well.
-    $this->getEntityMetaList($node)->dettach($entity_meta_speed);
+    $this->getEntityMetaList($node)->detach($entity_meta_speed);
     $node->save();
     $this->nodeStorage->resetCache();
     $this->entityMetaStorage->resetCache();
@@ -720,7 +718,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertCount(4, $this->entityMetaRelationStorage->getQuery()->allRevisions()->execute());
     $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
     $node->setNewRevision(TRUE);
-    $this->getEntityMetaList($node)->dettach($entity_meta_audio);
+    $this->getEntityMetaList($node)->detach($entity_meta_audio);
     $node->save();
     $this->nodeStorage->resetCache();
     $this->entityMetaStorage->resetCache();
@@ -737,7 +735,7 @@ class EntityMetaRelationTest extends KernelTestBase {
 
     // Detach second entity meta.
     $node->setNewRevision(TRUE);
-    $this->getEntityMetaList($node)->dettach($entity_meta_speed);
+    $this->getEntityMetaList($node)->detach($entity_meta_speed);
     $node->save();
     $this->nodeStorage->resetCache();
     $this->entityMetaStorage->resetCache();
@@ -832,6 +830,95 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertCount(1, $related_entity_meta_entities);
     $this->assertEquals($entity_meta_speed->getWrapper()->getGear(), '3');
     $this->assertTrue($entity_meta_audio->isNew());
+  }
+
+  /**
+   * Tests the entity meta default marking.
+   */
+  public function testEntityMetaDefaultRevisions(): void {
+    // Create two entity meta entities to test with.
+    $this->entityMetaStorage->create([
+      'bundle' => 'speed',
+      'field_gear' => '3',
+    ])->save();
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
+    $this->entityMetaStorage->create([
+      'bundle' => 'audio',
+      'field_volume' => 'low',
+    ])->save();
+
+    // Assert regular loading and values.
+    $this->entityMetaStorage->resetCache();
+    $entity_meta_audio = $this->entityMetaStorage->load(2);
+    $this->assertEquals(2, $entity_meta_audio->getRevisionId());
+    $this->assertEquals('low', $entity_meta_audio->get('field_volume')->value);
+    $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
+
+    // Assert loading by properties.
+    $this->entityMetaStorage->resetCache();
+    $entity_metas = $this->entityMetaStorage->loadByProperties(['field_volume' => 'low']);
+    $this->assertCount(1, $entity_metas);
+    $entity_meta_audio = reset($entity_metas);
+    $this->assertEquals(2, $entity_meta_audio->getRevisionId());
+    $this->assertEquals('low', $entity_meta_audio->get('field_volume')->value);
+    $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
+
+    // Assert querying by value.
+    $ids = $this->entityMetaStorage->getQuery()->condition('field_volume', 'low')->execute();
+    $this->assertEquals([2 => 2], $ids);
+
+    // Update the audio meta and make a new default revision.
+    $this->entityMetaStorage->resetCache();
+    $entity_meta_audio->set('field_volume', 'medium');
+    $entity_meta_audio->setNewRevision(TRUE);
+    $entity_meta_audio->save();
+    $this->assertCount(2, $this->entityMetaStorage->loadMultipleRevisions($this->entityMetaStorage->revisionIds($entity_meta_audio)));
+
+    // Assert regular loading and values.
+    $entity_meta_audio = $this->entityMetaStorage->load(2);
+    $this->assertEquals(3, $entity_meta_audio->getRevisionId());
+    $this->assertEquals('medium', $entity_meta_audio->get('field_volume')->value);
+    $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
+    $first_revision = $this->entityMetaStorage->loadRevision(2);
+    $this->assertEquals('low', $first_revision->get('field_volume')->value);
+    $this->assertEquals(0, $first_revision->get('emr_default_revision')->value);
+
+    // Assert loading by properties.
+    $this->entityMetaStorage->resetCache();
+    $entity_metas = $this->entityMetaStorage->loadByProperties(['field_volume' => 'low']);
+    $this->assertCount(0, $entity_metas);
+    $entity_metas = $this->entityMetaStorage->loadByProperties(['field_volume' => 'medium']);
+    $this->assertCount(1, $entity_metas);
+    $entity_meta_audio = reset($entity_metas);
+    $this->assertEquals(3, $entity_meta_audio->getRevisionId());
+    $this->assertEquals('medium', $entity_meta_audio->get('field_volume')->value);
+    $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
+
+    // Assert querying by value.
+    $ids = $this->entityMetaStorage->getQuery()->condition('field_volume', 'medium')->execute();
+    $this->assertEquals([3 => 2], $ids);
+
+    // Change the default revision of the audio meta.
+    $first_revision = $this->entityMetaStorage->loadRevision(2);
+    $first_revision->set('emr_default_revision', TRUE);
+    $first_revision->_original = $first_revision;
+    $first_revision->setNewRevision(FALSE);
+    $first_revision->save();
+    // No new revision should be made.
+    $this->assertCount(2, $this->entityMetaStorage->loadMultipleRevisions($this->entityMetaStorage->revisionIds($entity_meta_audio)));
+    $this->entityMetaStorage->resetCache();
+    $first_revision = $this->entityMetaStorage->loadRevision(2);
+    $this->assertEquals(1, $first_revision->get('emr_default_revision')->value);
+    $second_revision = $this->entityMetaStorage->loadRevision(3);
+    // The previously default revision should no longer be default.
+    $this->assertEquals(0, $second_revision->get('emr_default_revision')->value);
+
+    // Assert querying by value.
+    $ids = $this->entityMetaStorage->getQuery()->condition('field_volume', 'medium')->execute();
+    $this->assertEmpty($ids);
+
+    $ids = $this->entityMetaStorage->getQuery()->condition('field_volume', 'low')->execute();
+    $this->assertEquals([2 => 2], $ids);
   }
 
   /**

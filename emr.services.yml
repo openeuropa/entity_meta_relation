@@ -8,3 +8,8 @@ services:
   emr.entity_meta_wrapper.factory:
     class: Drupal\emr\EntityMetaWrapperFactory
     arguments: ['@plugin.manager.emr']
+  emr.entity_meta.query.sql:
+    class: Drupal\emr\Entity\Query\Sql\QueryFactory
+    arguments: ['@database']
+    tags:
+      - { name: backend_overridable }

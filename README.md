@@ -158,11 +158,11 @@ detected in the `EntityMeta` entity.
 ​
 ### Removing existing EntityMeta  
 
-Existing `EntityMeta` entities can be removed from the revision through the `dettach()` method.
+Existing `EntityMeta` entities can be removed from the revision through the `detach()` method.
 
 ```
 $example_meta = $node->get('emr_entity_metas')->getEntityMeta('example_bundle');
-$node->get('emr_entity_metas')->dettach($example_meta);
+$node->get('emr_entity_metas')->detach($example_meta);
 $node->save();
 ```
 

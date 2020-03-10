@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Entity Meta Relation install file.
+ */
+
+use Drupal\Core\Field\BaseFieldDefinition;
+
+/**
+ * Create the `emr_default_revision` field.
+ */
+function emr_update_8001(&$sandbox) {
+  $field = BaseFieldDefinition::create('boolean')
+    ->setRevisionable(TRUE)
+    ->setLabel(t('Default revision'))
+    ->setDescription(t('A boolean indicating whether the entity meta revision maps to the default revision of the host entity.'))
+    ->setDefaultValue(FALSE);
+
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('emr_default_revision', 'entity_meta', 'emr', $field);
+}

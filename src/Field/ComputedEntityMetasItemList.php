@@ -94,7 +94,7 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
   /**
    * {@inheritdoc}
    */
-  public function dettach(EntityMetaInterface $entity): void {
+  public function detach(EntityMetaInterface $entity): void {
     $uuid = $entity->uuid();
     // If the host entity made a new revision, we don't want to create a new
     // revision of the EntityMetaRelation to point to this new revision.
