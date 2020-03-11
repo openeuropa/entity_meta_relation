@@ -168,7 +168,6 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
         }
         /** @var \Drupal\emr\Entity\EntityMetaInterface $revision */
         $revision = $this->loadRevision($id);
-        $revision->getHostEntity();
         $revision->set('emr_default_revision', FALSE);
         $revision->setNewRevision(FALSE);
         $revision->markToSkipRelations();
