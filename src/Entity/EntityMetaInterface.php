@@ -130,9 +130,25 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
   /**
    * Sets whether the host entity is reverting.
    *
-   * @param bool $hostEntityIsReverting
+   * @param bool $reverting
    *   Whether it's being reverted.
    */
-  public function setHostEntityIsReverting(bool $hostEntityIsReverting): void;
+  public function setHostEntityIsReverting(bool $reverting): void;
+
+  /**
+   * Force to not create a new revision.
+   *
+   * @param bool $force
+   *   Whether a new revision is not allowed.
+   */
+  public function setForcedNoRevision(bool $force): void;
+
+  /**
+   * Checks if the meta should not create a new revision.
+   *
+   * @return bool
+   *   Whether a new revision is not allowed.
+   */
+  public function isForcedNoRevision(): bool;
 
 }

@@ -171,10 +171,8 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
         $revision->set('emr_default_revision', FALSE);
         $revision->setNewRevision(FALSE);
         $revision->markToSkipRelations();
-        // Set the original to the same value so that we can later determine
-        // there was in fact no change and a new revision should not be created
-        // for this.
-        $revision->_original = $revision;
+        $revision->setHostEntity(NULL);
+        $revision->setForcedNoRevision(TRUE);
         $revision->save();
       }
     }
@@ -512,6 +510,10 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    * @SuppressWarnings(PHPMD.NPathComplexity)
    */
   public function shouldMakeRevision(EntityMetaInterface $entity): bool {
+    if ($entity->isForcedNoRevision()) {
+      return FALSE;
+    }
+
     if ($entity->isNewRevision()) {
       return TRUE;
     }

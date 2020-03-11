@@ -196,6 +196,11 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
     }
 
     foreach ($values as $delta => $item) {
+      if (is_array($item)) {
+        // This should not be the case.
+        continue;
+      }
+
       // The item can be either an instance of EntityMetaInterface or a
       // FieldItem that contains one.
       $entity_meta = $item instanceof EntityMetaInterface ? $item : $item->entity;

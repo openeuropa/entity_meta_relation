@@ -39,7 +39,7 @@ function emr_update_8002(&$sandbox) {
       $revision = $storage->loadRevision($revision_id);
       $revision->set('emr_default_revision', $revision->isDefaultRevision());
       $revision->setNewRevision(FALSE);
-      $revision->_original = $revision;
+      $revision->setForcedNoRevision(TRUE);
       $revision->markToSkipRelations();
       $revision->save();
     }

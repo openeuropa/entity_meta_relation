@@ -104,6 +104,15 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   protected $hostEntityIsReverting = FALSE;
 
   /**
+   * Forces to not create a new revision of the entity.
+   *
+   * @var bool
+   *   TRUE to not create a new revision, FALSE to allow it based on other
+   *   factors.
+   */
+  protected $forcedNoRevision = FALSE;
+
+  /**
    * {@inheritdoc}
    */
   public function isEnabled(): bool {
@@ -216,6 +225,20 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
    */
   public function setHostEntityIsReverting(bool $hostEntityIsReverting): void {
     $this->hostEntityIsReverting = $hostEntityIsReverting;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isForcedNoRevision(): bool {
+    return $this->forcedNoRevision;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setForcedNoRevision(bool $force): void {
+    $this->forcedNoRevision = $force;
   }
 
   /**
