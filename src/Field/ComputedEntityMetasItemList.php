@@ -275,14 +275,18 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
   public function postSave($update): bool {
     $revision = NULL;
     $reverting = FALSE;
-    if (empty($this->list)) {
+    if (empty($this->list) && empty($this->entitiesToSkipRelations) && empty($this->entitiesToDeleteRelations)) {
       // If we are saving the host entity and are creating a new revision which
       // does not have any items, we load the entity metas linked from the
       // loaded revision and set them onto the new revision if any exist.
       // The loaded revision is that one based on which a new revision is made
       // and it's typically useful when reverting revisions to allow us to
       // set onto the new revision the entity meta relations of the revision
-      // being reverted from.
+      // being reverted from. We only do this, however, when there are no
+      // metas marked to have their relations skipped or deleted because that
+      // means they have been detached from the host entity leaving it empty
+      // for a good reason in which case we don't want to do anything with the
+      // metas.
       $entity = $this->getEntity();
       if ($entity->getLoadedRevisionId() !== $entity->getRevisionId()) {
         // If we don't have any metas in the list and a new revision is being
@@ -318,13 +322,11 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
 
       /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
       $entity_meta = $item->entity;
-
-      $uuid = $entity_meta->uuid();
-      if (array_key_exists($uuid, $this->entitiesToSkipRelations)) {
-        $entity_meta->markToSkipRelations();
-      }
-      if (array_key_exists($uuid, $this->entitiesToDeleteRelations)) {
-        $entity_meta->markToDeleteRelations();
+      if ($this->metaIsBeingDetached($entity_meta)) {
+        $entity_meta->setHostEntity($this->getEntity());
+        $entity_meta->setNewRevision(FALSE);
+        $entity_meta->save();
+        continue;
       }
 
       if ($revision->isPublished() !== $entity_meta->isEnabled()) {
@@ -339,10 +341,58 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
       if ($reverting) {
         $entity_meta->setHostEntityIsReverting($reverting);
       }
+
       $entity_meta->save();
     }
 
+    if ($this->list) {
+      // If we had items in the list, the metas have already been saved and
+      // detached if necessary.
+      return parent::postSave($update);
+    }
+
+    // However, it's possible also to have detached metas AND an empty list
+    // due to a brand new host entity revision.
+    $detached = array_merge($this->entitiesToSkipRelations, $this->entitiesToDeleteRelations);
+    foreach ($detached as $entity_meta) {
+      if ($this->metaIsBeingDetached($entity_meta)) {
+        // If we are detaching a meta and it wasn't in the list it means a new
+        // host entity revision was made. In this case, we want to load the
+        // previous revision of the host entity and set that onto the meta as
+        // host so that it doesn't mark the meta as default.
+        $revision = \Drupal::entityTypeManager()->getStorage($revision->getEntityTypeId())->loadRevision($revision->getLoadedRevisionId());
+        $entity_meta->setHostEntity($revision);
+        $entity_meta->setNewRevision(FALSE);
+        $entity_meta->save();
+      }
+    }
+
     return parent::postSave($update);
+  }
+
+  /**
+   * Determines if a given entity meta is being detached.
+   *
+   * Marks them also correctly on what should happen with their relations.
+   *
+   * @param \Drupal\emr\Entity\EntityMetaInterface $entity_meta
+   *   The entity meta.
+   *
+   * @return bool
+   *   Returns TRUE if detached, FALSE otherwise.
+   */
+  protected function metaIsBeingDetached(EntityMetaInterface $entity_meta) {
+    if (array_key_exists($entity_meta->uuid(), $this->entitiesToSkipRelations)) {
+      $entity_meta->markToSkipRelations();
+      return TRUE;
+    }
+
+    if (array_key_exists($entity_meta->uuid(), $this->entitiesToDeleteRelations)) {
+      $entity_meta->markToDeleteRelations();
+      return TRUE;
+    }
+
+    return FALSE;
   }
 
   /**

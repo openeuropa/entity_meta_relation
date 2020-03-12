@@ -833,9 +833,9 @@ class EntityMetaRelationTest extends KernelTestBase {
   }
 
   /**
-   * Tests the entity meta default marking.
+   * Tests the entity meta default marking without a host.
    */
-  public function testEntityMetaDefaultRevisions(): void {
+  public function testEntityMetaDefaultRevisionsNoHost(): void {
     // Create two entity meta entities to test with.
     $this->entityMetaStorage->create([
       'bundle' => 'speed',
@@ -919,6 +919,133 @@ class EntityMetaRelationTest extends KernelTestBase {
 
     $ids = $this->entityMetaStorage->getQuery()->condition('field_volume', 'low')->execute();
     $this->assertEquals([2 => 2], $ids);
+  }
+
+  /**
+   * Tests the entity meta default marking with a host.
+   */
+  public function testEntityMetaDefaultRevisionsWithHost(): void {
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = $this->nodeStorage->create([
+      'type' => 'entity_meta_example',
+      'title' => 'Second node',
+    ]);
+    $node->save();
+    $this->assertEquals(2, $node->getRevisionId());
+    $this->assertTrue(2, $node->isDefaultRevision());
+
+    $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
+    $this->assertTrue($entity_meta_audio->isNew());
+    $entity_meta_audio->getWrapper()->setVolume('low');
+
+    $this->getEntityMetaList($node)->attach($entity_meta_audio);
+    $node->save();
+
+    $this->entityMetaStorage->resetCache();
+    $entity_meta_audio = $this->entityMetaStorage->load(1);
+    $this->assertEquals(1, $entity_meta_audio->getRevisionId());
+    $this->assertEquals('low', $entity_meta_audio->get('field_volume')->value);
+    $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
+
+    // Update the meta with a new node revision.
+    $entity_meta_audio->getWrapper()->setVolume('medium');
+    $node->setNewRevision(TRUE);
+    $this->getEntityMetaList($node)->attach($entity_meta_audio);
+    $node->save();
+
+    $this->nodeStorage->resetCache();
+    $this->entityMetaStorage->resetCache();
+    $node = $this->nodeStorage->load(2);
+    $this->assertEquals(3, $node->getRevisionId());
+    $this->assertTrue($node->isDefaultRevision());
+    $entity_meta_audio = $this->entityMetaStorage->load(1);
+    $this->assertEquals(2, $entity_meta_audio->getRevisionId());
+    $this->assertEquals('medium', $entity_meta_audio->get('field_volume')->value);
+    $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
+
+    $entity_meta_audio_revision = $this->entityMetaStorage->loadRevision(1);
+    $this->assertEquals('low', $entity_meta_audio_revision->get('field_volume')->value);
+    $this->assertEquals(0, $entity_meta_audio_revision->get('emr_default_revision')->value);
+
+    // Detach the meta by making a new revision of the node.
+    $node->setNewRevision(TRUE);
+    $this->getEntityMetaList($node)->detach($entity_meta_audio);
+    $node->save();
+
+    $this->nodeStorage->resetCache();
+    $this->entityMetaStorage->resetCache();
+    $node = $this->nodeStorage->load(2);
+    $this->assertEquals(4, $node->getRevisionId());
+    $this->assertTrue($node->isDefaultRevision());
+    $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
+    $this->assertTrue($entity_meta_audio->isNew());
+    // Since the default revision of the node no longer is linked to the meta,
+    // there is no more default meta revision so no metas should be found.
+    $this->assertNull($this->entityMetaStorage->load(1));
+    $this->assertEmpty($this->entityMetaStorage->getQuery()->execute());
+    $this->assertCount(2, $this->entityMetaStorage->getQuery()->allRevisions()->execute());
+
+    // Attach back the audio meta.
+    $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
+    $this->assertTrue($entity_meta_audio->isNew());
+    $entity_meta_audio->getWrapper()->setVolume('high');
+    $this->getEntityMetaList($node)->attach($entity_meta_audio);
+    $node->setNewRevision(TRUE);
+    $node->save();
+
+    $this->nodeStorage->resetCache();
+    $this->entityMetaStorage->resetCache();
+    $node = $this->nodeStorage->load(2);
+    $this->assertEquals(5, $node->getRevisionId());
+    $this->assertTrue($node->isDefaultRevision());
+    $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
+    $this->assertEquals(3, $entity_meta_audio->getRevisionId());
+
+    // A new meta entity was created after detaching.
+    $this->assertEquals(2, $entity_meta_audio->id());
+    $this->assertEquals('high', $entity_meta_audio->get('field_volume')->value);
+    $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
+
+    // Update the meta values again.
+    $entity_meta_audio->getWrapper()->setVolume('low');
+    $this->getEntityMetaList($node)->attach($entity_meta_audio);
+    $node->setNewRevision(TRUE);
+    $node->save();
+    $this->nodeStorage->resetCache();
+    $this->entityMetaStorage->resetCache();
+    $node = $this->nodeStorage->load(2);
+    $this->assertEquals(6, $node->getRevisionId());
+    $this->assertTrue($node->isDefaultRevision());
+    $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
+    $this->assertEquals(4, $entity_meta_audio->getRevisionId());
+    $this->assertEquals(2, $entity_meta_audio->id());
+    $this->assertEquals('low', $entity_meta_audio->get('field_volume')->value);
+    $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
+
+    // Check that the previous revision is not default anymore.
+    $previous_meta_revision = $this->entityMetaStorage->loadRevision(3);
+    $this->assertEquals('high', $previous_meta_revision->get('field_volume')->value);
+    $this->assertEquals(0, $previous_meta_revision->get('emr_default_revision')->value);
+
+    // Detach the meta without making a new node revision.
+    $this->getEntityMetaList($node)->detach($entity_meta_audio);
+    $node->save();
+
+    $this->nodeStorage->resetCache();
+    $this->entityMetaStorage->resetCache();
+    $node = $this->nodeStorage->load(2);
+    // No new node revision.
+    $this->assertEquals(6, $node->getRevisionId());
+    $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
+    $this->assertTrue($entity_meta_audio->isNew());
+
+    // The last meta revision was deleted because the relation to it was deleted
+    // so it became orphan.
+    $this->assertCount(1, $this->entityMetaStorage->getQuery()->condition('id', 2)->allRevisions()->execute());
+    // No default revisions are left on the meta.
+    $this->assertEmpty($this->entityMetaStorage->load(2));
+    // The remaining revision is not default.
+    $this->assertEquals(0, $this->entityMetaStorage->loadRevision(3)->get('emr_default_revision')->value);
   }
 
   /**
