@@ -216,7 +216,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   /**
    * {@inheritdoc}
    */
-  public function isHostEntityIsReverting(): bool {
+  public function isHostEntityReverting(): bool {
     return $this->hostEntityIsReverting;
   }
 

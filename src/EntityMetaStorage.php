@@ -528,7 +528,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       return FALSE;
     }
 
-    if ($entity->isHostEntityIsReverting()) {
+    if ($entity->isHostEntityReverting()) {
       // We don't want to make a new revision of the meta if the host entity
       // is reverting.
       return FALSE;

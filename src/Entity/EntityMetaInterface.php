@@ -125,7 +125,7 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
    * @return bool
    *   Whether it's being reverted.
    */
-  public function isHostEntityIsReverting(): bool;
+  public function isHostEntityReverting(): bool;
 
   /**
    * Sets whether the host entity is reverting.
