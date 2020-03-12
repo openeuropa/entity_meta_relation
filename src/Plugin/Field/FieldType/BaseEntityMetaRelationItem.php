@@ -4,24 +4,16 @@ declare(strict_types = 1);
 
 namespace Drupal\emr\Plugin\Field\FieldType;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\MapItem;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\TypedData\DataReferenceDefinition;
-use Drupal\emr\Entity\EntityMetaInterface;
 
 /**
- * Defines the 'emr_item' entity field type.
- *
- * @FieldType(
- *   id = "emr_item",
- *   label = @Translation("Entity meta relation item"),
- *   description = @Translation("Relates to entity meta items."),
- *   no_ui = TRUE,
- *   list_class = "\Drupal\emr\Field\ComputedEntityMetasItemList",
- * )
+ * Base class for EntityMeta item field types.
  */
-class EntityMetaRelationItem extends MapItem {
+class BaseEntityMetaRelationItem extends MapItem {
 
   /**
    * {@inheritdoc}
@@ -54,11 +46,11 @@ class EntityMetaRelationItem extends MapItem {
       return;
     }
 
-    if (!is_array($values) && $values instanceof EntityMetaRelationItem) {
+    if (!is_array($values) && $values instanceof BaseEntityMetaRelationItem) {
       $values = $values->getValue();
     }
 
-    if (!$values instanceof EntityMetaInterface) {
+    if (!$values instanceof ContentEntityInterface) {
       return;
     }
 

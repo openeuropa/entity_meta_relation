@@ -56,7 +56,7 @@ function emr_entity_base_field_info(EntityTypeInterface $entity_type) {
   }
 
   // Add emr computed field to have the related entity metas.
-  $fields['emr_entity_metas'] = BaseFieldDefinition::create('emr_item')
+  $fields['emr_entity_metas'] = BaseFieldDefinition::create('emr_item_entity_metas')
     ->setName('emr_entity_metas')
     ->setLabel(t('Entity metas'))
     ->setComputed(TRUE)

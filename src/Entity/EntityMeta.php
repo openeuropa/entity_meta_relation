@@ -309,11 +309,10 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
       ->setDescription(t('The time that the entity meta was last edited.'));
 
     // Add a computed field to reference the host entity.
-    $fields['emr_host_entity'] = BaseFieldDefinition::create('entity_reference_revisions')
+    $fields['emr_host_entity'] = BaseFieldDefinition::create('emr_item_host')
       ->setName('Emr host name')
       ->setLabel(t('Emr host name'))
       ->setComputed(TRUE)
-      ->setClass('\Drupal\emr\Field\ComputedHostEntityItemList')
       ->setDisplayConfigurable('view', FALSE);
 
     // Marker that the entity meta maps to the default revision of its host
