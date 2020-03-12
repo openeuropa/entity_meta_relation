@@ -291,7 +291,7 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
     $node->setPublished(TRUE);
     $node->save();
 
-    // --- Make the assertions for all the changes.
+    // Make the assertions for all the changes.
     foreach ([1, 2, 3, 4] as $revision) {
       $this->assertEntityMetaRevisionValues($revision);
     }
