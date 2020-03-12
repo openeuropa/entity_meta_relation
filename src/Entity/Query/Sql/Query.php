@@ -37,7 +37,7 @@ class Query extends CoreQuery {
       ->finish()
       ->result();
 
-    if (!$original_all_revisions) {
+    if (!$original_all_revisions && !empty($result)) {
       // This should not happen since only one default revision should exist
       // per entity, but ensure only one revision is included in the results
       // per entity.
