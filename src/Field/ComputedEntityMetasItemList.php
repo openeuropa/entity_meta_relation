@@ -2,16 +2,16 @@
 
 namespace Drupal\emr\Field;
 
+use Drupal\Core\Field\FieldItemList;
 use Drupal\Core\TypedData\ComputedItemListTrait;
 use Drupal\emr\Entity\EntityMetaInterface;
-use Drupal\entity_reference_revisions\EntityReferenceRevisionsFieldItemList;
 
 /**
  * Item list for a computed field that stores related entity metas.
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
-class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList implements EntityMetaItemListInterface {
+class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaItemListInterface {
 
   use ComputedItemListTrait;
 
@@ -196,11 +196,6 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
     }
 
     foreach ($values as $delta => $item) {
-      if (is_array($item)) {
-        // This should not be the case.
-        continue;
-      }
-
       // The item can be either an instance of EntityMetaInterface or a
       // FieldItem that contains one.
       $entity_meta = $item instanceof EntityMetaInterface ? $item : $item->entity;
@@ -356,8 +351,8 @@ class ComputedEntityMetasItemList extends EntityReferenceRevisionsFieldItemList 
     $detached = array_merge($this->entitiesToSkipRelations, $this->entitiesToDeleteRelations);
     foreach ($detached as $entity_meta) {
       if ($this->metaIsBeingDetached($entity_meta)) {
-        // If we are detaching a meta and it wasn't in the list it means a new
-        // host entity revision was made. In this case, we want to load the
+        // If we are detaching a meta and it wasn't in the list it means the
+        // list values were not computed. In this case, we want to load the
         // previous revision of the host entity and set that onto the meta as
         // host so that it doesn't mark the meta as default.
         $revision = \Drupal::entityTypeManager()->getStorage($revision->getEntityTypeId())->loadRevision($revision->getLoadedRevisionId());
