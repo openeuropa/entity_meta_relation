@@ -111,7 +111,7 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
       /** @var \Drupal\Core\Config\Entity\ConfigEntityInterface $bundle */
       $bundle = $bundle_storage->load($entity->bundle());
       $entity_meta_bundles = $bundle->getThirdPartySetting('emr', 'entity_meta_bundles');
-      if (!empty($entity_meta_bundles) && !in_array($this->pluginDefinition['entity_meta_bundle'], $entity_meta_bundles)) {
+      if (!in_array($this->pluginDefinition['entity_meta_bundle'], $entity_meta_bundles)) {
         return FALSE;
       }
     }
