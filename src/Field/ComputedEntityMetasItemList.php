@@ -5,6 +5,7 @@ namespace Drupal\emr\Field;
 use Drupal\Core\Field\FieldItemList;
 use Drupal\Core\TypedData\ComputedItemListTrait;
 use Drupal\emr\Entity\EntityMetaInterface;
+use Drupal\emr\Plugin\Field\FieldType\BaseEntityMetaRelationItem;
 
 /**
  * Item list for a computed field that stores related entity metas.
@@ -196,9 +197,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     }
 
     foreach ($values as $delta => $item) {
-      // The item can be either an instance of EntityMetaInterface or a
-      // FieldItem that contains one.
-      $entity_meta = $item instanceof EntityMetaInterface ? $item : $item->entity;
+      $entity_meta = $this->getEntityMetaFromFieldItem($item);
       if (!$entity_meta instanceof EntityMetaInterface) {
         unset($values[$delta]);
         continue;
@@ -218,7 +217,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
 
       if (is_null($delta) || !isset($this->list[$delta])) {
         $delta = count($this->list);
-        $this->list[$delta] = $this->createItem($delta, $item);
+        $this->list[$delta] = $this->createItem($delta, $entity_meta);
         continue;
       }
 
@@ -439,6 +438,36 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
     $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
     $storage->deleteAllRelatedEntityMetaRelationRevisions($this->getEntity());
+  }
+
+  /**
+   * Returns the EntityMeta object from a field item.
+   *
+   * The field item can come in more than one way so we need to determine
+   * where the entity is located.
+   *
+   * @param $item
+   *   The field item.
+   *
+   * @return \Drupal\emr\Entity\EntityMetaInterface|null
+   *   The EntityMeta or NULL if none can be found.
+   */
+  protected function getEntityMetaFromFieldItem($item): ?EntityMetaInterface {
+    if (!$item) {
+      return NULL;
+    }
+
+    if ($item instanceof EntityMetaInterface) {
+      return $item;
+    }
+
+    if ($item instanceof BaseEntityMetaRelationItem) {
+      return $item->entity;
+    }
+
+    if (is_array($item) && isset($item['entity'])) {
+      return $item['entity'];
+    }
   }
 
 }
