@@ -446,7 +446,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
    * The field item can come in more than one way so we need to determine
    * where the entity is located.
    *
-   * @param EntityMetaInterface|BaseEntityMetaRelationItem|array $item
+   * @param \Drupal\emr\Entity\EntityMetaInterface|Drupal\emr\Plugin\Field\FieldTyp\BaseEntityMetaRelationItem|array|null $item
    *   The field item.
    *
    * @return \Drupal\emr\Entity\EntityMetaInterface|null
