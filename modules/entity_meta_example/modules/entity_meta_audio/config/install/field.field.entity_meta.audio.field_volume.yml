@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - emr.entity_meta_type.audio
+    - field.storage.entity_meta.field_volume
+  module:
+    - options
+id: entity_meta.audio.field_volume
+field_name: field_volume
+entity_type: entity_meta
+bundle: audio
+label: Volume
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

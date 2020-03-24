@@ -6,9 +6,11 @@ namespace Drupal\emr\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\emr\EntityMetaWrapperInterface;
 
 /**
  * Defines the entity meta entity class.
@@ -68,11 +70,47 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
   use EntityChangedTrait;
 
   /**
-   * The "host" entity this entity meta relates to.
+   * The entity meta wrapper.
    *
-   * @var \Drupal\Core\Entity\ContentEntityInterface
+   * @var \Drupal\emr\EntityMetaWrapper
    */
-  protected $hostEntity;
+  protected $entityMetaWrapper;
+
+  /**
+   * The entity meta should not create new relationships to its host entity.
+   *
+   * @var bool
+   */
+  protected $skipRelations = FALSE;
+
+  /**
+   * The entity meta will delete existing relationships to its host entity.
+   *
+   * @var bool
+   */
+  protected $deleteRelations = FALSE;
+
+  /**
+   * Whether the host entity is in the process of a revert.
+   *
+   * This flag is set by the ComputedEntityMetasItemList whenever the host
+   * entity is saved without having any metas in the list but by having the
+   * loaded revision different than the current one, indicating a revert or
+   * indicating that the entity meta being added to the list is not in fact
+   * changing so a new revision should not be made.
+   *
+   * @var bool
+   */
+  protected $hostEntityIsReverting = FALSE;
+
+  /**
+   * Forces to not create a new revision of the entity.
+   *
+   * @var bool
+   *   TRUE to not create a new revision, FALSE to allow it based on other
+   *   factors.
+   */
+  protected $forcedNoRevision = FALSE;
 
   /**
    * {@inheritdoc}
@@ -116,7 +154,7 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
    * {@inheritdoc}
    */
   public function setHostEntity(ContentEntityInterface $entity = NULL): EntityMetaInterface {
-    $this->hostEntity = $entity;
+    $this->set('emr_host_entity', $entity);
     return $this;
   }
 
@@ -124,7 +162,100 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
    * {@inheritdoc}
    */
   public function getHostEntity(): ?ContentEntityInterface {
-    return $this->hostEntity;
+    $host_entity = $this->get('emr_host_entity');
+
+    if (!$host_entity->isEmpty()) {
+      return $host_entity->first()->entity;
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getWrapper(): EntityMetaWrapperInterface {
+    return $this->entityMetaWrapper;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setWrapper(EntityMetaWrapperInterface $entityMetaWrapper): void {
+    $this->entityMetaWrapper = $entityMetaWrapper;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function markToSkipRelations(): void {
+    $this->skipRelations = TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function markToDeleteRelations(): void {
+    $this->deleteRelations = TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function shouldDeleteRelations(): bool {
+    return $this->deleteRelations;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function shouldSkipRelations(): bool {
+    return $this->skipRelations;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isHostEntityReverting(): bool {
+    return $this->hostEntityIsReverting;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setHostEntityIsReverting(bool $hostEntityIsReverting): void {
+    $this->hostEntityIsReverting = $hostEntityIsReverting;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isForcedNoRevision(): bool {
+    return $this->forcedNoRevision;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setForcedNoRevision(bool $force): void {
+    $this->forcedNoRevision = $force;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+
+    if ($this->isNew() || isset($this->original)) {
+      return;
+    }
+
+    // If no original is set, set itself. This is needed because an entity meta
+    // entity is possible to not be found in a load even if it does exist, due
+    // to it missing a default revision. In this case, the loadUnchanged() won't
+    // find it and core expects this original key there.
+    $this->original = $this;
   }
 
   /**
@@ -176,6 +307,25 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity meta was last edited.'));
+
+    // Add a computed field to reference the host entity.
+    $fields['emr_host_entity'] = BaseFieldDefinition::create('emr_item_host')
+      ->setName('Emr host name')
+      ->setLabel(t('Emr host name'))
+      ->setComputed(TRUE)
+      ->setDisplayConfigurable('view', FALSE);
+
+    // Marker that the entity meta maps to the default revision of its host
+    // entity. We are not using the core default revision because it's possible
+    // that a given meta entity should have absolutely no default revisions due
+    // to its host detaching the meta on its own default revision. So a strict
+    // one to one mapping between the host default revision and the meta
+    // default revision is not possible.
+    $fields['emr_default_revision'] = BaseFieldDefinition::create('boolean')
+      ->setRevisionable(TRUE)
+      ->setLabel(t('Default revision'))
+      ->setDescription(t('A boolean indicating whether the entity meta revision maps to the default revision of the host entity.'))
+      ->setDefaultValue(FALSE);
 
     return $fields;
   }

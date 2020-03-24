@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * The entity meta example install file.
+ */
+
+declare(strict_types = 1);
+
+/**
+ * Implements hook_install().
+ */
+function entity_meta_example_install() {
+  /** @var \Drupal\emr\EntityMetaRelationInstaller $installer */
+  $installer = \Drupal::service('emr.installer');
+  $installer->installEntityMetaTypeOnContentEntityType('visual', 'node', ['entity_meta_example_ct']);
+  $installer->installEntityMetaTypeOnContentEntityType('audio', 'node', ['entity_meta_multi_example_ct']);
+  $installer->installEntityMetaTypeOnContentEntityType('visual', 'node', ['entity_meta_multi_example_ct']);
+  $installer->installEntityMetaTypeOnContentEntityType('speed', 'node', ['entity_meta_multi_example_ct']);
+}

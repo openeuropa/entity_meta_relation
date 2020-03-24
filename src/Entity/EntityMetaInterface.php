@@ -6,6 +6,7 @@ namespace Drupal\emr\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
+use Drupal\emr\EntityMetaWrapperInterface;
 
 /**
  * Provides an interface defining an entity meta entity.
@@ -75,5 +76,79 @@ interface EntityMetaInterface extends ContentEntityInterface, EntityChangedInter
    *   Returns the host entity if present.
    */
   public function getHostEntity(): ?ContentEntityInterface;
+
+  /**
+   * Mark this entity to skip create relations when being saved.
+   */
+  public function markToSkipRelations(): void;
+
+  /**
+   * Mark this entity to delete relations to current revision when being saved.
+   */
+  public function markToDeleteRelations(): void;
+
+  /**
+   * Should relations to current revision be deleted.
+   *
+   * @return bool
+   *   Returns true in case current relations should be deleted when saving.
+   */
+  public function shouldDeleteRelations(): bool;
+
+  /**
+   * Should relations to current revision be skipped when saving.
+   *
+   * @return bool
+   *   Returns true in case current relations should be skipped when saving.
+   */
+  public function shouldSkipRelations(): bool;
+
+  /**
+   * Gets the wrapper for this entity meta.
+   *
+   * @return \Drupal\emr\EntityMetaWrapperInterface
+   *   The entity meta wrapper.
+   */
+  public function getWrapper(): EntityMetaWrapperInterface;
+
+  /**
+   * Sets the wrapper for this entity meta.
+   *
+   * @param \Drupal\emr\EntityMetaWrapperInterface $entityMetaWrapper
+   *   The entity meta wrapper.
+   */
+  public function setWrapper(EntityMetaWrapperInterface $entityMetaWrapper): void;
+
+  /**
+   * Checks if the host entity is reverting.
+   *
+   * @return bool
+   *   Whether it's being reverted.
+   */
+  public function isHostEntityReverting(): bool;
+
+  /**
+   * Sets whether the host entity is reverting.
+   *
+   * @param bool $reverting
+   *   Whether it's being reverted.
+   */
+  public function setHostEntityIsReverting(bool $reverting): void;
+
+  /**
+   * Force to not create a new revision.
+   *
+   * @param bool $force
+   *   Whether a new revision is not allowed.
+   */
+  public function setForcedNoRevision(bool $force): void;
+
+  /**
+   * Checks if the meta should not create a new revision.
+   *
+   * @return bool
+   *   Whether a new revision is not allowed.
+   */
+  public function isForcedNoRevision(): bool;
 
 }

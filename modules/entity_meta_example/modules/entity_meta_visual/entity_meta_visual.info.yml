@@ -1,0 +1,9 @@
+name: Entity Meta Visual
+type: module
+description: 'Defines an example meta entity for visual information'
+package: Entity Meta Relation
+core: 8.x
+
+dependencies:
+  - emr_node:emr_node
+  - drupal:options

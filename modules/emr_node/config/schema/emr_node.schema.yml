@@ -1,0 +1,10 @@
+node.type.*.third_party.emr:
+  type: mapping
+  label: 'Entity meta relation settings'
+  mapping:
+    entity_meta_bundles:
+      type: sequence
+      label: 'Entity meta bundles that can be used with this node type'
+      sequence:
+        type: string
+        label: 'The entity meta bundle machine name'

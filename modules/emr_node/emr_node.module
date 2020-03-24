@@ -11,8 +11,6 @@ use Drupal\emr_node\NodeFormHandler;
 
 /**
  * Implements hook_entity_type_alter().
- *
- * Adds the entity meta content form handler to the Node entity type.
  */
 function emr_node_entity_type_alter(array &$entity_types) {
   if (!isset($entity_types['node'])) {
@@ -22,10 +20,17 @@ function emr_node_entity_type_alter(array &$entity_types) {
   /** @var \Drupal\Core\Entity\EntityTypeInterface $entity_type */
   $entity_type = $entity_types['node'];
   if (!$entity_type->hasHandlerClass('emr_content_form')) {
+    // Add the entity meta content form handler to the Node entity type.
     $entity_type->setHandlerClass('emr_content_form', NodeFormHandler::class);
   }
 
+  // Set the EntityMetaRelation entity bundle that is used to connect the
+  // Node entity type with the EntityMeta entity.
   $entity_type->set('entity_meta_relation_bundle', 'node_meta_relation');
+  // Set the field name used to reference the Node entity revision on the
+  // EntityMetaRelation entity that connects it to an EntityMeta.
   $entity_type->set('entity_meta_relation_content_field', 'emr_node_revision');
+  // Set the field name used to reference the EntityMeta entity revision from
+  // the EntityMetaRelation entity that connects it to a Node.
   $entity_type->set('entity_meta_relation_meta_field', 'emr_meta_revision');
 }

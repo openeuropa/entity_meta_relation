@@ -31,12 +31,20 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
   protected $entityTypeManager;
 
   /**
+   * The entity meta storage.
+   *
+   * @var \Drupal\emr\EntityMetaStorageInterface
+   */
+  protected $entityMetaStorage;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityFieldManagerInterface $entity_field_manager, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityFieldManager = $entity_field_manager;
     $this->entityTypeManager = $entity_type_manager;
+    $this->entityMetaStorage = $this->entityTypeManager->getStorage('entity_meta');
   }
 
   /**
@@ -62,6 +70,8 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
 
   /**
    * {@inheritdoc}
+   *
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
    */
   public function applies(ContentEntityInterface $entity): bool {
     $entity_type = $entity->getEntityType();
@@ -82,7 +92,7 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
     $target_meta_bundles = $meta_field_definition->getSetting('handler_settings')['target_bundles'];
     // If the associated entity meta bundle used by the plugin is not available
     // in the relationship, the plugin does not apply.
-    if (empty($this->pluginDefinition['entity_meta_bundle'] || !in_array($this->pluginDefinition['entity_meta_bundle'], $target_meta_bundles))) {
+    if (empty($this->pluginDefinition['entity_meta_bundle']) || !in_array($this->pluginDefinition['entity_meta_bundle'], $target_meta_bundles)) {
       return FALSE;
     }
 
@@ -93,6 +103,17 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
     // the plugin does not apply.
     if (!empty($target_content_bundles) && !in_array($entity->bundle(), $target_content_bundles)) {
       return FALSE;
+    }
+
+    // If this entity has bundles, checks that the plugin is applicable to it.
+    if (!empty($entity->getEntityType()->getBundleEntityType())) {
+      $bundle_storage = $this->entityTypeManager->getStorage($entity->getEntityType()->getBundleEntityType());
+      /** @var \Drupal\Core\Config\Entity\ConfigEntityInterface $bundle */
+      $bundle = $bundle_storage->load($entity->bundle());
+      $entity_meta_bundles = $bundle->getThirdPartySetting('emr', 'entity_meta_bundles');
+      if (!in_array($this->pluginDefinition['entity_meta_bundle'], $entity_meta_bundles)) {
+        return FALSE;
+      }
     }
 
     return TRUE;

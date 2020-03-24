@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @file
+ * Entity Meta Relation install file.
+ */
+
+use Drupal\Core\Field\BaseFieldDefinition;
+
+/**
+ * Create the `emr_default_revision` field.
+ */
+function emr_update_8001(&$sandbox) {
+  $field = BaseFieldDefinition::create('boolean')
+    ->setRevisionable(TRUE)
+    ->setLabel(t('Default revision'))
+    ->setDescription(t('A boolean indicating whether the entity meta revision maps to the default revision of the host entity.'))
+    ->setDefaultValue(FALSE);
+
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('emr_default_revision', 'entity_meta', 'emr', $field);
+}
+
+/**
+ * Update the entity meta default values.
+ */
+function emr_update_8002(&$sandbox) {
+  /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
+  $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
+  $meta_ids = $storage->getQuery()->allRevisions()->execute();
+  $grouped = [];
+  foreach ($meta_ids as $revision_id => $meta_id) {
+    $grouped[$meta_id][] = $revision_id;
+  }
+
+  foreach ($grouped as $meta_id => $revision_ids) {
+    foreach ($revision_ids as $revision_id) {
+      /** @var \Drupal\emr\Entity\EntityMetaInterface $revision */
+      $revision = $storage->loadRevision($revision_id);
+      $revision->set('emr_default_revision', $revision->isDefaultRevision());
+      $revision->setNewRevision(FALSE);
+      $revision->setForcedNoRevision(TRUE);
+      $revision->markToSkipRelations();
+      $revision->save();
+    }
+  }
+}
