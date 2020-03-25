@@ -61,7 +61,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
 
     // Apply the defaults if still empty.
     if (empty($entity_metas)) {
-      $entity_metas = $this->getDefaulEntitytMetas();
+      $entity_metas = $this->getDefaultEntityMetas();
     }
 
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
@@ -318,7 +318,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       $entity_metas = $entity_meta_storage->getRelatedEntities($revision);
       // Apply the defaults if still empty.
       if (empty($this->list)) {
-        $entity_metas = $this->getDefaultMetas();
+        $entity_metas = $this->getDefaultEntityMetas();
       }
       foreach ($entity_metas as $entity_meta_id => $entity_meta) {
         $delta = count($this->list);
