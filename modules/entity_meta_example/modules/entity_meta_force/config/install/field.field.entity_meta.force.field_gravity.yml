@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - emr.entity_meta_type.force
+    - field.storage.entity_meta.field_gravity
+  module:
+    - options
+id: entity_meta.force.field_gravity
+field_name: field_gravity
+entity_type: entity_meta
+bundle: force
+label: Gravity
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string
