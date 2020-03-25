@@ -317,7 +317,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
       $entity_metas = $entity_meta_storage->getRelatedEntities($revision);
       // Apply the defaults if still empty.
-      if (empty($this->list)) {
+      if (empty($entity_metas)) {
         $entity_metas = $this->getDefaultEntityMetas();
       }
       foreach ($entity_metas as $entity_meta_id => $entity_meta) {
