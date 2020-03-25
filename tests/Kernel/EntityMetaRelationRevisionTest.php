@@ -232,7 +232,7 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
   protected function createNodeWithFourRevisions() {
     /** @var \Drupal\node\NodeInterface $node */
     $node = $this->nodeStorage->create([
-      'type' => 'entity_meta_multi_example',
+      'type' => 'entity_meta_multi_example_ct',
       'title' => 'Node test',
       // We keep the node unpublished to test the meta respects the status.
     ]);
