@@ -58,6 +58,12 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
     $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
     $entity_metas = $entity_meta_storage->getRelatedEntities($entity);
+
+    // Apply the defaults if still empty.
+    if (empty($entity_metas)) {
+      $entity_metas = $this->getDefaulEntitytMetas();
+    }
+
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
     foreach ($entity_metas as $entity_meta_id => $entity_meta) {
       $delta = count($this->list);
@@ -144,10 +150,6 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       $this->computeValue();
     }
 
-    $entity = $this->getEntity();
-    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
-    $entity_meta_storage = $entity_type_manager = \Drupal::entityTypeManager()->getStorage('entity_meta');
-
     foreach ($this->list as $item) {
       if (!$item->entity instanceof EntityMetaInterface) {
         continue;
@@ -161,11 +163,28 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
 
     if (empty($entity_meta)) {
       /** @var \Drupal\emr\EntityMetaWrapper $entity_meta */
-      $entity_meta = $entity_meta_storage->create([
-        'bundle' => $bundle,
-        'status' => $entity->isPublished(),
-      ]);
+      $entity_meta = $this->createEntityMeta($bundle);
     }
+
+    return $entity_meta;
+  }
+
+  /**
+   * Creates a new entity meta.
+   *
+   * @param string $entity_meta_bundle
+   *   The entity meta bundle.
+   */
+  protected function createEntityMeta(string $entity_meta_bundle) {
+    $entity = $this->getEntity();
+    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = $entity_type_manager = \Drupal::entityTypeManager()->getStorage('entity_meta');
+
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
+    $entity_meta = $entity_meta_storage->create([
+      'bundle' => $entity_meta_bundle,
+      'status' => $entity->isPublished(),
+    ]);
 
     return $entity_meta;
   }
@@ -297,6 +316,10 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
       $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
       $entity_metas = $entity_meta_storage->getRelatedEntities($revision);
+      // Apply the defaults if still empty.
+      if (empty($this->list)) {
+        $entity_metas = $this->getDefaultMetas();
+      }
       foreach ($entity_metas as $entity_meta_id => $entity_meta) {
         $delta = count($this->list);
         $this->list[$delta] = $this->createItem($delta, $entity_meta);
@@ -468,6 +491,29 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     if (is_array($item) && isset($item['entity'])) {
       return $item['entity'];
     }
+  }
+
+  /**
+   * Get a list of entity metas that should always be attached.
+   *
+   * @return array
+   *   The list of default entity metas.
+   */
+  protected function getDefaultEntityMetas(): array {
+
+    $default_metas = [];
+
+    $plugins = \Drupal::service('plugin.manager.emr')->getDefinitions();
+    foreach ($plugins as $id => $definition) {
+      /** @var \Drupal\emr\Plugin\EntityMetaRelationPluginInterface $plugin */
+      $plugin = \Drupal::service('plugin.manager.emr')->createInstance($id);
+      $host_entity = $this->getEntity();
+      if (isset($definition['attach_by_default']) && $definition['attach_by_default'] && $plugin->applies($host_entity)) {
+        $default_metas[] = $this->createEntityMeta($definition['entity_meta_bundle']);
+      }
+    }
+
+    return $default_metas;
   }
 
 }

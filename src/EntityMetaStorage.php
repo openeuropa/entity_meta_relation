@@ -17,6 +17,7 @@ use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\emr\Entity\EntityMetaInterface;
+use Drupal\emr\Plugin\EntityMetaRelationPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -32,6 +33,13 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    * @var \Drupal\emr\EntityMetaWrapperFactoryInterface
    */
   protected $entityMetaWrapperFactory;
+
+  /**
+   * The entity meta relation plugin manager.
+   *
+   * @var \Drupal\emr\Plugin\EntityMetaRelationPluginManager
+   */
+  protected $pluginManager;
 
   /**
    * Constructs a EntityMetaStorage object.
@@ -54,10 +62,15 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    *   The entity type manager.
    * @param \Drupal\emr\EntityMetaWrapperFactoryInterface $entity_meta_wrapper_factory
    *   The entity meta wrapper factory.
+   * @param \Drupal\emr\Plugin\EntityMetaRelationPluginManager $pluginManager
+   *   The entity meta relation plugin manager.
+   *
+   * @SuppressWarnings(PHPMD.ExcessiveParameterList)
    */
-  public function __construct(EntityTypeInterface $entity_type, Connection $database, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, LanguageManagerInterface $language_manager, MemoryCacheInterface $memory_cache = NULL, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, EntityTypeManagerInterface $entity_type_manager = NULL, EntityMetaWrapperFactoryInterface $entity_meta_wrapper_factory) {
+  public function __construct(EntityTypeInterface $entity_type, Connection $database, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, LanguageManagerInterface $language_manager, MemoryCacheInterface $memory_cache = NULL, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, EntityTypeManagerInterface $entity_type_manager = NULL, EntityMetaWrapperFactoryInterface $entity_meta_wrapper_factory, EntityMetaRelationPluginManager $pluginManager) {
     parent::__construct($entity_type, $database, $entity_field_manager, $cache, $language_manager, $memory_cache, $entity_type_bundle_info, $entity_type_manager);
     $this->entityMetaWrapperFactory = $entity_meta_wrapper_factory;
+    $this->pluginManager = $pluginManager;
   }
 
   /**
@@ -73,7 +86,8 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       $container->get('entity.memory_cache'),
       $container->get('entity_type.bundle.info'),
       $container->get('entity_type.manager'),
-      $container->get('emr.entity_meta_wrapper.factory')
+      $container->get('emr.entity_meta_wrapper.factory'),
+      $container->get('plugin.manager.emr')
     );
   }
 
@@ -85,6 +99,17 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     $entity = parent::create($values);
     $entity->setWrapper($this->entityMetaWrapperFactory->create($entity));
+    $plugins = $this->pluginManager->getDefinitions();
+
+    // Try to find a plugin with a wrapper that applies to this bundle.
+    foreach ($plugins as $id => $definition) {
+      if (!empty($definition['entity_meta_bundle']) && $definition['entity_meta_bundle'] == $entity_meta->bundle()) {
+        $plugin_instance = $this->pluginManager->createInstance($id);
+        $plugin_instance->fillDefaultEntityMetaValues($entity_meta);
+        return;
+      }
+    }
+
     return $entity;
   }
 
