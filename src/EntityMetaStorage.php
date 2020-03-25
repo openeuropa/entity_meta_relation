@@ -103,10 +103,10 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
 
     // Try to find a plugin with a wrapper that applies to this bundle.
     foreach ($plugins as $id => $definition) {
-      if (!empty($definition['entity_meta_bundle']) && $definition['entity_meta_bundle'] == $entity_meta->bundle()) {
+      if (!empty($definition['entity_meta_bundle']) && $definition['entity_meta_bundle'] == $entity->bundle()) {
         $plugin_instance = $this->pluginManager->createInstance($id);
-        $plugin_instance->fillDefaultEntityMetaValues($entity_meta);
-        return;
+        $plugin_instance->fillDefaultEntityMetaValues($entity);
+        break;
       }
     }
 
