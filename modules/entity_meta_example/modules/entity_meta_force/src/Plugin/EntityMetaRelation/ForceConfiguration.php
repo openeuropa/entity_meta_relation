@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Drupal\entity_meta_force\Plugin\EntityMetaRelation;
 
+use Drupal\emr\Entity\EntityMetaInterface;
 use Drupal\emr\Plugin\EntityMetaRelationInlineContentFormPluginBase;
 
 /**
@@ -19,4 +20,13 @@ use Drupal\emr\Plugin\EntityMetaRelationInlineContentFormPluginBase;
  *   description = @Translation("Force configuration.")
  * )
  */
-class ForceConfiguration extends EntityMetaRelationInlineContentFormPluginBase {}
+class ForceConfiguration extends EntityMetaRelationInlineContentFormPluginBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fillDefaultEntityMetaValues(EntityMetaInterface $entity_meta): void {
+    $entity_meta->getWrapper()->setGravity('weak');
+  }
+
+}

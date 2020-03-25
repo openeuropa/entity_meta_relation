@@ -58,11 +58,8 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
     $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
     $entity_metas = $entity_meta_storage->getRelatedEntities($entity);
-
-    // Apply the defaults if still empty.
-    if (empty($entity_metas)) {
-      $entity_metas = $this->getDefaultEntityMetas();
-    }
+    // Attach the default entity metas.
+    $entity_metas = $this->attachDefaultMetas($entity_metas);
 
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
     foreach ($entity_metas as $entity_meta_id => $entity_meta) {
@@ -103,6 +100,14 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
    */
   public function detach(EntityMetaInterface $entity): void {
     $uuid = $entity->uuid();
+
+    // Get default entity meta bundles, that should never be detached.
+    $default_entity_meta_bundles = $this->getDefaultEntityMetaBundles();
+    if (in_array($entity->bundle(), $default_entity_meta_bundles)) {
+      // TODO: Improve.
+      return;
+    }
+
     // If the host entity made a new revision, we don't want to create a new
     // revision of the EntityMetaRelation to point to this new revision.
     if ($this->getEntity()->isNewRevision()) {
@@ -252,11 +257,19 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       $this->list[$delta]->setValue($entity_meta, TRUE);
     }
 
+    $default_entity_meta_bundles = $this->getDefaultEntityMetaBundles();
+
     // Detach all the values that have not found themselves in the new list.
     $content_entity = $this->getEntity();
     foreach ($to_detach as $item) {
       /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
       $entity_meta = $item->entity;
+
+      // If the entity meta belongs to a non detachable bundle, don't detach.
+      if (in_array($entity_meta->bundle(), $default_entity_meta_bundles)) {
+        continue;
+      }
+
       if ($content_entity->isNewRevision()) {
         $this->entitiesToSkipRelations[$entity_meta->uuid()] = $entity_meta;
         continue;
@@ -316,10 +329,9 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
       $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
       $entity_metas = $entity_meta_storage->getRelatedEntities($revision);
-      // Apply the defaults if still empty.
-      if (empty($entity_metas)) {
-        $entity_metas = $this->getDefaultEntityMetas();
-      }
+      // Apply the defaults entity metas.
+      $entity_metas = $this->attachDefaultMetas($entity_metas);
+
       foreach ($entity_metas as $entity_meta_id => $entity_meta) {
         $delta = count($this->list);
         $this->list[$delta] = $this->createItem($delta, $entity_meta);
@@ -514,6 +526,51 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     }
 
     return $default_metas;
+  }
+
+  /**
+   * Attach to the list of entity metas the default entity meta bundles.
+   *
+   * @param array $entity_metas
+   *   The entity metas.
+   *
+   * @return array
+   *   The entity metas plus any added default entity metas.
+   */
+  protected function attachDefaultMetas(array $entity_metas): array {
+    $default_entity_metas = $this->getDefaultEntityMetas();
+    $present_bundles = [];
+
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
+    foreach ($entity_metas as $entity_meta) {
+      $present_bundles[$entity_meta->bundle()] = $entity_meta->bundle();
+    }
+
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $default_entity_meta */
+    foreach ($default_entity_metas as $default_entity_meta) {
+      if (empty($present_bundles) || !in_array($default_entity_meta->bundle(), $present_bundles)) {
+        $entity_metas[] = $default_entity_meta;
+      }
+    }
+
+    return $entity_metas;
+  }
+
+  /**
+   * Gets a list of entity meta bundles that should always be attached.
+   *
+   * @return array
+   *   The list of bundles that should always be attached.
+   */
+  protected function getDefaultEntityMetaBundles(): array {
+    $default_entity_meta_bundles = [];
+    // Get default entity meta bundles, that should never be detached.
+    $default_entity_metas = $this->getDefaultEntityMetas();
+    foreach ($default_entity_metas as $default_entity_meta) {
+      $default_entity_meta_bundles[$default_entity_meta->bundle()] = $default_entity_meta->bundle();
+    }
+
+    return $default_entity_meta_bundles;
   }
 
 }
