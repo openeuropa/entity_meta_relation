@@ -1,0 +1,31 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - emr.entity_meta_type.force
+    - field.field.entity_meta.force.field_volume
+id: entity_meta.force.default
+targetEntityType: entity_meta
+bundle: force
+mode: default
+content:
+  created:
+    type: datetime_timestamp
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_volume:
+    type: options_select
+    weight: 0
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    settings:
+      display_label: false
+    weight: 1
+    region: content
+    third_party_settings: {  }
+hidden: {  }
