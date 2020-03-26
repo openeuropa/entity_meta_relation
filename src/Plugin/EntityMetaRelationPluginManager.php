@@ -50,7 +50,12 @@ class EntityMetaRelationPluginManager extends DefaultPluginManager {
     $definitions = $this->getDefinitions();
 
     foreach ($definitions as $id => $definition) {
-      if (isset($definition['entity_meta_bundle']) && $definition['entity_meta_bundle'] !== $bundle) {
+
+      if (!isset($definition['entity_meta_bundle'])) {
+        continue;
+      }
+
+      if ($definition['entity_meta_bundle'] !== $bundle) {
         continue;
       }
 
