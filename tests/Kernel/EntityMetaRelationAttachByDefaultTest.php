@@ -120,7 +120,7 @@ class EntityMetaRelationAttachByDefaultTest extends KernelTestBase {
   }
 
   /**
-   * Tests that entity meta can be correctly related to content entities (node).
+   * Tests that entity metas can be created with default values.
    */
   public function testApiWithDefaultValues() {
     /** @var \Drupal\node\NodeInterface $node */
@@ -217,6 +217,27 @@ class EntityMetaRelationAttachByDefaultTest extends KernelTestBase {
     $entity_meta_force = $this->getEntityMetaList($node)->getEntityMeta('force');
     $this->assertEquals(6, $entity_meta_force->getRevisionId());
     $this->assertEquals('powerful', $entity_meta_force->getWrapper()->getGravity());
+  }
+
+  /**
+   * Tests that the host entity can skip the presetting of defaults in the meta.
+   */
+  public function testApiWithSkippingDefaultValues() {
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = $this->nodeStorage->create([
+      'type' => 'entity_meta_example_ct',
+      'title' => 'Second node',
+    ]);
+    $node->entity_meta_no_default = TRUE;
+    $node->save();
+    $this->assertEquals(2, $node->getRevisionId());
+
+    // Since we marked the host entity not to have any defaults, we should not
+    // have any entity metas for this node, as it would be expected.
+    $related_meta_entities = $this->entityMetaStorage->getRelatedEntities($node);
+    $this->assertEmpty($related_meta_entities);
+    $entity_meta_force = $this->getEntityMetaList($node)->getEntityMeta('force');
+    $this->assertTrue($entity_meta_force->isNew());
   }
 
   /**

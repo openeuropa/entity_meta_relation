@@ -295,6 +295,11 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       // instead of the new attempted one.
       $revision_id = $entity->getLoadedRevisionId() ?? $entity->getRevisionId();
       $revision = \Drupal::entityTypeManager()->getStorage($entity->getEntityTypeId())->loadRevision($revision_id);
+      // In case the client is marking this entity not to have any defaults
+      // when it gets first created, we need to pass this flag along.
+      if (isset($entity->entity_meta_no_default)) {
+        $revision->entity_meta_no_default = $entity->entity_meta_no_default;
+      }
 
       $entity_metas = $entity_meta_storage->getRelatedEntities($revision);
 
