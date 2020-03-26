@@ -583,6 +583,12 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
   public function getDefaultEntityMetas(ContentEntityInterface $entity): array {
     $default_metas = [];
 
+    // If the host entity was marked not to preset defaults on its meta, we
+    // don't return any entity metas.
+    if (isset($entity->entity_meta_no_default) && $entity->entity_meta_no_default === TRUE) {
+      return $default_metas;
+    }
+
     $plugins = $this->pluginManager->getDefinitions();
     foreach ($plugins as $id => $definition) {
       if (!isset($definition['attach_by_default']) || $definition['attach_by_default'] === FALSE) {
