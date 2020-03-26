@@ -238,6 +238,16 @@ class EntityMetaRelationAttachByDefaultTest extends KernelTestBase {
     $this->assertEmpty($related_meta_entities);
     $entity_meta_force = $this->getEntityMetaList($node)->getEntityMeta('force');
     $this->assertTrue($entity_meta_force->isNew());
+
+    $this->entityMetaStorage->resetCache();
+    $this->nodeStorage->resetCache();
+    $node = $this->nodeStorage->load(2);
+    $node->save();
+
+    $related_meta_entities = $this->entityMetaStorage->getRelatedEntities($node);
+    $this->assertEmpty($related_meta_entities);
+    $entity_meta_force = $this->getEntityMetaList($node)->getEntityMeta('force');
+    $this->assertTrue($entity_meta_force->isNew());
   }
 
   /**
