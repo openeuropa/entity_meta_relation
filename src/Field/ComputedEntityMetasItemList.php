@@ -58,8 +58,6 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
     $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
     $entity_metas = $entity_meta_storage->getRelatedEntities($entity);
-    // Attach the default entity metas.
-    $entity_metas = $this->attachDefaultMetas($entity_metas);
 
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
     foreach ($entity_metas as $entity_meta_id => $entity_meta) {
@@ -100,13 +98,6 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
    */
   public function detach(EntityMetaInterface $entity): void {
     $uuid = $entity->uuid();
-
-    // Get default entity meta bundles, that should never be detached.
-    $default_entity_meta_bundles = $this->getDefaultEntityMetaBundles();
-    if (in_array($entity->bundle(), $default_entity_meta_bundles)) {
-      // TODO: Improve.
-      return;
-    }
 
     // If the host entity made a new revision, we don't want to create a new
     // revision of the EntityMetaRelation to point to this new revision.
@@ -167,29 +158,12 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     }
 
     if (empty($entity_meta)) {
-      /** @var \Drupal\emr\EntityMetaWrapper $entity_meta */
-      $entity_meta = $this->createEntityMeta($bundle);
+      /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+      $entity_meta_storage = $entity_type_manager = \Drupal::entityTypeManager()->getStorage('entity_meta');
+      $entity_meta = $entity_meta_storage->create([
+        'bundle' => $bundle,
+      ]);
     }
-
-    return $entity_meta;
-  }
-
-  /**
-   * Creates a new entity meta.
-   *
-   * @param string $entity_meta_bundle
-   *   The entity meta bundle.
-   */
-  protected function createEntityMeta(string $entity_meta_bundle) {
-    $entity = $this->getEntity();
-    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
-    $entity_meta_storage = $entity_type_manager = \Drupal::entityTypeManager()->getStorage('entity_meta');
-
-    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
-    $entity_meta = $entity_meta_storage->create([
-      'bundle' => $entity_meta_bundle,
-      'status' => $entity->isPublished(),
-    ]);
 
     return $entity_meta;
   }
@@ -257,18 +231,11 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       $this->list[$delta]->setValue($entity_meta, TRUE);
     }
 
-    $default_entity_meta_bundles = $this->getDefaultEntityMetaBundles();
-
     // Detach all the values that have not found themselves in the new list.
     $content_entity = $this->getEntity();
     foreach ($to_detach as $item) {
       /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
       $entity_meta = $item->entity;
-
-      // If the entity meta belongs to a non detachable bundle, don't detach.
-      if (in_array($entity_meta->bundle(), $default_entity_meta_bundles)) {
-        continue;
-      }
 
       if ($content_entity->isNewRevision()) {
         $this->entitiesToSkipRelations[$entity_meta->uuid()] = $entity_meta;
@@ -301,6 +268,9 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
   public function postSave($update): bool {
     $revision = NULL;
     $reverting = FALSE;
+    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
+
     if (empty($this->list) && empty($this->entitiesToSkipRelations) && empty($this->entitiesToDeleteRelations)) {
       // If we are saving the host entity and are creating a new revision which
       // does not have any items, we load the entity metas linked from the
@@ -326,11 +296,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       $revision_id = $entity->getLoadedRevisionId() ?? $entity->getRevisionId();
       $revision = \Drupal::entityTypeManager()->getStorage($entity->getEntityTypeId())->loadRevision($revision_id);
 
-      /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
-      $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
       $entity_metas = $entity_meta_storage->getRelatedEntities($revision);
-      // Apply the defaults entity metas.
-      $entity_metas = $this->attachDefaultMetas($entity_metas);
 
       foreach ($entity_metas as $entity_meta_id => $entity_meta) {
         $delta = count($this->list);
@@ -344,6 +310,10 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       $revision = $this->getEntity();
     }
 
+    // If the host entity is new, get a list of potential default entity metas
+    // that we need to create for it.
+    $default_entity_metas = is_null($revision->original) ? $entity_meta_storage->getDefaultEntityMetas($revision) : [];
+
     foreach ($this->list as $item) {
       if (!$item->entity instanceof EntityMetaInterface) {
         continue;
@@ -351,6 +321,10 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
 
       /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
       $entity_meta = $item->entity;
+      if (isset($default_entity_metas[$entity_meta->bundle()])) {
+        unset($default_entity_metas[$entity_meta->bundle()]);
+      }
+
       if ($this->metaIsBeingDetached($entity_meta)) {
         $entity_meta->setHostEntity($this->getEntity());
         $entity_meta->setNewRevision(FALSE);
@@ -371,6 +345,14 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
         $entity_meta->setHostEntityIsReverting($reverting);
       }
 
+      $entity_meta->save();
+    }
+
+    // If we have default metas left (they have not been created overtly with
+    // specific values), we go through each and create them as well.
+    foreach ($default_entity_metas as $entity_meta) {
+      $revision->isPublished() ? $entity_meta->enable() : $entity_meta->disable();
+      $entity_meta->setHostEntity($this->getEntity());
       $entity_meta->save();
     }
 
@@ -481,7 +463,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
    * The field item can come in more than one way so we need to determine
    * where the entity is located.
    *
-   * @param \Drupal\emr\Entity\EntityMetaInterface|Drupal\emr\Plugin\Field\FieldTyp\BaseEntityMetaRelationItem|array|null $item
+   * @param mixed $item
    *   The field item.
    *
    * @return \Drupal\emr\Entity\EntityMetaInterface|null
@@ -503,74 +485,6 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     if (is_array($item) && isset($item['entity'])) {
       return $item['entity'];
     }
-  }
-
-  /**
-   * Get a list of entity metas that should always be attached.
-   *
-   * @return array
-   *   The list of default entity metas.
-   */
-  protected function getDefaultEntityMetas(): array {
-
-    $default_metas = [];
-
-    $plugins = \Drupal::service('plugin.manager.emr')->getDefinitions();
-    foreach ($plugins as $id => $definition) {
-      /** @var \Drupal\emr\Plugin\EntityMetaRelationPluginInterface $plugin */
-      $plugin = \Drupal::service('plugin.manager.emr')->createInstance($id);
-      $host_entity = $this->getEntity();
-      if (isset($definition['attach_by_default']) && $definition['attach_by_default'] && $plugin->applies($host_entity)) {
-        $default_metas[] = $this->createEntityMeta($definition['entity_meta_bundle']);
-      }
-    }
-
-    return $default_metas;
-  }
-
-  /**
-   * Attach to the list of entity metas the default entity meta bundles.
-   *
-   * @param array $entity_metas
-   *   The entity metas.
-   *
-   * @return array
-   *   The entity metas plus any added default entity metas.
-   */
-  protected function attachDefaultMetas(array $entity_metas): array {
-    $default_entity_metas = $this->getDefaultEntityMetas();
-    $present_bundles = [];
-
-    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
-    foreach ($entity_metas as $entity_meta) {
-      $present_bundles[$entity_meta->bundle()] = $entity_meta->bundle();
-    }
-
-    /** @var \Drupal\emr\Entity\EntityMetaInterface $default_entity_meta */
-    foreach ($default_entity_metas as $default_entity_meta) {
-      if (empty($present_bundles) || !in_array($default_entity_meta->bundle(), $present_bundles)) {
-        $entity_metas[] = $default_entity_meta;
-      }
-    }
-
-    return $entity_metas;
-  }
-
-  /**
-   * Gets a list of entity meta bundles that should always be attached.
-   *
-   * @return array
-   *   The list of bundles that should always be attached.
-   */
-  protected function getDefaultEntityMetaBundles(): array {
-    $default_entity_meta_bundles = [];
-    // Get default entity meta bundles, that should never be detached.
-    $default_entity_metas = $this->getDefaultEntityMetas();
-    foreach ($default_entity_metas as $default_entity_meta) {
-      $default_entity_meta_bundles[$default_entity_meta->bundle()] = $default_entity_meta->bundle();
-    }
-
-    return $default_entity_meta_bundles;
   }
 
 }

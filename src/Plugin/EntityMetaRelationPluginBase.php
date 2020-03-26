@@ -123,8 +123,6 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
   /**
    * {@inheritdoc}
    */
-  public function fillDefaultEntityMetaValues(EntityMetaInterface $entity_meta): void {
-
-  }
+  public function fillDefaultEntityMetaValues(EntityMetaInterface $entity_meta): void {}
 
 }

@@ -99,15 +99,12 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     $entity = parent::create($values);
     $entity->setWrapper($this->entityMetaWrapperFactory->create($entity));
-    $plugins = $this->pluginManager->getDefinitions();
 
-    // Try to find a plugin with a wrapper that applies to this bundle.
-    foreach ($plugins as $id => $definition) {
-      if (!empty($definition['entity_meta_bundle']) && $definition['entity_meta_bundle'] == $entity->bundle()) {
-        $plugin_instance = $this->pluginManager->createInstance($id);
-        $plugin_instance->fillDefaultEntityMetaValues($entity);
-        break;
-      }
+    $default_definition = $this->pluginManager->getDefaultDefinitionForBundle($entity->bundle());
+    if ($default_definition) {
+      /** @var \Drupal\emr\Plugin\EntityMetaRelationPluginInterface $plugin */
+      $plugin = $this->pluginManager->createInstance($default_definition['id']);
+      $plugin->fillDefaultEntityMetaValues($entity);
     }
 
     return $entity;
@@ -227,9 +224,10 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       ->condition("{$entity_meta_relation_meta_field}.target_id", $entity->id())
       ->execute();
 
-    // If entity is marked to be detached and it is not saving a new revision.
+    // If the entity is marked to be detached and it is not saving a new
+    // revision.
     if ($entity->shouldDeleteRelations() && !empty($ids)) {
-      $relation = $entity_meta_relation_storage->loadRevision(reset($ids));
+      $relation = $entity_meta_relation_storage->loadRevision(key($ids));
       $revision_ids = $entity_meta_relation_storage->revisionIds($relation);
       if (count($revision_ids) === 1) {
         $relation->delete();
@@ -347,14 +345,9 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       return;
     }
 
-    // Query to see if there are more than 1 revisions of this entity. If there
-    // is only one, we again don't do anything because it is expected it will
-    // happen elsewhere (deletion of the entire entity).
-    $revision_ids = $this
-      ->getQuery()
-      ->condition('id', $revision->id())
-      ->allRevisions()
-      ->execute();
+    // Check to see if there are more than 1 revisions of this entity. If there
+    // is only one, delete the entire revision.
+    $revision_ids = $this->revisionIds($revision);
 
     if (count($revision_ids) === 1) {
       parent::deleteRevision($revision_id);
@@ -364,8 +357,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     // Mark the previous revision as the default and then defer to the parent
     // to perform the deletion.
     array_pop($revision_ids);
-    end($revision_ids);
-    $revision_id_to_default = key($revision_ids);
+    $revision_id_to_default = end($revision_ids);
     /** @var \Drupal\emr\Entity\EntityMetaInterface $revision_to_default */
     $revision_to_default = $this->loadRevision($revision_id_to_default);
     $revision_to_default->isDefaultRevision(TRUE);
@@ -583,6 +575,30 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     }
 
     return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultEntityMetas(ContentEntityInterface $entity): array {
+    $default_metas = [];
+
+    $plugins = $this->pluginManager->getDefinitions();
+    foreach ($plugins as $id => $definition) {
+      if (!isset($definition['attach_by_default']) || $definition['attach_by_default'] === FALSE) {
+        continue;
+      }
+
+      /** @var \Drupal\emr\Plugin\EntityMetaRelationPluginInterface $plugin */
+      $plugin = $this->pluginManager->createInstance($id);
+      if ($plugin->applies($entity)) {
+        $default_metas[$definition['entity_meta_bundle']] = $this->create([
+          'bundle' => $definition['entity_meta_bundle'],
+        ]);
+      }
+    }
+
+    return $default_metas;
   }
 
   /**
