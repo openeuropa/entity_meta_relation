@@ -317,7 +317,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
 
     // If the host entity is new, get a list of potential default entity metas
     // that we need to create for it.
-    $default_entity_metas = is_null($revision->original) ? $entity_meta_storage->getDefaultEntityMetas($revision) : [];
+    $default_entity_metas = !$update ? $entity_meta_storage->getDefaultEntityMetas($revision) : [];
 
     foreach ($this->list as $item) {
       if (!$item->entity instanceof EntityMetaInterface) {
