@@ -19,7 +19,6 @@ class EntityMetaRelationTest extends KernelTestBase {
     'entity_meta_audio',
     'entity_meta_visual',
     'entity_meta_speed',
-    'entity_meta_force',
     'emr',
     'emr_node',
     'node',
@@ -61,10 +60,10 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->installEntitySchema('node');
     $this->installEntitySchema('entity_meta');
     $this->installEntitySchema('entity_meta_relation');
-    $this->installSchema('node', 'node_access', 'emr_node');
+    $this->installSchema('node', ['node_access']);
     $this->installConfig(
       ['emr', 'emr_node', 'entity_meta_example',
-        'entity_meta_audio', 'entity_meta_visual', 'entity_meta_speed', 'entity_meta_force',
+        'entity_meta_audio', 'entity_meta_visual', 'entity_meta_speed',
       ]);
 
     $emr_installer = \Drupal::service('emr.installer');

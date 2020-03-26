@@ -12,7 +12,7 @@ use Drupal\emr\EntityMetaWrapper;
 class ForceEntityMetaWrapper extends EntityMetaWrapper {
 
   /**
-   * Gets the volume.
+   * Gets the gravity.
    *
    * @return string
    *   The gravity.
