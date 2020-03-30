@@ -9,7 +9,7 @@
         "drupal/core": "^8.7",
         "drupal/inline_entity_form": "^1.0",
         "drupal/entity_reference_revisions": "^1.6",
-        "php": "^7.1"
+        "php": ">=7.2"
     },
     "require-dev": {
         "composer/installers": "~1.5",
@@ -19,6 +19,7 @@
         "drupal/config_devel": "~1.2",
         "drupal/drupal-extension": "~4.0",
         "drush/drush": "~9.0@stable",
+        "guzzlehttp/guzzle": "~6.3",
         "openeuropa/code-review": "~1.0.0-beta3",
         "openeuropa/drupal-core-require-dev": "^8.7",
         "openeuropa/task-runner": "~1.0.0-beta5",
