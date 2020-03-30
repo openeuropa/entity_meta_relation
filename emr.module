@@ -18,7 +18,8 @@ use Drupal\emr\ContentFormHandlerInterface;
  */
 function emr_form_alter(&$form, FormStateInterface &$form_state) {
   $form_object = $form_state->getFormObject();
-  if (!$form_object instanceof ContentEntityForm || $form_object->getOperation() === 'delete') {
+  if (!$form_object instanceof ContentEntityForm ||
+    !in_array($form_object->getOperation(), ['add', 'edit', 'default'])) {
     return;
   }
 
