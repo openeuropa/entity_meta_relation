@@ -162,6 +162,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       $entity_meta_storage = $entity_type_manager = \Drupal::entityTypeManager()->getStorage('entity_meta');
       $entity_meta = $entity_meta_storage->create([
         'bundle' => $bundle,
+        'emr_host_entity' => $this->getEntity(),
       ]);
     }
 
