@@ -600,7 +600,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       if ($plugin->applies($entity)) {
         $default_metas[$definition['entity_meta_bundle']] = $this->create([
           'bundle' => $definition['entity_meta_bundle'],
-          'emr_host_entity' => $entity
+          'emr_host_entity' => $entity,
         ]);
       }
     }
