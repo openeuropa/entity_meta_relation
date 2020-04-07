@@ -26,6 +26,7 @@ function emr_post_update_8001(&$sandbox) {
       $revision->set('emr_default_revision', $revision->isDefaultRevision());
       $revision->setNewRevision(FALSE);
       $revision->setForcedNoRevision(TRUE);
+      $revision->setHostEntity(NULL);
       $revision->markToSkipRelations();
       $revision->save();
     }
