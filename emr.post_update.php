@@ -6,9 +6,16 @@
  */
 
 /**
+ * Intentionally left blank to assure its presence.
+ */
+function emr_post_update_00001(&$sandbox) {
+
+}
+
+/**
  * Update the entity meta default values.
  */
-function emr_post_update_8002(&$sandbox) {
+function emr_post_update_00002(&$sandbox) {
   \Drupal::service('plugin.manager.field.field_type')->clearCachedDefinitions();
 
   /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
