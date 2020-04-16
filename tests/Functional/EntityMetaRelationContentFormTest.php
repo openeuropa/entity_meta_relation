@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Drupal\Tests\entity_meta_relation\Functional;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\Tests\BrowserTestBase;
 
 /**
@@ -21,6 +22,22 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
    * @var \Drupal\Core\Session\AccountInterface
    */
   protected $adminUser;
+
+  /**
+   * Admin permission for the user in the test.
+   *
+   * @var array
+   */
+  protected $permissions = [
+    'access administration pages',
+    'administer content types',
+    'administer nodes',
+    'edit any entity_meta_example_ct content',
+    'edit own entity_meta_example_ct content',
+    'edit any entity_meta_multi_example_ct content',
+    'edit own entity_meta_multi_example_ct content',
+    'access content overview',
+  ];
 
   /**
    * {@inheritdoc}
@@ -41,17 +58,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
   protected function setUp() {
     parent::setUp();
 
-    $this->adminUser = $this->drupalCreateUser([
-      'access administration pages',
-      'administer content types',
-      'administer nodes',
-      'edit any entity_meta_example_ct content',
-      'edit own entity_meta_example_ct content',
-      'edit any entity_meta_multi_example_ct content',
-      'edit own entity_meta_multi_example_ct content',
-      'access content overview',
-    ]);
-
+    $this->adminUser = $this->drupalCreateUser($this->permissions);
     $this->drupalLogin($this->adminUser);
   }
 
@@ -60,9 +67,9 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
    */
   public function testContentWithSingleEntityMetaEditing(): void {
     /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
-    $entity_meta_storage = $this->container->get('entity_type.manager')->getStorage('entity_meta');
+    $entity_meta_storage = \Drupal::service('entity_type.manager')->getStorage('entity_meta');
     /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
-    $entity_meta_relation_storage = $this->container->get('entity_type.manager')->getStorage('entity_meta_relation');
+    $entity_meta_relation_storage = \Drupal::service('entity_type.manager')->getStorage('entity_meta_relation');
 
     // Create a new content entity but don't specify any meta value.
     $this->drupalGet('node/add/entity_meta_example_ct');
@@ -172,9 +179,9 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
    */
   public function testRemoveMetaRelation(): void {
     /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
-    $entity_meta_storage = $this->container->get('entity_type.manager')->getStorage('entity_meta');
+    $entity_meta_storage = \Drupal::service('entity_type.manager')->getStorage('entity_meta');
     /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
-    $entity_meta_relation_storage = $this->container->get('entity_type.manager')->getStorage('entity_meta_relation');
+    $entity_meta_relation_storage = \Drupal::service('entity_type.manager')->getStorage('entity_meta_relation');
 
     // Create a new content entity with a meta value.
     $label = 'Node example';
@@ -238,7 +245,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
 
     // Load the previous content revision which had the entity meta with the
     // color red.
-    $node = $this->container->get('entity_type.manager')->getStorage('node')->loadRevision(1);
+    $node = \Drupal::service('entity_type.manager')->getStorage('node')->loadRevision(1);
     $entity_meta_entities = $entity_meta_storage->getRelatedEntities($node);
     $this->assertCount(1, $entity_meta_entities);
     $entity_meta = reset($entity_meta_entities);
@@ -251,11 +258,11 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
    */
   public function testContentWithMultiEntityMetaEditing(): void {
     /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
-    $entity_meta_storage = $this->container->get('entity_type.manager')->getStorage('entity_meta');
+    $entity_meta_storage = \Drupal::service('entity_type.manager')->getStorage('entity_meta');
     /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
-    $entity_meta_relation_storage = $this->container->get('entity_type.manager')->getStorage('entity_meta_relation');
+    $entity_meta_relation_storage = \Drupal::service('entity_type.manager')->getStorage('entity_meta_relation');
     /** @var \Drupal\node\NodeStorageInterface $node_storage */
-    $node_storage = $this->container->get('entity_type.manager')->getStorage('node');
+    $node_storage = \Drupal::service('entity_type.manager')->getStorage('node');
 
     // Create a new content entity but don't specify any meta value.
     $this->drupalGet('node/add/entity_meta_multi_example_ct');
@@ -395,6 +402,35 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
   }
 
   /**
+   * Tests that entity meta forms don't show up on translation forms.
+   */
+  public function testNoEntityMetaOnTranslationForm(): void {
+    \Drupal::service('module_installer')->install(['language', 'content_translation']);
+    \Drupal::service('content_translation.manager')->setEnabled('node', 'entity_meta_example_ct', TRUE);
+    $this->permissions[] = 'translate any entity';
+    $this->drupalLogin($this->drupalCreateUser($this->permissions));
+    ConfigurableLanguage::create(['id' => 'fr'])->save();
+    $this->drupalGet('node/add/entity_meta_example_ct');
+
+    $this->getSession()->getPage()->fillField('Title', 'Test node');
+    // The entity meta field should exist on the original edit form.
+    $this->assertSession()->fieldExists('Color');
+    $this->getSession()->getPage()->pressButton('Save');
+    $this->getSession()->getPage()->hasContent('Test node has been created');
+
+    $node = $this->getEntityByLabel('node', 'Test node');
+    $url = $node->toUrl('drupal:content-translation-add');
+    $url->setRouteParameter('source', 'en');
+    $url->setRouteParameter('target', 'fr');
+    $this->drupalGet($url);
+
+    $this->assertSession()->fieldExists('Title');
+    $this->assertSession()->pageTextContains('Create French translation of Test node');
+    // The entity meta field should not exist on the translation edit form.
+    $this->assertSession()->fieldNotExists('Color');
+  }
+
+  /**
    * Loads a single entity by its label.
    *
    * @param string $type
@@ -406,8 +442,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
    *   The entity.
    */
   protected function getEntityByLabel($type, $label): EntityInterface {
-    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
-    $entity_type_manager = $this->container->get('entity_type.manager');
+    $entity_type_manager = \Drupal::entityTypeManager();
     $property = $entity_type_manager->getDefinition($type)->getKey('label');
 
     $entity_list = $entity_type_manager->getStorage($type)->loadByProperties([$property => $label]);

@@ -28,6 +28,11 @@ function emr_form_alter(&$form, FormStateInterface &$form_state) {
     return;
   }
 
+  // We don't want to show the meta form on the translation form of the entity.
+  if (!$entity->isDefaultTranslation()) {
+    return;
+  }
+
   $handler = \Drupal::entityTypeManager()->getHandler($entity->getEntityTypeId(), 'emr_content_form');
   if ($handler instanceof ContentFormHandlerInterface) {
     $form = $handler->addFormElements($form, $form_state, $entity);
