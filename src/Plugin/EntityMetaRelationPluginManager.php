@@ -34,4 +34,40 @@ class EntityMetaRelationPluginManager extends DefaultPluginManager {
     $this->setCacheBackend($cache_backend, 'entity_meta_relation_plugins');
   }
 
+  /**
+   * Returns the definition that has defaults for a given bundle.
+   *
+   * This is the plugin definition that sets values on the corresponding entity
+   * by default.
+   *
+   * @param string $bundle
+   *   The bundle.
+   *
+   * @return array|null
+   *   The definition or null if none exists.
+   */
+  public function getDefaultDefinitionForBundle(string $bundle): ?array {
+    $definitions = $this->getDefinitions();
+
+    foreach ($definitions as $id => $definition) {
+
+      if (!isset($definition['entity_meta_bundle'])) {
+        continue;
+      }
+
+      if ($definition['entity_meta_bundle'] !== $bundle) {
+        continue;
+      }
+
+      if (isset($definition['attach_by_default']) && $definition['attach_by_default'] !== TRUE) {
+        continue;
+      }
+
+      // There can only be one definition that works with a given bundle.
+      return $definition;
+    }
+
+    return NULL;
+  }
+
 }

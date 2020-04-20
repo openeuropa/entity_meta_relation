@@ -17,6 +17,7 @@ use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\emr\Entity\EntityMetaInterface;
+use Drupal\emr\Plugin\EntityMetaRelationPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -32,6 +33,13 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    * @var \Drupal\emr\EntityMetaWrapperFactoryInterface
    */
   protected $entityMetaWrapperFactory;
+
+  /**
+   * The entity meta relation plugin manager.
+   *
+   * @var \Drupal\emr\Plugin\EntityMetaRelationPluginManager
+   */
+  protected $pluginManager;
 
   /**
    * Constructs a EntityMetaStorage object.
@@ -54,10 +62,15 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    *   The entity type manager.
    * @param \Drupal\emr\EntityMetaWrapperFactoryInterface $entity_meta_wrapper_factory
    *   The entity meta wrapper factory.
+   * @param \Drupal\emr\Plugin\EntityMetaRelationPluginManager $pluginManager
+   *   The entity meta relation plugin manager.
+   *
+   * @SuppressWarnings(PHPMD.ExcessiveParameterList)
    */
-  public function __construct(EntityTypeInterface $entity_type, Connection $database, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, LanguageManagerInterface $language_manager, MemoryCacheInterface $memory_cache = NULL, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, EntityTypeManagerInterface $entity_type_manager = NULL, EntityMetaWrapperFactoryInterface $entity_meta_wrapper_factory) {
+  public function __construct(EntityTypeInterface $entity_type, Connection $database, EntityFieldManagerInterface $entity_field_manager, CacheBackendInterface $cache, LanguageManagerInterface $language_manager, MemoryCacheInterface $memory_cache = NULL, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, EntityTypeManagerInterface $entity_type_manager = NULL, EntityMetaWrapperFactoryInterface $entity_meta_wrapper_factory, EntityMetaRelationPluginManager $pluginManager) {
     parent::__construct($entity_type, $database, $entity_field_manager, $cache, $language_manager, $memory_cache, $entity_type_bundle_info, $entity_type_manager);
     $this->entityMetaWrapperFactory = $entity_meta_wrapper_factory;
+    $this->pluginManager = $pluginManager;
   }
 
   /**
@@ -73,7 +86,8 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       $container->get('entity.memory_cache'),
       $container->get('entity_type.bundle.info'),
       $container->get('entity_type.manager'),
-      $container->get('emr.entity_meta_wrapper.factory')
+      $container->get('emr.entity_meta_wrapper.factory'),
+      $container->get('plugin.manager.emr')
     );
   }
 
@@ -85,6 +99,14 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     $entity = parent::create($values);
     $entity->setWrapper($this->entityMetaWrapperFactory->create($entity));
+
+    $default_definition = $this->pluginManager->getDefaultDefinitionForBundle($entity->bundle());
+    if ($default_definition) {
+      /** @var \Drupal\emr\Plugin\EntityMetaRelationPluginInterface $plugin */
+      $plugin = $this->pluginManager->createInstance($default_definition['id']);
+      $plugin->fillDefaultEntityMetaValues($entity);
+    }
+
     return $entity;
   }
 
@@ -202,9 +224,10 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       ->condition("{$entity_meta_relation_meta_field}.target_id", $entity->id())
       ->execute();
 
-    // If entity is marked to be detached and it is not saving a new revision.
+    // If the entity is marked to be detached and it is not saving a new
+    // revision.
     if ($entity->shouldDeleteRelations() && !empty($ids)) {
-      $relation = $entity_meta_relation_storage->loadRevision(reset($ids));
+      $relation = $entity_meta_relation_storage->loadRevision(key($ids));
       $revision_ids = $entity_meta_relation_storage->revisionIds($relation);
       if (count($revision_ids) === 1) {
         $relation->delete();
@@ -322,14 +345,9 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       return;
     }
 
-    // Query to see if there are more than 1 revisions of this entity. If there
-    // is only one, we again don't do anything because it is expected it will
-    // happen elsewhere (deletion of the entire entity).
-    $revision_ids = $this
-      ->getQuery()
-      ->condition('id', $revision->id())
-      ->allRevisions()
-      ->execute();
+    // Check to see if there are more than 1 revisions of this entity. If there
+    // is only one, delete the entire revision.
+    $revision_ids = $this->revisionIds($revision);
 
     if (count($revision_ids) === 1) {
       parent::deleteRevision($revision_id);
@@ -339,8 +357,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     // Mark the previous revision as the default and then defer to the parent
     // to perform the deletion.
     array_pop($revision_ids);
-    end($revision_ids);
-    $revision_id_to_default = key($revision_ids);
+    $revision_id_to_default = end($revision_ids);
     /** @var \Drupal\emr\Entity\EntityMetaInterface $revision_to_default */
     $revision_to_default = $this->loadRevision($revision_id_to_default);
     $revision_to_default->isDefaultRevision(TRUE);
@@ -558,6 +575,37 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     }
 
     return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultEntityMetas(ContentEntityInterface $entity): array {
+    $default_metas = [];
+
+    // If the host entity was marked not to preset defaults on its meta, we
+    // don't return any entity metas.
+    if (isset($entity->entity_meta_no_default) && $entity->entity_meta_no_default === TRUE) {
+      return $default_metas;
+    }
+
+    $plugins = $this->pluginManager->getDefinitions();
+    foreach ($plugins as $id => $definition) {
+      if (!isset($definition['attach_by_default']) || $definition['attach_by_default'] === FALSE) {
+        continue;
+      }
+
+      /** @var \Drupal\emr\Plugin\EntityMetaRelationPluginInterface $plugin */
+      $plugin = $this->pluginManager->createInstance($id);
+      if ($plugin->applies($entity)) {
+        $default_metas[$definition['entity_meta_bundle']] = $this->create([
+          'bundle' => $definition['entity_meta_bundle'],
+          'emr_host_entity' => $entity,
+        ]);
+      }
+    }
+
+    return $default_metas;
   }
 
   /**

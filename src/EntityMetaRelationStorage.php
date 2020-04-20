@@ -63,17 +63,11 @@ class EntityMetaRelationStorage extends SqlContentEntityStorage implements Entit
       return;
     }
 
-    // Query to see if there are more than 1 revisions of this entity. If there
-    // is only one, we again don't do anything because it is expected it will
-    // happen elsewhere (deletion of the entire entity).
-    $revision_ids = $this
-      ->getQuery()
-      ->condition('id', $revision->id())
-      ->allRevisions()
-      ->execute();
-
+    // Check to see if there are more than 1 revisions of this entity. If there
+    // is only one, delete the entire revision.
+    $revision_ids = $this->revisionIds($revision);
     if (count($revision_ids) === 1) {
-      parent::deleteRevision($revision_id);
+      $this->delete($this->loadMultipleRevisions($revision_ids));
       $this->deleteOrphanEntityMetaRevision($revision);
       return;
     }
@@ -81,8 +75,7 @@ class EntityMetaRelationStorage extends SqlContentEntityStorage implements Entit
     // Mark the previous revision as the default and then defer to the parent
     // to perform the deletion.
     array_pop($revision_ids);
-    end($revision_ids);
-    $revision_id_to_default = key($revision_ids);
+    $revision_id_to_default = end($revision_ids);
     $revision_to_default = $this->loadRevision($revision_id_to_default);
     $revision_to_default->isDefaultRevision(TRUE);
     $revision_to_default->setNewRevision(FALSE);
@@ -133,16 +126,16 @@ class EntityMetaRelationStorage extends SqlContentEntityStorage implements Entit
    */
   protected function deleteOrphanEntityMetaRevision(EntityMetaRelationInterface $revision): void {
     $field_name = $this->getRelationFieldName($revision, EntityMetaRelationStorageInterface::RELATION_FIELD_TARGET_META);
-    $entity_meta_revision = $revision->get($field_name)->target_revision_id;
+    $entity_meta_revision_id = $revision->get($field_name)->target_revision_id;
 
-    $results = $this->getQuery()->condition("{$field_name}.target_revision_id", $entity_meta_revision)->allRevisions()->execute();
+    $results = $this->getQuery()->condition("{$field_name}.target_revision_id", $entity_meta_revision_id)->allRevisions()->execute();
     if ($results) {
       return;
     }
 
     // If there are no more relation revisions pointing to that entity meta
     // revision, we need to delete it.
-    $this->entityTypeManager->getStorage('entity_meta')->deleteRevision($entity_meta_revision);
+    $this->entityTypeManager->getStorage('entity_meta')->deleteRevision($entity_meta_revision_id);
   }
 
 }
