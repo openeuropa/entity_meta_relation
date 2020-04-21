@@ -1,0 +1,10 @@
+name: Entity Meta Force
+type: module
+description: 'Defines an example meta entity for force information'
+package: Entity Meta Relation
+core: 8.x
+
+dependencies:
+  - emr:emr
+  - emr_node:emr_node
+  - drupal:options

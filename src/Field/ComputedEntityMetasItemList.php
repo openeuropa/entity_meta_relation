@@ -58,6 +58,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
     $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
     $entity_metas = $entity_meta_storage->getRelatedEntities($entity);
+
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
     foreach ($entity_metas as $entity_meta_id => $entity_meta) {
       $delta = count($this->list);
@@ -97,6 +98,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
    */
   public function detach(EntityMetaInterface $entity): void {
     $uuid = $entity->uuid();
+
     // If the host entity made a new revision, we don't want to create a new
     // revision of the EntityMetaRelation to point to this new revision.
     if ($this->getEntity()->isNewRevision()) {
@@ -144,10 +146,6 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       $this->computeValue();
     }
 
-    $entity = $this->getEntity();
-    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
-    $entity_meta_storage = $entity_type_manager = \Drupal::entityTypeManager()->getStorage('entity_meta');
-
     foreach ($this->list as $item) {
       if (!$item->entity instanceof EntityMetaInterface) {
         continue;
@@ -160,10 +158,11 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     }
 
     if (empty($entity_meta)) {
-      /** @var \Drupal\emr\EntityMetaWrapper $entity_meta */
+      /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+      $entity_meta_storage = $entity_type_manager = \Drupal::entityTypeManager()->getStorage('entity_meta');
       $entity_meta = $entity_meta_storage->create([
         'bundle' => $bundle,
-        'status' => $entity->isPublished(),
+        'emr_host_entity' => $this->getEntity(),
       ]);
     }
 
@@ -238,6 +237,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     foreach ($to_detach as $item) {
       /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
       $entity_meta = $item->entity;
+
       if ($content_entity->isNewRevision()) {
         $this->entitiesToSkipRelations[$entity_meta->uuid()] = $entity_meta;
         continue;
@@ -269,6 +269,9 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
   public function postSave($update): bool {
     $revision = NULL;
     $reverting = FALSE;
+    /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
+    $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
+
     if (empty($this->list) && empty($this->entitiesToSkipRelations) && empty($this->entitiesToDeleteRelations)) {
       // If we are saving the host entity and are creating a new revision which
       // does not have any items, we load the entity metas linked from the
@@ -293,10 +296,14 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       // instead of the new attempted one.
       $revision_id = $entity->getLoadedRevisionId() ?? $entity->getRevisionId();
       $revision = \Drupal::entityTypeManager()->getStorage($entity->getEntityTypeId())->loadRevision($revision_id);
+      // In case the client is marking this entity not to have any defaults
+      // when it gets first created, we need to pass this flag along.
+      if (isset($entity->entity_meta_no_default)) {
+        $revision->entity_meta_no_default = $entity->entity_meta_no_default;
+      }
 
-      /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
-      $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
       $entity_metas = $entity_meta_storage->getRelatedEntities($revision);
+
       foreach ($entity_metas as $entity_meta_id => $entity_meta) {
         $delta = count($this->list);
         $this->list[$delta] = $this->createItem($delta, $entity_meta);
@@ -309,6 +316,10 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       $revision = $this->getEntity();
     }
 
+    // If the host entity is new, get a list of potential default entity metas
+    // that we need to create for it.
+    $default_entity_metas = !$update ? $entity_meta_storage->getDefaultEntityMetas($revision) : [];
+
     foreach ($this->list as $item) {
       if (!$item->entity instanceof EntityMetaInterface) {
         continue;
@@ -316,6 +327,10 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
 
       /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
       $entity_meta = $item->entity;
+      if (isset($default_entity_metas[$entity_meta->bundle()])) {
+        unset($default_entity_metas[$entity_meta->bundle()]);
+      }
+
       if ($this->metaIsBeingDetached($entity_meta)) {
         $entity_meta->setHostEntity($this->getEntity());
         $entity_meta->setNewRevision(FALSE);
@@ -336,6 +351,14 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
         $entity_meta->setHostEntityIsReverting($reverting);
       }
 
+      $entity_meta->save();
+    }
+
+    // If we have default metas left (they have not been created overtly with
+    // specific values), we go through each and create them as well.
+    foreach ($default_entity_metas as $entity_meta) {
+      $revision->isPublished() ? $entity_meta->enable() : $entity_meta->disable();
+      $entity_meta->setHostEntity($this->getEntity());
       $entity_meta->save();
     }
 
@@ -446,7 +469,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
    * The field item can come in more than one way so we need to determine
    * where the entity is located.
    *
-   * @param \Drupal\emr\Entity\EntityMetaInterface|Drupal\emr\Plugin\Field\FieldTyp\BaseEntityMetaRelationItem|array|null $item
+   * @param mixed $item
    *   The field item.
    *
    * @return \Drupal\emr\Entity\EntityMetaInterface|null

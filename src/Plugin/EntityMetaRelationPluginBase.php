@@ -9,6 +9,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\emr\Entity\EntityMetaInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -118,5 +119,10 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
 
     return TRUE;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fillDefaultEntityMetaValues(EntityMetaInterface $entity_meta): void {}
 
 }

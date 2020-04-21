@@ -60,11 +60,15 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->installEntitySchema('node');
     $this->installEntitySchema('entity_meta');
     $this->installEntitySchema('entity_meta_relation');
-    $this->installSchema('node', 'node_access', 'emr_node');
+    $this->installSchema('node', ['node_access']);
     $this->installConfig(
       ['emr', 'emr_node', 'entity_meta_example',
         'entity_meta_audio', 'entity_meta_visual', 'entity_meta_speed',
       ]);
+
+    $emr_installer = \Drupal::service('emr.installer');
+    $emr_installer->installEntityMetaTypeOnContentEntityType('audio', 'node');
+    $emr_installer->installEntityMetaTypeOnContentEntityType('speed', 'node');
 
     $this->entityMetaStorage = $this->container->get('entity_type.manager')->getStorage('entity_meta');
     $this->entityMetaRelationStorage = $this->container->get('entity_type.manager')->getStorage('entity_meta_relation');
@@ -74,7 +78,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     // have coincidental matching IDs between nodes and entity metas.
     /** @var \Drupal\node\NodeInterface $first_node */
     $first_node = $this->nodeStorage->create([
-      'type' => 'entity_meta_example',
+      'type' => 'entity_meta_example_ct',
       'title' => 'First node',
     ]);
     $first_node->save();
@@ -87,7 +91,7 @@ class EntityMetaRelationTest extends KernelTestBase {
   public function testSingleEntityMetaRelations() {
     /** @var \Drupal\node\NodeInterface $node */
     $node = $this->nodeStorage->create([
-      'type' => 'entity_meta_example',
+      'type' => 'entity_meta_example_ct',
       'title' => 'Second node',
     ]);
     $node->save();
@@ -259,7 +263,7 @@ class EntityMetaRelationTest extends KernelTestBase {
   public function testMultipleEntityMetaRelations() {
     /** @var \Drupal\node\NodeInterface $node */
     $node = $this->nodeStorage->create([
-      'type' => 'entity_meta_multi_example',
+      'type' => 'entity_meta_multi_example_ct',
       'title' => 'Second node',
     ]);
     $node->save();
@@ -442,7 +446,7 @@ class EntityMetaRelationTest extends KernelTestBase {
   public function testContentEntityAttach() {
     /** @var \Drupal\node\NodeInterface $node */
     $node = $this->nodeStorage->create([
-      'type' => 'entity_meta_multi_example',
+      'type' => 'entity_meta_multi_example_ct',
       'title' => 'Second node',
     ]);
     $node->save();
@@ -569,7 +573,7 @@ class EntityMetaRelationTest extends KernelTestBase {
   public function testContentEntityDetach() {
     /** @var \Drupal\node\NodeInterface $node */
     $node = $this->nodeStorage->create([
-      'type' => 'entity_meta_multi_example',
+      'type' => 'entity_meta_multi_example_ct',
       'title' => 'Second node',
     ]);
     $node->save();
@@ -766,7 +770,7 @@ class EntityMetaRelationTest extends KernelTestBase {
   public function testContentEntitySet() {
     /** @var \Drupal\node\NodeInterface $first_node */
     $node = $this->nodeStorage->create([
-      'type' => 'entity_meta_multi_example',
+      'type' => 'entity_meta_multi_example_ct',
       'title' => 'Node test',
     ]);
     $entity_meta_speed = $this->entityMetaStorage->create([
@@ -927,7 +931,7 @@ class EntityMetaRelationTest extends KernelTestBase {
   public function testEntityMetaDefaultRevisionsWithHost(): void {
     /** @var \Drupal\node\NodeInterface $node */
     $node = $this->nodeStorage->create([
-      'type' => 'entity_meta_example',
+      'type' => 'entity_meta_example_ct',
       'title' => 'Second node',
     ]);
     $node->save();

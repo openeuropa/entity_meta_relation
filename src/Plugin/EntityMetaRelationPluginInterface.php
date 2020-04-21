@@ -6,6 +6,7 @@ namespace Drupal\emr\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\emr\Entity\EntityMetaInterface;
 
 /**
  * Defines an interface for Entity meta relation plugins.
@@ -22,5 +23,13 @@ interface EntityMetaRelationPluginInterface extends PluginInspectionInterface {
    *   Whether the plugin is applicable.
    */
   public function applies(ContentEntityInterface $entity): bool;
+
+  /**
+   * Fill entity meta with default values.
+   *
+   * @param \Drupal\emr\Entity\EntityMetaInterface $entity_meta
+   *   The entity meta.
+   */
+  public function fillDefaultEntityMetaValues(EntityMetaInterface $entity_meta): void;
 
 }

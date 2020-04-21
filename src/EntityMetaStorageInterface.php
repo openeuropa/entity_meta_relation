@@ -91,4 +91,19 @@ interface EntityMetaStorageInterface extends EntityStorageInterface, Revisionabl
    */
   public function shouldMakeRevision(EntityMetaInterface $entity): bool;
 
+  /**
+   * Get a list of entity metas that should be attached by default.
+   *
+   * This will create a list of new EntityMeta entities whose plugins indicate
+   * that some defaults need to be set on them whenever the host entity gets
+   * created.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The host entity for which to determine the default metas.
+   *
+   * @return \Drupal\emr\Entity\EntityMetaInterface[]
+   *   The list of default entity metas.
+   */
+  public function getDefaultEntityMetas(ContentEntityInterface $entity): array;
+
 }
