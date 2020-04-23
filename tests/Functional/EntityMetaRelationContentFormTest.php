@@ -24,7 +24,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
   protected $adminUser;
 
   /**
-   * Admin permission for the user in the test.
+   * Admin permissions for the user in the test.
    *
    * @var array
    */
