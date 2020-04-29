@@ -1,10 +1,20 @@
 # Change Log
 
+## [8.x-1.0-beta5](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta5) (2020-04-29)
+[Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta4...8.x-1.0-beta5)
+
+**Merged pull requests:**
+
+- OPENEUROPA-0000: Fix emr query. [\#34](https://github.com/openeuropa/entity_meta_relation/pull/34) ([hernani](https://github.com/hernani))
+- OPENEUROPA-3005-2 [\#32](https://github.com/openeuropa/entity_meta_relation/pull/32) ([hernani](https://github.com/hernani))
+- OPENEUROPA-2970: Do not show the entity meta form on translation forms. [\#31](https://github.com/openeuropa/entity_meta_relation/pull/31) ([upchuk](https://github.com/upchuk))
+
 ## [8.x-1.0-beta4](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta4) (2020-04-20)
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta3...8.x-1.0-beta4)
 
 **Merged pull requests:**
 
+- OPENEUROPA-0000: Release. [\#33](https://github.com/openeuropa/entity_meta_relation/pull/33) ([hernani](https://github.com/hernani))
 - OPENEUROPA-0000: Fixing update hook. [\#29](https://github.com/openeuropa/entity_meta_relation/pull/29) ([hernani](https://github.com/hernani))
 - OPENEUROPA-2889: Entity form alters should only be on add/edit forms. [\#28](https://github.com/openeuropa/entity_meta_relation/pull/28) ([upchuk](https://github.com/upchuk))
 - OPENEUROPA-3005: Support for attach\_by\_default [\#27](https://github.com/openeuropa/entity_meta_relation/pull/27) ([hernani](https://github.com/hernani))
