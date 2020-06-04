@@ -36,7 +36,17 @@ interface EntityMetaRelationContentFormPluginInterface {
   public function build(array $form, FormStateInterface $form_state, ContentEntityInterface $entity): array;
 
   /**
-   * Builds the form.
+   * Validates the form.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public function validate(array $form, FormStateInterface $form_state): void;
+
+  /**
+   * Submits the form.
    *
    * @param array $form
    *   The form.

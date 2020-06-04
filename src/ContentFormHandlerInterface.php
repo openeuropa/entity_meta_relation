@@ -29,6 +29,16 @@ interface ContentFormHandlerInterface extends EntityHandlerInterface {
   public function addFormElements(array $form, FormStateInterface $form_state): array;
 
   /**
+   * Validates the embedded form elements.
+   *
+   * @param array $form
+   *   The form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public function validateFormElements(array &$form, FormStateInterface $form_state): void;
+
+  /**
    * Submits the embedded form elements.
    *
    * @param array $form
