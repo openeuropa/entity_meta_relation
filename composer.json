@@ -1,5 +1,5 @@
 {
-    "name": "openeuropa/entity_meta_relation",
+    "name": "drupal/entity_meta_relation",
     "description": "Provides an entity meta relation entity and associated behaviors for relations.",
     "type": "drupal-module",
     "license": "EUPL-1.2",
