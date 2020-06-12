@@ -20,6 +20,13 @@ abstract class EntityMetaRelationContentFormPluginBase extends EntityMetaRelatio
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function validate(array $form, FormStateInterface $form_state): void {
+    // No validation by default.
+  }
+
+  /**
    * Builds the form container for the plugin.
    *
    * @param array $form
