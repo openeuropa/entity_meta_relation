@@ -1,16 +1,22 @@
-# Changelog
+# Change Log
+
+## [8.x-1.0-beta7](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta7) (2020-06-23)
+[Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta6...8.x-1.0-beta7)
+
+**Merged pull requests:**
+
+- OPENEUROPA-0000: Fixing module dependencies. [\#39](https://github.com/openeuropa/entity_meta_relation/pull/39) ([hernani](https://github.com/hernani))
 
 ## [8.x-1.0-beta6](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta6) (2020-06-22)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta5...8.x-1.0-beta6)
 
 **Merged pull requests:**
 
+- RELEASE-beta-6: Update CHANGELOG for release 8.x-1.0-beta6. [\#38](https://github.com/openeuropa/entity_meta_relation/pull/38) ([sergepavle](https://github.com/sergepavle))
 - OPENEUROPA-3271: Fixing composer package name. [\#37](https://github.com/openeuropa/entity_meta_relation/pull/37) ([hernani](https://github.com/hernani))
 - OPENEUROPA-3249: Entity meta relation plugin form validation. [\#36](https://github.com/openeuropa/entity_meta_relation/pull/36) ([upchuk](https://github.com/upchuk))
 
 ## [8.x-1.0-beta5](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta5) (2020-04-29)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta4...8.x-1.0-beta5)
 
 **Merged pull requests:**
@@ -19,10 +25,8 @@
 - OPENEUROPA-0000: Fix emr query. [\#34](https://github.com/openeuropa/entity_meta_relation/pull/34) ([hernani](https://github.com/hernani))
 - OPENEUROPA-3005-2 [\#32](https://github.com/openeuropa/entity_meta_relation/pull/32) ([hernani](https://github.com/hernani))
 - OPENEUROPA-2970: Do not show the entity meta form on translation forms. [\#31](https://github.com/openeuropa/entity_meta_relation/pull/31) ([upchuk](https://github.com/upchuk))
-- OPENEUROPA-3005: Support for attach\_by\_default [\#27](https://github.com/openeuropa/entity_meta_relation/pull/27) ([hernani](https://github.com/hernani))
 
 ## [8.x-1.0-beta4](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta4) (2020-04-20)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta3...8.x-1.0-beta4)
 
 **Merged pull requests:**
@@ -30,14 +34,13 @@
 - OPENEUROPA-0000: Release. [\#33](https://github.com/openeuropa/entity_meta_relation/pull/33) ([hernani](https://github.com/hernani))
 - OPENEUROPA-0000: Fixing update hook. [\#29](https://github.com/openeuropa/entity_meta_relation/pull/29) ([hernani](https://github.com/hernani))
 - OPENEUROPA-2889: Entity form alters should only be on add/edit forms. [\#28](https://github.com/openeuropa/entity_meta_relation/pull/28) ([upchuk](https://github.com/upchuk))
+- OPENEUROPA-3005: Support for attach\_by\_default [\#27](https://github.com/openeuropa/entity_meta_relation/pull/27) ([hernani](https://github.com/hernani))
 - OPENEUROPA-0000: Use drupal/core instead of drupal/core-recommended. [\#26](https://github.com/openeuropa/entity_meta_relation/pull/26) ([22Alexandra](https://github.com/22Alexandra))
 - OPENEUROPA-2276: Correctly performing the update path. [\#25](https://github.com/openeuropa/entity_meta_relation/pull/25) ([upchuk](https://github.com/upchuk))
 - OPENEUROPA-2943: Upgrade to PHP 7.3. [\#22](https://github.com/openeuropa/entity_meta_relation/pull/22) ([sergepavle](https://github.com/sergepavle))
 - OPENEUROPA-2276: Entity Meta API [\#20](https://github.com/openeuropa/entity_meta_relation/pull/20) ([hernani](https://github.com/hernani))
-- OPENEUROPA-2651: Fix bug with getRelatedEntities\(\). [\#17](https://github.com/openeuropa/entity_meta_relation/pull/17) ([hernani](https://github.com/hernani))
 
 ## [8.x-1.0-beta3](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta3) (2020-03-20)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta2...8.x-1.0-beta3)
 
 **Merged pull requests:**
@@ -47,22 +50,20 @@
 - OPENEUROPA-2604: Drupal 8 recommended project. [\#21](https://github.com/openeuropa/entity_meta_relation/pull/21) ([upchuk](https://github.com/upchuk))
 
 ## [8.x-1.0-beta2](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta2) (2020-02-04)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta1...8.x-1.0-beta2)
 
 **Merged pull requests:**
 
 - OPENEUROPA-0000: Changelog update. [\#19](https://github.com/openeuropa/entity_meta_relation/pull/19) ([hernani](https://github.com/hernani))
 - OPENEUROPA-2777: Trigger and entity meta relation delete whenever an entity meta is deleted [\#18](https://github.com/openeuropa/entity_meta_relation/pull/18) ([upchuk](https://github.com/upchuk))
+- OPENEUROPA-2651: Fix bug with getRelatedEntities\(\). [\#17](https://github.com/openeuropa/entity_meta_relation/pull/17) ([hernani](https://github.com/hernani))
 - OPENEUROPA-2650: Handle default revision correctly. [\#15](https://github.com/openeuropa/entity_meta_relation/pull/15) ([hernani](https://github.com/hernani))
 - OPENEUROPA-2649: Support content entities without bundles. [\#14](https://github.com/openeuropa/entity_meta_relation/pull/14) ([hernani](https://github.com/hernani))
 - OPENEUROPA-2258: Undo use of PHP 7.2. [\#11](https://github.com/openeuropa/entity_meta_relation/pull/11) ([dxvargas](https://github.com/dxvargas))
 - OPENEUROPA-2258: Use PHP 7.2 in drone and docker image. [\#10](https://github.com/openeuropa/entity_meta_relation/pull/10) ([dxvargas](https://github.com/dxvargas))
+- OPENEUROPA-2258: Use PHP 7.2 in drone and docker image. [\#8](https://github.com/openeuropa/entity_meta_relation/pull/8) ([dxvargas](https://github.com/dxvargas))
 
 ## [8.x-1.0-beta1](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta1) (2019-10-17)
-
-[Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/a0dfcbf9cfcb7b0b4c47b0b1fcce6b2033afcf04...8.x-1.0-beta1)
-
 **Merged pull requests:**
 
 - Fix duplicate link entries. [\#9](https://github.com/openeuropa/entity_meta_relation/pull/9) ([nagyad](https://github.com/nagyad))
@@ -75,4 +76,4 @@
 
 
 
-\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
+\* *This Change Log was automatically generated by [github_changelog_generator](https://github.com/skywinder/Github-Changelog-Generator)*
