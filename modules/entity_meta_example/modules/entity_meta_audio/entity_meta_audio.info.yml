@@ -5,6 +5,6 @@ package: Entity Meta Relation
 core: 8.x
 
 dependencies:
-  - emr:emr
-  - emr_node:emr_node
+  - entity_meta_relation:emr
+  - entity_meta_relation:emr_node
   - drupal:options
