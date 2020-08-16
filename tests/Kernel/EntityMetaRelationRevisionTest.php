@@ -227,6 +227,51 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
   }
 
   /**
+   * Tests that when a content entity is unpublished, also the meta is.
+   *
+   * The assertions in self::assertEntityMetaRevisionValues() ensure the meta
+   * status follows the host entity status but only when the host is already
+   * loaded and has computed metas in the list. This test, checks also if the
+   * host entity revision is created from scratch without computed metas in the
+   * list.
+   */
+  public function testContentEntityRevisionStatus(): void {
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = $this->nodeStorage->create([
+      'type' => 'entity_meta_multi_example_ct',
+      'title' => 'Node test',
+    ]);
+    $node->setPublished(TRUE);
+    $entity_meta = $this->entityMetaStorage->create([
+      'bundle' => 'visual',
+      'field_color' => 'red',
+    ]);
+    $node->set('emr_entity_metas', [$entity_meta]);
+    $node->save();
+
+    $this->nodeStorage->resetCache();
+    $node = $this->nodeStorage->load($node->id());
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
+    $entity_meta = $node->get('emr_entity_metas')->getEntityMeta('visual');
+    $this->assertTrue($entity_meta->isEnabled());
+
+    // Load the node again to reset its meta list and create a new unpublished
+    // revision.
+    $this->nodeStorage->resetCache();
+    $node = $this->nodeStorage->load($node->id());
+    $node->setPublished(FALSE);
+    $node->setNewRevision(TRUE);
+    $node->save();
+
+    // Now the meta should be disabled.
+    $this->nodeStorage->resetCache();
+    $node = $this->nodeStorage->load($node->id());
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
+    $entity_meta = $node->get('emr_entity_metas')->getEntityMeta('visual');
+    $this->assertFalse($entity_meta->isEnabled());
+  }
+
+  /**
    * Create a node with changes done through three revisions.
    */
   protected function createNodeWithFourRevisions() {
