@@ -1,10 +1,18 @@
 # Change Log
 
+## [8.x-1.0-beta8](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta8) (2020-08-17)
+[Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta7...8.x-1.0-beta8)
+
+**Merged pull requests:**
+
+- EWPP-168: Using the new revision to determine the entity meta publish state [\#41](https://github.com/openeuropa/entity_meta_relation/pull/41) ([upchuk](https://github.com/upchuk))
+
 ## [8.x-1.0-beta7](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta7) (2020-06-23)
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta6...8.x-1.0-beta7)
 
 **Merged pull requests:**
 
+- OPENEUROPA-0000: Preparing for beta7. [\#40](https://github.com/openeuropa/entity_meta_relation/pull/40) ([hernani](https://github.com/hernani))
 - OPENEUROPA-0000: Fixing module dependencies. [\#39](https://github.com/openeuropa/entity_meta_relation/pull/39) ([hernani](https://github.com/hernani))
 
 ## [8.x-1.0-beta6](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta6) (2020-06-22)
