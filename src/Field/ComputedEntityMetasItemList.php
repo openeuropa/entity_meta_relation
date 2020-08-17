@@ -268,6 +268,8 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
    */
   public function postSave($update): bool {
     $revision = NULL;
+    // Keep track of the new revision in case the loaded one was updated.
+    $new_revision = NULL;
     $reverting = FALSE;
     /** @var \Drupal\emr\EntityMetaStorageInterface $entity_meta_storage */
     $entity_meta_storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
@@ -296,6 +298,13 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
       // instead of the new attempted one.
       $revision_id = $entity->getLoadedRevisionId() ?? $entity->getRevisionId();
       $revision = \Drupal::entityTypeManager()->getStorage($entity->getEntityTypeId())->loadRevision($revision_id);
+
+      // If we do have a new revision, we need to also load it so we can check
+      // on it changes such as the publish state.
+      if ($entity->getLoadedRevisionId() !== $entity->getRevisionId()) {
+        $new_revision = \Drupal::entityTypeManager()->getStorage($entity->getEntityTypeId())->loadRevision($entity->getRevisionId());
+      }
+
       // In case the client is marking this entity not to have any defaults
       // when it gets first created, we need to pass this flag along.
       if (isset($entity->entity_meta_no_default)) {
@@ -314,6 +323,9 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     // default to the current entity revision.
     if (!$revision) {
       $revision = $this->getEntity();
+    }
+    if (!$new_revision) {
+      $new_revision = $revision;
     }
 
     // If the host entity is new, get a list of potential default entity metas
@@ -338,12 +350,12 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
         continue;
       }
 
-      if ($revision->isPublished() !== $entity_meta->isEnabled()) {
+      if ($new_revision->isPublished() !== $entity_meta->isEnabled()) {
         $entity_meta->setNewRevision(TRUE);
       }
 
       // Copy status from the host entity which can be an older revision.
-      $revision->isPublished() ? $entity_meta->enable() : $entity_meta->disable();
+      $new_revision->isPublished() ? $entity_meta->enable() : $entity_meta->disable();
       // The host entity needs to be the current revision, new one if we are
       // reverting.
       $entity_meta->setHostEntity($this->getEntity());
@@ -357,7 +369,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
     // If we have default metas left (they have not been created overtly with
     // specific values), we go through each and create them as well.
     foreach ($default_entity_metas as $entity_meta) {
-      $revision->isPublished() ? $entity_meta->enable() : $entity_meta->disable();
+      $new_revision->isPublished() ? $entity_meta->enable() : $entity_meta->disable();
       $entity_meta->setHostEntity($this->getEntity());
       $entity_meta->save();
     }
