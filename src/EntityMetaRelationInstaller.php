@@ -74,20 +74,14 @@ class EntityMetaRelationInstaller {
       $bundles = array_keys($this->entityTypeBundleInfo->getBundleInfo($definition->id()));
     }
 
-    $field_name = "entity_meta_relation.{$entity_meta_relation_bundle}.{$entity_meta_relation_content_field}";
-    /** @var \Drupal\Core\Field\FieldConfigInterface $field_config */
-    $field_config = $this->entityTypeManager->getStorage('field_config')->load($field_name);
-    $handler_settings = $field_config->getSetting('handler_settings');
-    $handler_settings['target_bundles'] = array_unique(array_merge($handler_settings['target_bundles'], $bundles));
-    $field_config->setSetting('handler_settings', $handler_settings);
-    $field_config->save();
+    $allowed_bundles = [
+      $entity_meta_relation_content_field => $bundles,
+      $entity_meta_relation_meta_field => [$entity_meta_type],
+    ];
 
-    $field_name = "entity_meta_relation.{$entity_meta_relation_bundle}.{$entity_meta_relation_meta_field}";
-    $field_config = $this->entityTypeManager->getStorage('field_config')->load($field_name);
-    $handler_settings = $field_config->getSetting('handler_settings');
-    $handler_settings['target_bundles'] = array_unique(array_merge($handler_settings['target_bundles'], [$entity_meta_type]));
-    $field_config->setSetting('handler_settings', $handler_settings);
-    $field_config->save();
+    foreach ($allowed_bundles as $field_name => $target_bundles) {
+      $this->updateTargetBundlesInFields($entity_meta_relation_bundle, $field_name, $target_bundles);
+    }
 
     // Sets correct 3rd party settings.
     $bundle_entity_storage = $this->entityTypeManager->getStorage($definition->getBundleEntityType());
@@ -102,6 +96,29 @@ class EntityMetaRelationInstaller {
       }
     }
 
+  }
+
+  /**
+   * Update target bundles in requested field configs.
+   *
+   * @param string $emr_bundle
+   *   The entity meta relation bundle.
+   * @param string $field_name
+   *   The field name.
+   * @param array $target_bundles
+   *   The list of allowed bundles.
+   */
+  protected function updateTargetBundlesInFields(string $emr_bundle, string $field_name, array $target_bundles): void {
+    /** @var \Drupal\Core\Field\FieldConfigInterface $field_config */
+    $field_config = $this->entityTypeManager->getStorage('field_config')->load("entity_meta_relation.{$emr_bundle}.{$field_name}");
+    if (!$field_config) {
+      return;
+    }
+    $handler_settings = $field_config->getSetting('handler_settings');
+    $old_target_bundles = isset($handler_settings['target_bundles']) ? $handler_settings['target_bundles'] : [];
+    $handler_settings['target_bundles'] = array_unique(array_merge($old_target_bundles, $target_bundles));
+    $field_config->setSetting('handler_settings', $handler_settings);
+    $field_config->save();
   }
 
 }
