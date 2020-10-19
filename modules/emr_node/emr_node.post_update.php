@@ -2,15 +2,15 @@
 
 /**
  * @file
- * Entity Meta Relation node post update file.
+ * Entity Meta Relation Node post update file.
  */
 
 declare(strict_types = 1);
 
 /**
- * Fix possibly misconfigured target_bundles values in some fields.
+ * Fix misconfigured handler_settings.
  */
-function emr_node_post_update_00001(&$sandbox) {
+function emr_node_post_update_00001(): void {
   $entity_type_manager = \Drupal::entityTypeManager();
   $bundles = \Drupal::service('entity_type.bundle.info')->getAllBundleInfo();
   foreach (['emr_meta_revision', 'emr_node_revision'] as $field_name) {
@@ -25,10 +25,14 @@ function emr_node_post_update_00001(&$sandbox) {
         $entity_type = $field_config->getFieldStorageDefinition()->getSetting('target_type');
         if (empty($bundles[$entity_type][$entity_bundle])) {
           unset($handler_settings['target_bundles'][$key]);
-          $field_config->setSetting('handler_settings', $handler_settings);
-          $field_config->save();
         }
       }
+      if ($handler_settings['target_bundles'] === []) {
+        unset($handler_settings['target_bundles']);
+      }
+      $handler_settings['auto_create_bundle'] = '';
+      $field_config->setSetting('handler_settings', $handler_settings);
+      $field_config->save();
     }
   }
 }
