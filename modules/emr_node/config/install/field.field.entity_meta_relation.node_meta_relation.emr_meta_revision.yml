@@ -19,8 +19,6 @@ default_value_callback: ''
 settings:
   handler: 'default:entity_meta'
   handler_settings:
-    target_bundles:
-      - visual
     sort:
       field: _none
     auto_create: false
