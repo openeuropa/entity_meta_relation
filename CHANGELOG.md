@@ -1,10 +1,20 @@
-# Change Log
+# Changelog
+
+## [8.x-1.0-beta9](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta9) (2020-12-03)
+
+[Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta8...8.x-1.0-beta9)
+
+**Merged pull requests:**
+
+- EWPP-516: Update docker images. [\#45](https://github.com/openeuropa/entity_meta_relation/pull/45) ([22Alexandra](https://github.com/22Alexandra))
+- EWPP-408: Fix issue with invalid settings of field configs in the emr\_node module. [\#43](https://github.com/openeuropa/entity_meta_relation/pull/43) ([sergepavle](https://github.com/sergepavle))
 
 ## [8.x-1.0-beta8](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta8) (2020-08-17)
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta7...8.x-1.0-beta8)
 
 **Merged pull requests:**
 
+- Update CHANGELOG for release 8.x-1.0-beta8. [\#42](https://github.com/openeuropa/entity_meta_relation/pull/42) ([brummbar](https://github.com/brummbar))
 - EWPP-168: Using the new revision to determine the entity meta publish state [\#41](https://github.com/openeuropa/entity_meta_relation/pull/41) ([upchuk](https://github.com/upchuk))
 
 ## [8.x-1.0-beta7](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta7) (2020-06-23)
