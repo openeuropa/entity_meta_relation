@@ -90,7 +90,7 @@ abstract class EntityMetaRelationPluginBase extends PluginBase implements Entity
 
     /** @var \Drupal\Core\Field\FieldConfigInterface $content_field_definition */
     $meta_field_definition = $fields[$entity_meta_relation_meta_field];
-    $target_meta_bundles = $meta_field_definition->getSetting('handler_settings')['target_bundles'];
+    $target_meta_bundles = $meta_field_definition->getSetting('handler_settings')['target_bundles'] ?? [];
     // If the associated entity meta bundle used by the plugin is not available
     // in the relationship, the plugin does not apply.
     if (empty($this->pluginDefinition['entity_meta_bundle']) || !in_array($this->pluginDefinition['entity_meta_bundle'], $target_meta_bundles)) {
