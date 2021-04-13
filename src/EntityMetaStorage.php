@@ -178,25 +178,19 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     parent::doPostSave($entity, $update);
 
     $default_revision = (bool) $entity->get('emr_default_revision')->value;
-    // If the current entity being saved has been marked as the default
-    // revision, we need to go through all its other revisions and mark them
-    // as not default.
     if ($default_revision) {
-      $current = $entity->getRevisionId();
-      $revision_ids = $this->revisionIds($entity);
-      foreach ($revision_ids as $id) {
-        if ($id === $current || is_null($current)) {
-          continue;
-        }
-        /** @var \Drupal\emr\Entity\EntityMetaInterface $revision */
-        $revision = $this->loadRevision($id);
-        $revision->set('emr_default_revision', FALSE);
-        $revision->setNewRevision(FALSE);
-        $revision->markToSkipRelations();
-        $revision->setHostEntity(NULL);
-        $revision->setForcedNoRevision(TRUE);
-        $revision->save();
+      // If the saved revision was marked as default, track this in the
+      // outside table (if not already done). Unless, the relations to this
+      // revisions should be deleted, in which case it cannot stay the default.
+      if ((int) $entity->getRevisionId() !== $this->getDefaultRevisionId((int) $entity->id())) {
+        $this->trackDefaultRevision((int) $entity->id(), (int) $entity->getRevisionId());
       }
+    }
+    elseif ((int) $entity->getRevisionId() === (int) $this->getDefaultRevisionId((int) $entity->id())) {
+      // However, if the current revision is not marked to be the default
+      // revision but it is tracked as such, remove this tracking from the
+      // specific table.
+      $this->trackDefaultRevision((int) $entity->id(), NULL);
     }
 
     // Create or updates the entity meta relations for a given entity.
@@ -630,10 +624,8 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       $query->condition("revision.{$this->revisionKey}", $revision_ids, 'IN');
     }
     else {
-      // If we are not querying for particular revision IDs, join on the
-      // revision data table and include only the default revisions by using the
-      // "emr_default_revision" field.
-      $query->join($this->revisionDataTable, 'revision_data', "revision.{$this->revisionKey} = revision_data.{$this->revisionKey} AND revision_data.emr_default_revision = 1");
+      $query->join($this->revisionDataTable, 'revision_data', "revision.{$this->revisionKey} = revision_data.{$this->revisionKey}");
+      $query->join('entity_meta_default_revision', 'default_revision_table', "revision.{$this->revisionKey} = default_revision_table.default_revision_id");
     }
 
     // Join back into the main entity table.
@@ -718,6 +710,55 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     }
 
     return $entities;
+  }
+
+  /**
+   * Sets the default revision ID for a given entity meta.
+   *
+   * We track which is the default revision ID of a given entity meta in a
+   * specific table.
+   *
+   * If we pass no revision ID, we delete the record to indicate that this
+   * entity meta doesn't have any default revision. This can happen when, for
+   * example, a host entity detaches the meta.
+   *
+   * @param int $id
+   *   The entity meta ID.
+   * @param int|null $revision_id
+   *   The revision ID.
+   */
+  protected function trackDefaultRevision(int $id, ?int $revision_id): void {
+    if (!$revision_id) {
+      // If not revision is passed, delete the record.
+      $this->database->delete('entity_meta_default_revision')
+        ->condition('entity_meta_id', $id)
+        ->execute();
+      return;
+    }
+
+    $this->database->upsert('entity_meta_default_revision')
+      ->key('entity_meta_id')
+      ->fields(['entity_meta_id' => $id, 'default_revision_id' => $revision_id])
+      ->execute();
+  }
+
+  /**
+   * Gets the default revision ID for a given entity meta.
+   *
+   * @param int $id
+   *   The entity meta ID.
+   *
+   * @return string|null
+   *   The revision ID if one exists.
+   */
+  protected function getDefaultRevisionId(int $id): ?string {
+    $result = $this->database->select('entity_meta_default_revision')
+      ->fields('entity_meta_default_revision', ['default_revision_id'])
+      ->condition('entity_meta_id', $id)
+      ->execute()
+      ->fetchField(0);
+
+    return $result ? $result : NULL;
   }
 
   /**

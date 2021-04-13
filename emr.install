@@ -8,6 +8,38 @@
 use Drupal\Core\Field\BaseFieldDefinition;
 
 /**
+ * Implements hook_schema().
+ */
+function emr_schema() {
+  $schema = [];
+  $schema['entity_meta_default_revision'] = [
+    'description' => 'Keeps track of the default entity meta revision.',
+    'fields' => [
+      'entity_meta_id' => [
+        'description' => 'The entity meta identifier.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'default_revision_id' => [
+        'description' => 'The revision ID that is the default.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+    ],
+    'indexes' => [
+      'default_revision' => [
+        'default_revision_id',
+        'entity_meta_id',
+      ],
+    ],
+    'primary key' => ['entity_meta_id'],
+  ];
+
+  return $schema;
+}
+
+/**
  * Create the `emr_default_revision` field.
  */
 function emr_update_8001(&$sandbox) {
@@ -19,4 +51,35 @@ function emr_update_8001(&$sandbox) {
 
   \Drupal::entityDefinitionUpdateManager()
     ->installFieldStorageDefinition('emr_default_revision', 'entity_meta', 'emr', $field);
+}
+
+/**
+ * Create the 'entity_meta_default_revision' table.
+ */
+function emr_update_8002(&$sandbox) {
+  $schema = [
+    'description' => 'Keeps track of the default entity meta revision.',
+    'fields' => [
+      'entity_meta_id' => [
+        'description' => 'The entity meta identifier.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'default_revision_id' => [
+        'description' => 'The revision ID that is the default one.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+    ],
+    'indexes' => [
+      'default_revision' => [
+        'default_revision_id',
+        'entity_meta_id',
+      ],
+    ],
+    'primary key' => ['entity_meta_id'],
+  ];
+
+  \Drupal::database()->schema()->createTable('entity_meta_default_revision', $schema);
 }

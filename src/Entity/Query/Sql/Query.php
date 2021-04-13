@@ -30,6 +30,7 @@ class Query extends CoreQuery {
     // revision.
     if (!$original_all_revisions) {
       $this->condition('emr_default_revision', TRUE);
+      $this->sqlQuery->join('entity_meta_default_revision', 'default_revision_table', "base_table.revision_id = default_revision_table.default_revision_id");
     }
 
     $result = $query->compile()

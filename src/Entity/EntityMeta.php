@@ -320,7 +320,14 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
     // that a given meta entity should have absolutely no default revisions due
     // to its host detaching the meta on its own default revision. So a strict
     // one to one mapping between the host default revision and the meta
-    // default revision is not possible.
+    // default revision is not possible. Moreover, we keep a specific table
+    // (entity_meta_default_revision) where we track the default revision
+    // in order to be able to query and load entities correctly in a more
+    // performant way. So once a new revision gets marked as default, previous
+    // default revisions are not "unmarked", but instead the tracking table
+    // is updated with the new revision. So the value of this field is used
+    // to determine in code which revision should end up being tracked as
+    // default. See EntityMetaStorage::doPostSave().
     $fields['emr_default_revision'] = BaseFieldDefinition::create('boolean')
       ->setRevisionable(TRUE)
       ->setLabel(t('Default revision'))

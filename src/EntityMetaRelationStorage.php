@@ -136,6 +136,11 @@ class EntityMetaRelationStorage extends SqlContentEntityStorage implements Entit
     // If there are no more relation revisions pointing to that entity meta
     // revision, we need to delete it.
     $this->entityTypeManager->getStorage('entity_meta')->deleteRevision($entity_meta_revision_id);
+    // If the revision we are deleting is marked as default, un-track it from
+    // the tracking table.
+    $this->database->delete('entity_meta_default_revision')
+      ->condition('default_revision_id', $entity_meta_revision_id)
+      ->execute();
   }
 
 }

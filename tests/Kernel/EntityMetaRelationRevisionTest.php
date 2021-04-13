@@ -58,7 +58,8 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
     $this->installEntitySchema('node');
     $this->installEntitySchema('entity_meta');
     $this->installEntitySchema('entity_meta_relation');
-    $this->installSchema('node', 'node_access', 'emr_node');
+    $this->installSchema('node', ['node_access']);
+    $this->installSchema('emr', ['entity_meta_default_revision']);
     $this->installConfig(
       ['emr', 'emr_node', 'entity_meta_example',
         'entity_meta_audio', 'entity_meta_visual', 'entity_meta_speed',
