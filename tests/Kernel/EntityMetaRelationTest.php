@@ -1052,6 +1052,65 @@ class EntityMetaRelationTest extends KernelTestBase {
   }
 
   /**
+   * Tests the computed default revision field.
+   */
+  public function testDefaultRevisionField(): void {
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
+    $entity_meta = $this->entityMetaStorage->create([
+      'bundle' => 'speed',
+      'field_gear' => '3',
+    ]);
+
+    $this->assertNull($entity_meta->get('emr_default_revision')->value);
+    $entity_meta->save();
+    // When the entity meta is created, the first revision is marked as default.
+    $this->assertTrue($entity_meta->get('emr_default_revision')->value);
+    $this->entityMetaStorage->resetCache();
+    $entity_meta = $this->entityMetaStorage->load($entity_meta->id());
+    $this->assertTrue($entity_meta->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta, 1);
+
+    // Make a new revision and mark it as default.
+    $entity_meta->setNewRevision(TRUE);
+    $entity_meta->set('emr_default_revision', TRUE);
+    $this->assertTrue($entity_meta->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta, 1);
+    $entity_meta->save();
+    $this->entityMetaStorage->resetCache();
+    $entity_meta = $this->entityMetaStorage->load($entity_meta->id());
+    $this->assertTrue($entity_meta->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta, 2);
+
+    // Load the first revision and assert it's not marked as default.
+    $revision = $this->entityMetaStorage->loadRevision(1);
+    $this->assertFalse($revision->get('emr_default_revision')->value);
+
+    // Mark back the first revision as the default.
+    $revision->set('emr_default_revision', TRUE);
+    $this->assertTrue($revision->get('emr_default_revision')->value);
+    // The tracking table is not yet updated.
+    $this->assertDefaultEntityMetaRevision($entity_meta, 2);
+    $revision->save();
+    $this->entityMetaStorage->resetCache();
+    $revision = $this->entityMetaStorage->loadRevision(1);
+    $this->assertTrue($revision->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta, 1);
+    $entity_meta = $this->entityMetaStorage->loadRevision(2);
+    $this->assertFalse($entity_meta->get('emr_default_revision')->value);
+
+    // Mark the first revision to not be default either (none are left default).
+    $revision->set('emr_default_revision', FALSE);
+    $revision->save();
+    $this->entityMetaStorage->resetCache();
+    $this->assertNull($this->entityMetaStorage->load(1));
+    foreach ([1, 2] as $revision_id) {
+      $revision = $this->entityMetaStorage->loadRevision($revision_id);
+      $this->assertFalse($revision->get('emr_default_revision')->value);
+    }
+    $this->assertNoDefaultEntityMetaRevision(1);
+  }
+
+  /**
    * Helper method to retrieve the entity meta list field value from a Node.
    *
    * @param \Drupal\node\NodeInterface $node

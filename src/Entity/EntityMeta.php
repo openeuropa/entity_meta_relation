@@ -11,6 +11,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\emr\EntityMetaWrapperInterface;
+use Drupal\emr\Field\DefaultRevisionFieldItemList;
 
 /**
  * Defines the entity meta entity class.
@@ -320,19 +321,13 @@ class EntityMeta extends RevisionableContentEntityBase implements EntityMetaInte
     // that a given meta entity should have absolutely no default revisions due
     // to its host detaching the meta on its own default revision. So a strict
     // one to one mapping between the host default revision and the meta
-    // default revision is not possible. Moreover, we keep a specific table
-    // (entity_meta_default_revision) where we track the default revision
-    // in order to be able to query and load entities correctly in a more
-    // performant way. So once a new revision gets marked as default, previous
-    // default revisions are not "unmarked", but instead the tracking table
-    // is updated with the new revision. So the value of this field is used
-    // to determine in code which revision should end up being tracked as
-    // default. See EntityMetaStorage::doPostSave().
+    // default revision is not possible. This field is a computed one that keeps
+    // track of which is the default revision in another table.
     $fields['emr_default_revision'] = BaseFieldDefinition::create('boolean')
-      ->setRevisionable(TRUE)
       ->setLabel(t('Default revision'))
       ->setDescription(t('A boolean indicating whether the entity meta revision maps to the default revision of the host entity.'))
-      ->setDefaultValue(FALSE);
+      ->setComputed(TRUE)
+      ->setClass(DefaultRevisionFieldItemList::class);
 
     return $fields;
   }
