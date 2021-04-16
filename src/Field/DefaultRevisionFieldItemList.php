@@ -91,17 +91,17 @@ class DefaultRevisionFieldItemList extends FieldItemList {
    * @param int $id
    *   The entity meta ID.
    *
-   * @return string|null
+   * @return int|null
    *   The revision ID if one exists.
    */
-  protected function getDefaultRevisionId(int $id): ?string {
+  protected function getDefaultRevisionId(int $id): ?int {
     $result = \Drupal::database()->select('entity_meta_default_revision')
       ->fields('entity_meta_default_revision', ['default_revision_id'])
       ->condition('entity_meta_id', $id)
       ->execute()
       ->fetchField(0);
 
-    return $result ? $result : NULL;
+    return $result ? (int) $result : NULL;
   }
 
 }
