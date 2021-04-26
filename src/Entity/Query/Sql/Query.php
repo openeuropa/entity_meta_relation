@@ -29,7 +29,8 @@ class Query extends CoreQuery {
     // If not all revisions are requested, apply a filter on the default
     // revision.
     if (!$original_all_revisions) {
-      $this->condition('emr_default_revision', TRUE);
+      $revision_field = $this->entityType->getKey('revision');
+      $this->sqlQuery->join('entity_meta_default_revision', 'default_revision_table', "base_table.{$revision_field} = default_revision_table.default_revision_id");
     }
 
     $result = $query->compile()

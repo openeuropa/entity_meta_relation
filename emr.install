@@ -8,6 +8,39 @@
 use Drupal\Core\Field\BaseFieldDefinition;
 
 /**
+ * Implements hook_schema().
+ */
+function emr_schema() {
+  $schema = [];
+  $schema['entity_meta_default_revision'] = [
+    'description' => 'Keeps track of the default entity meta revision.',
+    'fields' => [
+      'entity_meta_id' => [
+        'description' => 'The entity meta identifier.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'default_revision_id' => [
+        'description' => 'The revision ID that is the default.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+    ],
+    'indexes' => [
+      'default_revision' => [
+        'default_revision_id',
+        'entity_meta_id',
+      ],
+    ],
+    'primary key' => ['entity_meta_id'],
+  ];
+
+  return $schema;
+}
+
+/**
  * Create the `emr_default_revision` field.
  */
 function emr_update_8001(&$sandbox) {
@@ -19,4 +52,81 @@ function emr_update_8001(&$sandbox) {
 
   \Drupal::entityDefinitionUpdateManager()
     ->installFieldStorageDefinition('emr_default_revision', 'entity_meta', 'emr', $field);
+}
+
+/**
+ * Create a 'entity_meta_default_revision' table for default revision tracking.
+ */
+function emr_update_8002(&$sandbox) {
+  $schema = [
+    'description' => 'Keeps track of the default entity meta revision.',
+    'fields' => [
+      'entity_meta_id' => [
+        'description' => 'The entity meta identifier.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'default_revision_id' => [
+        'description' => 'The revision ID that is the default one.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+    ],
+    'indexes' => [
+      'default_revision' => [
+        'default_revision_id',
+        'entity_meta_id',
+      ],
+    ],
+    'primary key' => ['entity_meta_id'],
+  ];
+
+  \Drupal::database()->schema()->createTable('entity_meta_default_revision', $schema);
+}
+
+/**
+ * Update the EMR default revisions to use the tracking table.
+ */
+function emr_update_8003(&$sandbox) {
+  // Update the revisions.
+  /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
+  $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
+  if (!isset($sandbox['total'])) {
+    $ids = $storage->getQuery()->allRevisions()->condition('emr_default_revision', 1)->execute();
+    if (!$ids) {
+      return t('No entity meta entities need to be updated.');
+    }
+
+    $sandbox['ids'] = array_keys($ids);
+    $sandbox['total'] = count($ids);
+    $sandbox['current'] = 0;
+    $sandbox['items_per_batch'] = 10;
+  }
+
+  // Get a slice from the ids.
+  $ids = array_slice($sandbox['ids'], $sandbox['current'], $sandbox['items_per_batch']);
+  $revisions = $storage->loadMultipleRevisions($ids);
+  foreach ($revisions as $revision) {
+    \Drupal::database()->insert('entity_meta_default_revision')
+      ->fields(['entity_meta_id' => $revision->id(), 'default_revision_id' => $revision->getRevisionId()])
+      ->execute();
+
+    $sandbox['current']++;
+  }
+
+  $sandbox['#finished'] = empty($sandbox['total']) ? 1 : ($sandbox['current'] / $sandbox['total']);
+
+  if ($sandbox['#finished'] === 1) {
+    return t('A total of @current entity meta revision defaults have been tracked.', ['@current' => $sandbox['current']]);
+  }
+}
+
+/**
+ * Uninstall the old `emr_default_revision` field.
+ */
+function emr_update_8004(&$sandbox) {
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $storage_definition = $entity_definition_update_manager->getFieldStorageDefinition('emr_default_revision', 'entity_meta');
+  $entity_definition_update_manager->uninstallFieldStorageDefinition($storage_definition);
 }

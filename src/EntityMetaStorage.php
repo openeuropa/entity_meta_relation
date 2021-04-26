@@ -177,28 +177,6 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity */
     parent::doPostSave($entity, $update);
 
-    $default_revision = (bool) $entity->get('emr_default_revision')->value;
-    // If the current entity being saved has been marked as the default
-    // revision, we need to go through all its other revisions and mark them
-    // as not default.
-    if ($default_revision) {
-      $current = $entity->getRevisionId();
-      $revision_ids = $this->revisionIds($entity);
-      foreach ($revision_ids as $id) {
-        if ($id === $current || is_null($current)) {
-          continue;
-        }
-        /** @var \Drupal\emr\Entity\EntityMetaInterface $revision */
-        $revision = $this->loadRevision($id);
-        $revision->set('emr_default_revision', FALSE);
-        $revision->setNewRevision(FALSE);
-        $revision->markToSkipRelations();
-        $revision->setHostEntity(NULL);
-        $revision->setForcedNoRevision(TRUE);
-        $revision->save();
-      }
-    }
-
     // Create or updates the entity meta relations for a given entity.
     // When a new content entity is saved or updated, we need to create or
     // update the EntityMetaRelation entity that connects it to an
@@ -630,10 +608,8 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
       $query->condition("revision.{$this->revisionKey}", $revision_ids, 'IN');
     }
     else {
-      // If we are not querying for particular revision IDs, join on the
-      // revision data table and include only the default revisions by using the
-      // "emr_default_revision" field.
-      $query->join($this->revisionDataTable, 'revision_data', "revision.{$this->revisionKey} = revision_data.{$this->revisionKey} AND revision_data.emr_default_revision = 1");
+      $query->join($this->revisionDataTable, 'revision_data', "revision.{$this->revisionKey} = revision_data.{$this->revisionKey}");
+      $query->join('entity_meta_default_revision', 'default_revision_table', "revision.{$this->revisionKey} = default_revision_table.default_revision_id");
     }
 
     // Join back into the main entity table.

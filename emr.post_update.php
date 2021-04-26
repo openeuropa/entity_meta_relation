@@ -38,5 +38,4 @@ function emr_post_update_00002(&$sandbox) {
       $revision->save();
     }
   }
-
 }

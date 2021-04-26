@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\emr\Kernel;
 
+use Drupal\emr\Entity\EntityMetaInterface;
 use Drupal\emr\Field\EntityMetaItemListInterface;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\NodeInterface;
@@ -61,6 +62,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->installEntitySchema('entity_meta');
     $this->installEntitySchema('entity_meta_relation');
     $this->installSchema('node', ['node_access']);
+    $this->installSchema('emr', ['entity_meta_default_revision']);
     $this->installConfig(
       ['emr', 'emr_node', 'entity_meta_example',
         'entity_meta_audio', 'entity_meta_visual', 'entity_meta_speed',
@@ -857,6 +859,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEquals(2, $entity_meta_audio->getRevisionId());
     $this->assertEquals('low', $entity_meta_audio->get('field_volume')->value);
     $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta_audio, 2);
 
     // Assert loading by properties.
     $this->entityMetaStorage->resetCache();
@@ -877,6 +880,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $entity_meta_audio->setNewRevision(TRUE);
     $entity_meta_audio->save();
     $this->assertCount(2, $this->entityMetaStorage->loadMultipleRevisions($this->entityMetaStorage->revisionIds($entity_meta_audio)));
+    $this->assertDefaultEntityMetaRevision($entity_meta_audio, 3);
 
     // Assert regular loading and values.
     $entity_meta_audio = $this->entityMetaStorage->load(2);
@@ -885,7 +889,6 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
     $first_revision = $this->entityMetaStorage->loadRevision(2);
     $this->assertEquals('low', $first_revision->get('field_volume')->value);
-    $this->assertEquals(0, $first_revision->get('emr_default_revision')->value);
 
     // Assert loading by properties.
     $this->entityMetaStorage->resetCache();
@@ -910,12 +913,8 @@ class EntityMetaRelationTest extends KernelTestBase {
     $first_revision->save();
     // No new revision should be made.
     $this->assertCount(2, $this->entityMetaStorage->loadMultipleRevisions($this->entityMetaStorage->revisionIds($entity_meta_audio)));
+    $this->assertDefaultEntityMetaRevision($entity_meta_audio, 2);
     $this->entityMetaStorage->resetCache();
-    $first_revision = $this->entityMetaStorage->loadRevision(2);
-    $this->assertEquals(1, $first_revision->get('emr_default_revision')->value);
-    $second_revision = $this->entityMetaStorage->loadRevision(3);
-    // The previously default revision should no longer be default.
-    $this->assertEquals(0, $second_revision->get('emr_default_revision')->value);
 
     // Assert querying by value.
     $ids = $this->entityMetaStorage->getQuery()->condition('field_volume', 'medium')->execute();
@@ -950,6 +949,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEquals(1, $entity_meta_audio->getRevisionId());
     $this->assertEquals('low', $entity_meta_audio->get('field_volume')->value);
     $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta_audio, 1);
 
     // Update the meta with a new node revision.
     $entity_meta_audio->getWrapper()->setVolume('medium');
@@ -966,10 +966,10 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEquals(2, $entity_meta_audio->getRevisionId());
     $this->assertEquals('medium', $entity_meta_audio->get('field_volume')->value);
     $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta_audio, 2);
 
     $entity_meta_audio_revision = $this->entityMetaStorage->loadRevision(1);
     $this->assertEquals('low', $entity_meta_audio_revision->get('field_volume')->value);
-    $this->assertEquals(0, $entity_meta_audio_revision->get('emr_default_revision')->value);
 
     // Detach the meta by making a new revision of the node.
     $node->setNewRevision(TRUE);
@@ -988,6 +988,8 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertNull($this->entityMetaStorage->load(1));
     $this->assertEmpty($this->entityMetaStorage->getQuery()->execute());
     $this->assertCount(2, $this->entityMetaStorage->getQuery()->allRevisions()->execute());
+    // The audio entity meta no longer has a tracked default revision.
+    $this->assertNoDefaultEntityMetaRevision(1);
 
     // Attach back the audio meta.
     $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
@@ -1009,6 +1011,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEquals(2, $entity_meta_audio->id());
     $this->assertEquals('high', $entity_meta_audio->get('field_volume')->value);
     $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta_audio, 3);
 
     // Update the meta values again.
     $entity_meta_audio->getWrapper()->setVolume('low');
@@ -1024,12 +1027,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEquals(4, $entity_meta_audio->getRevisionId());
     $this->assertEquals(2, $entity_meta_audio->id());
     $this->assertEquals('low', $entity_meta_audio->get('field_volume')->value);
-    $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
-
-    // Check that the previous revision is not default anymore.
-    $previous_meta_revision = $this->entityMetaStorage->loadRevision(3);
-    $this->assertEquals('high', $previous_meta_revision->get('field_volume')->value);
-    $this->assertEquals(0, $previous_meta_revision->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta_audio, 4);
 
     // Detach the meta without making a new node revision.
     $this->getEntityMetaList($node)->detach($entity_meta_audio);
@@ -1048,8 +1046,68 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertCount(1, $this->entityMetaStorage->getQuery()->condition('id', 2)->allRevisions()->execute());
     // No default revisions are left on the meta.
     $this->assertEmpty($this->entityMetaStorage->load(2));
-    // The remaining revision is not default.
-    $this->assertEquals(0, $this->entityMetaStorage->loadRevision(3)->get('emr_default_revision')->value);
+    // The entity meta revision became orphaned so it was cleaned up by the
+    // entity meta relation storage.
+    $this->assertNoDefaultEntityMetaRevision(2);
+  }
+
+  /**
+   * Tests the computed default revision field.
+   */
+  public function testDefaultRevisionField(): void {
+    /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
+    $entity_meta = $this->entityMetaStorage->create([
+      'bundle' => 'speed',
+      'field_gear' => '3',
+    ]);
+
+    $this->assertNull($entity_meta->get('emr_default_revision')->value);
+    $entity_meta->save();
+    // When the entity meta is created, the first revision is marked as default.
+    $this->assertTrue($entity_meta->get('emr_default_revision')->value);
+    $this->entityMetaStorage->resetCache();
+    $entity_meta = $this->entityMetaStorage->load($entity_meta->id());
+    $this->assertTrue($entity_meta->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta, 1);
+
+    // Make a new revision and mark it as default.
+    $entity_meta->setNewRevision(TRUE);
+    $entity_meta->set('emr_default_revision', TRUE);
+    $this->assertTrue($entity_meta->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta, 1);
+    $entity_meta->save();
+    $this->entityMetaStorage->resetCache();
+    $entity_meta = $this->entityMetaStorage->load($entity_meta->id());
+    $this->assertTrue($entity_meta->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta, 2);
+
+    // Load the first revision and assert it's not marked as default.
+    $revision = $this->entityMetaStorage->loadRevision(1);
+    $this->assertFalse($revision->get('emr_default_revision')->value);
+
+    // Mark back the first revision as the default.
+    $revision->set('emr_default_revision', TRUE);
+    $this->assertTrue($revision->get('emr_default_revision')->value);
+    // The tracking table is not yet updated.
+    $this->assertDefaultEntityMetaRevision($entity_meta, 2);
+    $revision->save();
+    $this->entityMetaStorage->resetCache();
+    $revision = $this->entityMetaStorage->loadRevision(1);
+    $this->assertTrue($revision->get('emr_default_revision')->value);
+    $this->assertDefaultEntityMetaRevision($entity_meta, 1);
+    $entity_meta = $this->entityMetaStorage->loadRevision(2);
+    $this->assertFalse($entity_meta->get('emr_default_revision')->value);
+
+    // Mark the first revision to not be default either (none are left default).
+    $revision->set('emr_default_revision', FALSE);
+    $revision->save();
+    $this->entityMetaStorage->resetCache();
+    $this->assertNull($this->entityMetaStorage->load(1));
+    foreach ([1, 2] as $revision_id) {
+      $revision = $this->entityMetaStorage->loadRevision($revision_id);
+      $this->assertFalse($revision->get('emr_default_revision')->value);
+    }
+    $this->assertNoDefaultEntityMetaRevision(1);
   }
 
   /**
@@ -1063,6 +1121,40 @@ class EntityMetaRelationTest extends KernelTestBase {
    */
   protected function getEntityMetaList(NodeInterface $node): EntityMetaItemListInterface {
     return $node->get('emr_entity_metas');
+  }
+
+  /**
+   * Asserts a given entity meta's default revision ID.
+   *
+   * @param \Drupal\emr\Entity\EntityMetaInterface $entity_meta
+   *   The entity meta.
+   * @param int|strin $revision_id
+   *   The expected revision ID.
+   */
+  protected function assertDefaultEntityMetaRevision(EntityMetaInterface $entity_meta, $revision_id): void {
+    $result = \Drupal::database()->select('entity_meta_default_revision')
+      ->fields('entity_meta_default_revision', ['default_revision_id'])
+      ->condition('entity_meta_id', $entity_meta->id())
+      ->execute()
+      ->fetchField(0);
+
+    $this->assertEquals($revision_id, $result);
+  }
+
+  /**
+   * Asserts a given entity meta' has no default revision.
+   *
+   * @param int $id
+   *   The entity meta ID.
+   */
+  protected function assertNoDefaultEntityMetaRevision(int $id): void {
+    $result = \Drupal::database()->select('entity_meta_default_revision')
+      ->fields('entity_meta_default_revision', ['default_revision_id'])
+      ->condition('entity_meta_id', $id)
+      ->execute()
+      ->fetchField(0);
+
+    $this->assertEquals(FALSE, $result);
   }
 
 }
