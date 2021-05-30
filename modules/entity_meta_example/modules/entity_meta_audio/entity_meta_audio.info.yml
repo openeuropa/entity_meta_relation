@@ -2,7 +2,7 @@ name: Entity Meta Audio
 type: module
 description: 'Defines an example meta entity for audio information'
 package: Entity Meta Relation
-core: 8.x
+core_version_requirement: ^8.9 || ^9.1
 
 dependencies:
   - entity_meta_relation:emr
