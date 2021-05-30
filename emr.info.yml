@@ -2,7 +2,7 @@ name: Entity Meta Relation
 type: module
 description: 'Provides an entity meta relation entity and associated behaviors for relations.'
 package: Entity Meta Relation
-core: 8.x
+core_version_requirement: ^8.9 || ^9.1
 
 dependencies:
   - entity_reference_revisions:entity_reference_revisions

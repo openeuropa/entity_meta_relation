@@ -1,30 +1,30 @@
 # Entity Meta Relation
 
-The Entity meta relation module allows to associate extra information stored in independent entities (meta entities) to content (host) entities. This avoids the need to store this information as a content entity field and pollute the content entity keeping metadata information that controls specific entity behaviour outside of its main storage. 
+The Entity meta relation module allows to associate extra information stored in independent entities (meta entities) to content (host) entities. This avoids the need to store this information as a content entity field and pollute the content entity keeping metadata information that controls specific entity behaviour outside of its main storage.
 ​
 ## Content Structure
 
 * `EntityMeta` entities are regular content entities that can be fieldable and revisionable.
 * `EntityMetaRelation` entities hold the relationship between content entities (such as nodes) and their `EntityMeta` entities. The relations are held directly to content entity revisions and `EntityMeta` revisions allowing to follow new revisions in both directions.
 ​
-`EntityMeta` entities require a defined relation between themselves and content (host) entities. Moreover, each `EntityMeta` bundle is made applicable to each content entity bundle through configuration defined in 3rd party settings. The required configuration can be set automatically by using *EntityMetaRelationInstaller* service. An example of its usage can be seen in *entity_meta_example_install*. 
+`EntityMeta` entities require a defined relation between themselves and content (host) entities. Moreover, each `EntityMeta` bundle is made applicable to each content entity bundle through configuration defined in 3rd party settings. The required configuration can be set automatically by using *EntityMetaRelationInstaller* service. An example of its usage can be seen in *entity_meta_example_install*.
 ​
 The `entity_meta_example` module contain several example plugins that are used for tests but can be used as references.
 
 ## Support for new content entities
 
-Entity meta relations can be used with any content entity. 
+Entity meta relations can be used with any content entity.
 
 However, the `emr_node` module already provides support for `Node` entities. It can be used to understand how to provide support for other content entities.
 ​
-* A new `EntityMetaRelation` bundle should be created with at least two fields: 
+* A new `EntityMetaRelation` bundle should be created with at least two fields:
   * one `EntityReferenceRevision` field that targets the (host) content entity revisions (see the `emr_node_revision` field as an example for relating to Node entities).
   * one field that targets the `EntityMeta` revisions (see the `emr_meta_revision` field as an example for relating to the `EntityMeta` entities. The storage of this field could be reused).
 * The host entity definition should be altered to include the following properties:
     - `entity_meta_relation_bundle`: Should specify the `EntityMetaRelation` bundle you created above.
     - `entity_meta_relation_content_field`: Should specify the field name that relates to the content (host) entity you created above.
     - `entity_meta_relation_meta_field`: Should specify the field name that relates to the `EntityMeta` entities you created above.
-    - `emr_content_form`: In case the content (host) entity form should be used to include a form to manipulate the related `EntityMeta` entities, this should specify the form handler class to use for this. 
+    - `emr_content_form`: In case the content (host) entity form should be used to include a form to manipulate the related `EntityMeta` entities, this should specify the form handler class to use for this.
 ​
 
 Foe more information, check `emr_node_entity_type_alter` for an example how this is done for nodes:
@@ -32,7 +32,7 @@ Foe more information, check `emr_node_entity_type_alter` for an example how this
 The following is defined:
 
 - The `EntityMetaRelation` bundle is `node_meta_relation`, and it has two fields:
-  - `emr_node_revision`: points to the `Node` entity revision 
+  - `emr_node_revision`: points to the `Node` entity revision
   - `emr_meta_revision`: points to the `EntityMeta` revision
 - The handler class `NodeFormHandler` is defined to deal with content entity form changes.
 
@@ -89,7 +89,7 @@ $entity_meta->set('field_color', 'red');
 // node is saved, the relations are created automatically.
 $entity_meta_list->attach($entity_meta);
 $node->save();
-```    
+```
 ​
 ​
 ### Adding several EntityMeta entities to content entity
@@ -123,7 +123,7 @@ $entity_metas[] = $entity_meta;
 // Set the array of entites meta entities as values.
 $entity_meta_list->set($entity_metas);
 $node->save();
-```    
+```
 ​
 ​
 ### Using an EntityMetaWrapper
@@ -156,7 +156,7 @@ $node->save();
 Please note that the `attach()` method won't do anything if there is no change
 detected in the `EntityMeta` entity.
 ​
-### Removing existing EntityMeta  
+### Removing existing EntityMeta
 
 Existing `EntityMeta` entities can be removed from the revision through the `detach()` method.
 
@@ -180,6 +180,25 @@ composer install
 A post command hook (`drupal:site-setup`) is triggered automatically after `composer install`.
 It will make sure that the necessary symlinks are properly setup in the development site.
 It will also perform token substitution in development configuration files such as `behat.yml.dist`.
+
+This will also:
+- Symlink the theme in  `./build/modules/custom/entity_meta_relation` so that it's available for the test site
+- Setup Drush and Drupal's settings using values from `./runner.yml.dist`.
+- Setup PHPUnit and Behat configuration files using values from `./runner.yml.dist`
+
+**Please note:** project files and directories are symlinked within the test site by using the
+[OpenEuropa Task Runner's Drupal project symlink](https://github.com/openeuropa/task-runner-drupal-project-symlink)
+command.
+
+If you add a new file or directory in the root of the project, you need to re-run `drupal:site-setup` in order to make
+sure they are correctly symlinked.
+
+If you don't want to re-run a full site setup for that, you can simply run:
+
+```
+$ ./vendor/bin/run drupal:symlink-project
+```
+
 ​
 * Install test site by running:
 ​
@@ -191,10 +210,10 @@ The development site web root should be available in the `build` directory.
 ​
 ### Using Docker Compose
 ​
-Alternatively, you can build a development site using [Docker](https://www.docker.com/get-docker) and 
+Alternatively, you can build a development site using [Docker](https://www.docker.com/get-docker) and
 [Docker Compose](https://docs.docker.com/compose/) with the provided configuration.
 ​
-Docker provides the necessary services and tools such as a web server and a database server to get the site running, 
+Docker provides the necessary services and tools such as a web server and a database server to get the site running,
 regardless of your local host configuration.
 ​
 #### Requirements:
@@ -206,7 +225,7 @@ regardless of your local host configuration.
 ​
 By default, Docker Compose reads two files, a `docker-compose.yml` and an optional `docker-compose.override.yml` file.
 By convention, the `docker-compose.yml` contains your base configuration and it's provided by default.
-The override file, as its name implies, can contain configuration overrides for existing services or entirely new 
+The override file, as its name implies, can contain configuration overrides for existing services or entirely new
 services.
 If a service is defined in both files, Docker Compose merges the configurations.
 ​
