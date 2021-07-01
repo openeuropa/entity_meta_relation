@@ -202,7 +202,7 @@ class EntityMetaRelationAttachByDefaultTest extends KernelTestBase {
     // Attach back the Force EntityMeta with new values.
     $entity_meta_force = $this->getEntityMetaList($node)->getEntityMeta('force');
     $entity_meta_force->getWrapper()->setGravity('powerful');
-    $this->assertTrue((bool) $entity_meta_force->isNew());
+    $this->assertTrue($entity_meta_force->isNew());
     $this->getEntityMetaList($node)->attach($entity_meta_force);
     $node->save();
 
@@ -238,7 +238,7 @@ class EntityMetaRelationAttachByDefaultTest extends KernelTestBase {
     $related_meta_entities = $this->entityMetaStorage->getRelatedEntities($node);
     $this->assertEmpty($related_meta_entities);
     $entity_meta_force = $this->getEntityMetaList($node)->getEntityMeta('force');
-    $this->assertTrue((bool) $entity_meta_force->isNew());
+    $this->assertTrue($entity_meta_force->isNew());
 
     $this->entityMetaStorage->resetCache();
     $this->nodeStorage->resetCache();
@@ -248,7 +248,7 @@ class EntityMetaRelationAttachByDefaultTest extends KernelTestBase {
     $related_meta_entities = $this->entityMetaStorage->getRelatedEntities($node);
     $this->assertEmpty($related_meta_entities);
     $entity_meta_force = $this->getEntityMetaList($node)->getEntityMeta('force');
-    $this->assertTrue((bool) $entity_meta_force->isNew());
+    $this->assertTrue($entity_meta_force->isNew());
   }
 
   /**

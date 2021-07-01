@@ -190,11 +190,11 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
     // The meta values of the of the newly created node revisions should be the
     // same as the ones of the first revision.
     $this->assertEquals('red', $visual_meta->get('field_color')->value);
-    $this->assertNotTrue((bool) $visual_meta->get('status')->value);
+    $this->assertFalse((bool) $visual_meta->get('status')->value);
     $this->assertEquals('low', $audio_meta->get('field_volume')->value);
-    $this->assertNotTrue((bool) $audio_meta->get('status')->value);
+    $this->assertFalse((bool) $audio_meta->get('status')->value);
     $this->assertEquals('1', $speed_meta->getWrapper()->getGear());
-    $this->assertNotTrue((bool) $speed_meta->get('status')->value);
+    $this->assertFalse((bool) $speed_meta->get('status')->value);
 
     // Change again a meta value and confirm everything is normal.
     $visual_meta->set('field_color', 'blue');
@@ -210,11 +210,11 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
     $speed_meta = $node->get('emr_entity_metas')->getEntityMeta('speed');
 
     $this->assertEquals($visual_meta->get('field_color')->value, 'blue');
-    $this->assertNotTrue((bool) $visual_meta->get('status')->value);
+    $this->assertFalse((bool) $visual_meta->get('status')->value);
     $this->assertEquals($audio_meta->get('field_volume')->value, 'low');
-    $this->assertNotTrue((bool) $audio_meta->get('status')->value);
+    $this->assertFalse((bool) $audio_meta->get('status')->value);
     $this->assertEquals($speed_meta->getWrapper()->getGear(), '2');
-    $this->assertNotTrue((bool) $speed_meta->get('status')->value);
+    $this->assertFalse((bool) $speed_meta->get('status')->value);
 
     $this->assertCount(3, $this->entityMetaRelationStorage->loadMultiple());
     $this->assertCount(3, $this->entityMetaStorage->loadMultiple());
@@ -254,7 +254,7 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
     $node = $this->nodeStorage->load($node->id());
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
     $entity_meta = $node->get('emr_entity_metas')->getEntityMeta('visual');
-    $this->assertTrue((bool) $entity_meta->isEnabled());
+    $this->assertTrue($entity_meta->isEnabled());
 
     // Load the node again to reset its meta list and create a new unpublished
     // revision.
@@ -269,7 +269,7 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
     $node = $this->nodeStorage->load($node->id());
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
     $entity_meta = $node->get('emr_entity_metas')->getEntityMeta('visual');
-    $this->assertFalse((bool) $entity_meta->isEnabled());
+    $this->assertFalse($entity_meta->isEnabled());
   }
 
   /**

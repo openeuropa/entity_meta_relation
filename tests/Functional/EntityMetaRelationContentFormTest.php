@@ -94,8 +94,8 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->getSession()->getPage()->fillField('Title', $label);
     $this->getSession()->getPage()->uncheckField('Published');
     $this->getSession()->getPage()->fillField('Color', 'red');
-    $this->assertFalse((boolean) $this->getSession()->getPage()->hasField('Volume'));
-    $this->assertFalse((boolean) $this->getSession()->getPage()->hasField('Gear'));
+    $this->assertFalse($this->getSession()->getPage()->hasField('Volume'));
+    $this->assertFalse($this->getSession()->getPage()->hasField('Gear'));
     $this->getSession()->getPage()->pressButton('Save');
 
     $this->getSession()->getPage()->hasContent("{$label} has been created");
@@ -110,7 +110,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     // Color was properly saved.
     $this->assertEquals($entity_meta->get('field_color')->value, 'red');
     // Status was properly set.
-    $this->assertFalse((boolean) $entity_meta->get('status')->value);
+    $this->assertFalse((bool) $entity_meta->get('status')->value);
     $this->assertEquals(1, $entity_meta->getRevisionId());
 
     // Change node status and color.
@@ -118,8 +118,8 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->getSession()->getPage()->fillField('Title', 'Node example 2');
     $this->getSession()->getPage()->checkField('Published');
     $this->getSession()->getPage()->selectFieldOption('Color', 'green');
-    $this->assertFalse((boolean) $this->getSession()->getPage()->hasField('Volume'));
-    $this->assertFalse((boolean) $this->getSession()->getPage()->hasField('Gear'));
+    $this->assertFalse($this->getSession()->getPage()->hasField('Volume'));
+    $this->assertFalse($this->getSession()->getPage()->hasField('Gear'));
     $this->getSession()->getPage()->pressButton('Save');
     $node_updated = $this->getEntityByLabel('node', 'Node example 2');
     $entity_meta_relation_storage->resetCache();
@@ -132,7 +132,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     // Color was properly saved.
     $this->assertEquals($entity_meta->get('field_color')->value, 'green');
     // Status was properly changed.
-    $this->assertTrue((boolean) $entity_meta->get('status')->value);
+    $this->assertTrue((bool) $entity_meta->get('status')->value);
     // Revision changed.
     $this->assertEquals(2, $entity_meta->getRevisionId());
 
@@ -152,7 +152,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     // Color was kept the same.
     $this->assertEquals($entity_meta->get('field_color')->value, 'green');
     // Status was kept the same.
-    $this->assertTrue((boolean) $entity_meta->get('status')->value);
+    $this->assertTrue((bool) $entity_meta->get('status')->value);
     // Revision did not change.
     $this->assertEquals(2, $entity_meta->getRevisionId());
 
@@ -161,8 +161,8 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     $this->getSession()->getPage()->fillField('Title', 'Node example 4');
     $this->getSession()->getPage()->uncheckField('Create new revision');
     $this->getSession()->getPage()->selectFieldOption('Color', 'red');
-    $this->assertFalse((boolean) $this->getSession()->getPage()->hasField('Volume'));
-    $this->assertFalse((boolean) $this->getSession()->getPage()->hasField('Gear'));
+    $this->assertFalse($this->getSession()->getPage()->hasField('Volume'));
+    $this->assertFalse($this->getSession()->getPage()->hasField('Gear'));
     $this->getSession()->getPage()->pressButton('Save');
     $node_updated_no_revision = $this->getEntityByLabel('node', 'Node example 4');
     $entity_meta_relation_storage->resetCache();
@@ -210,7 +210,7 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     // Color was properly saved.
     $this->assertEquals($entity_meta->get('field_color')->value, 'red');
     // Status was properly set.
-    $this->assertFalse((boolean) $entity_meta->get('status')->value);
+    $this->assertFalse((bool) $entity_meta->get('status')->value);
     $this->assertEquals(1, $entity_meta->getRevisionId());
 
     // Edit the node and set the color to None.
@@ -305,15 +305,15 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
 
     // Visual was properly saved.
     $this->assertEquals($visual_meta->get('field_color')->value, 'red');
-    $this->assertFalse((boolean) $visual_meta->get('status')->value);
+    $this->assertFalse((bool) $visual_meta->get('status')->value);
 
     // Audio was properly saved.
     $this->assertEquals($audio_meta->get('field_volume')->value, 'low');
-    $this->assertFalse((boolean) $audio_meta->get('status')->value);
+    $this->assertFalse((bool) $audio_meta->get('status')->value);
 
     // Speed was properly saved.
     $this->assertEquals($speed_meta->getWrapper()->getGear(), '2');
-    $this->assertFalse((boolean) $speed_meta->get('status')->value);
+    $this->assertFalse((bool) $speed_meta->get('status')->value);
 
     // Change node status and color.
     $this->drupalGet('node/' . $node->id() . '/edit');
@@ -339,15 +339,15 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
 
     // Visual was properly saved.
     $this->assertEquals($visual_meta->get('field_color')->value, 'green');
-    $this->assertTrue((boolean) $visual_meta->get('status')->value);
+    $this->assertTrue((bool) $visual_meta->get('status')->value);
 
     // Audio was properly saved.
     $this->assertEquals($audio_meta->get('field_volume')->value, 'low');
-    $this->assertTrue((boolean) $audio_meta->get('status')->value);
+    $this->assertTrue((bool) $audio_meta->get('status')->value);
 
     // Speed was properly saved.
     $this->assertEquals($speed_meta->getWrapper()->getGear(), '2');
-    $this->assertTrue((boolean) $speed_meta->get('status')->value);
+    $this->assertTrue((bool) $speed_meta->get('status')->value);
 
     // Revision changed.
     $this->assertEquals(6, $visual_meta->getRevisionId());
@@ -371,13 +371,13 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
 
     // Color was kept the same.
     $this->assertEquals($visual_meta->get('field_color')->value, 'green');
-    $this->assertTrue((boolean) $visual_meta->get('status')->value);
+    $this->assertTrue((bool) $visual_meta->get('status')->value);
     // Audio was properly saved.
     $this->assertEquals($audio_meta->get('field_volume')->value, 'low');
-    $this->assertTrue((boolean) $audio_meta->get('status')->value);
+    $this->assertTrue((bool) $audio_meta->get('status')->value);
     // Speed was properly saved.
     $this->assertEquals($speed_meta->getWrapper()->getGear(), '2');
-    $this->assertTrue((boolean) $speed_meta->get('status')->value);
+    $this->assertTrue((bool) $speed_meta->get('status')->value);
 
     // Revision did not change.
     $this->assertEquals(6, $visual_meta->getRevisionId());

@@ -458,7 +458,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEmpty($this->entityMetaStorage->loadMultiple());
 
     $entity_meta_speed = $this->getEntityMetaList($node)->getEntityMeta('speed');
-    $this->assertTrue((bool) $entity_meta_speed->isNew());
+    $this->assertTrue($entity_meta_speed->isNew());
     $entity_meta_speed->getWrapper()->setGear(1);
 
     /** @var \Drupal\emr\Entity\EntityMetaInterface $entity_meta */
@@ -618,7 +618,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertCount(3, $relation_revisions);
     $this->assertEquals([2, 4, 6], array_keys($relation_revisions));
     $revision = $this->entityMetaRelationStorage->loadRevision(6);
-    $this->assertTrue((bool) $revision->isDefaultRevision());
+    $this->assertTrue($revision->isDefaultRevision());
     // There are 4 entity meta revisions, two for each meta.
     $this->assertCount(4, $this->entityMetaStorage->getQuery()->allRevisions()->execute());
 
@@ -637,7 +637,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertCount(1, $relation_revisions);
     $this->assertEquals([2], array_keys($relation_revisions));
     $revision = $this->entityMetaRelationStorage->loadRevision(2);
-    $this->assertTrue((bool) $revision->isDefaultRevision());
+    $this->assertTrue($revision->isDefaultRevision());
     // One of the entity meta revisions became orphaned so it should have been
     // deleted.
     $this->assertCount(3, $this->entityMetaStorage->getQuery()->allRevisions()->execute());
@@ -652,7 +652,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertCount(1, $related_entity_meta_entities);
     $this->assertEquals('3', $entity_meta_speed->getWrapper()->getGear());
     // Since the audio meta was detached, it should be returned as a new entity.
-    $this->assertTrue((bool) $entity_meta_audio->isNew());
+    $this->assertTrue($entity_meta_audio->isNew());
 
     // We detached the audio meta from the latest revision of the node, but
     // we should still see it attached on the first.
@@ -737,7 +737,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $related_entity_meta_entities = $this->entityMetaStorage->getRelatedEntities($node);
     $this->assertCount(1, $related_entity_meta_entities);
     $this->assertEquals('3', $entity_meta_speed->getWrapper()->getGear());
-    $this->assertTrue((bool) $entity_meta_audio->isNew());
+    $this->assertTrue($entity_meta_audio->isNew());
 
     // Detach second entity meta.
     $node->setNewRevision(TRUE);
@@ -753,8 +753,8 @@ class EntityMetaRelationTest extends KernelTestBase {
     $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
     $related_entity_meta_entities = $this->entityMetaStorage->getRelatedEntities($node);
     $this->assertCount(0, $related_entity_meta_entities);
-    $this->assertTrue((bool) $entity_meta_speed->isNew());
-    $this->assertTrue((bool) $entity_meta_audio->isNew());
+    $this->assertTrue($entity_meta_speed->isNew());
+    $this->assertTrue($entity_meta_audio->isNew());
 
     // The previous node revisions should still have the same related metas.
     $node = $this->nodeStorage->loadRevision(5);
@@ -763,7 +763,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $related_entity_meta_entities = $this->entityMetaStorage->getRelatedEntities($node);
     $this->assertCount(1, $related_entity_meta_entities);
     $this->assertEquals('3', $entity_meta_speed->getWrapper()->getGear());
-    $this->assertTrue((bool) $entity_meta_audio->isNew());
+    $this->assertTrue($entity_meta_audio->isNew());
   }
 
   /**
@@ -835,7 +835,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $related_entity_meta_entities = $this->entityMetaStorage->getRelatedEntities($node);
     $this->assertCount(1, $related_entity_meta_entities);
     $this->assertEquals($entity_meta_speed->getWrapper()->getGear(), '3');
-    $this->assertTrue((bool) $entity_meta_audio->isNew());
+    $this->assertTrue($entity_meta_audio->isNew());
   }
 
   /**
@@ -935,10 +935,10 @@ class EntityMetaRelationTest extends KernelTestBase {
     ]);
     $node->save();
     $this->assertEquals(2, $node->getRevisionId());
-    $this->assertTrue((bool) $node->isDefaultRevision());
+    $this->assertTrue($node->isDefaultRevision());
 
     $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
-    $this->assertTrue((bool) $entity_meta_audio->isNew());
+    $this->assertTrue($entity_meta_audio->isNew());
     $entity_meta_audio->getWrapper()->setVolume('low');
 
     $this->getEntityMetaList($node)->attach($entity_meta_audio);
@@ -961,7 +961,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->entityMetaStorage->resetCache();
     $node = $this->nodeStorage->load(2);
     $this->assertEquals(3, $node->getRevisionId());
-    $this->assertTrue((bool) $node->isDefaultRevision());
+    $this->assertTrue($node->isDefaultRevision());
     $entity_meta_audio = $this->entityMetaStorage->load(1);
     $this->assertEquals(2, $entity_meta_audio->getRevisionId());
     $this->assertEquals('medium', $entity_meta_audio->get('field_volume')->value);
@@ -980,9 +980,9 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->entityMetaStorage->resetCache();
     $node = $this->nodeStorage->load(2);
     $this->assertEquals(4, $node->getRevisionId());
-    $this->assertTrue((bool) $node->isDefaultRevision());
+    $this->assertTrue($node->isDefaultRevision());
     $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
-    $this->assertTrue((bool) $entity_meta_audio->isNew());
+    $this->assertTrue($entity_meta_audio->isNew());
     // Since the default revision of the node no longer is linked to the meta,
     // there is no more default meta revision so no metas should be found.
     $this->assertNull($this->entityMetaStorage->load(1));
@@ -993,7 +993,7 @@ class EntityMetaRelationTest extends KernelTestBase {
 
     // Attach back the audio meta.
     $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
-    $this->assertTrue((bool) $entity_meta_audio->isNew());
+    $this->assertTrue($entity_meta_audio->isNew());
     $entity_meta_audio->getWrapper()->setVolume('high');
     $this->getEntityMetaList($node)->attach($entity_meta_audio);
     $node->setNewRevision(TRUE);
@@ -1003,7 +1003,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->entityMetaStorage->resetCache();
     $node = $this->nodeStorage->load(2);
     $this->assertEquals(5, $node->getRevisionId());
-    $this->assertTrue((bool) $node->isDefaultRevision());
+    $this->assertTrue($node->isDefaultRevision());
     $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
     $this->assertEquals(3, $entity_meta_audio->getRevisionId());
 
@@ -1022,7 +1022,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->entityMetaStorage->resetCache();
     $node = $this->nodeStorage->load(2);
     $this->assertEquals(6, $node->getRevisionId());
-    $this->assertTrue((bool) $node->isDefaultRevision());
+    $this->assertTrue($node->isDefaultRevision());
     $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
     $this->assertEquals(4, $entity_meta_audio->getRevisionId());
     $this->assertEquals(2, $entity_meta_audio->id());
@@ -1039,7 +1039,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     // No new node revision.
     $this->assertEquals(6, $node->getRevisionId());
     $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
-    $this->assertTrue((bool) $entity_meta_audio->isNew());
+    $this->assertTrue($entity_meta_audio->isNew());
 
     // The last meta revision was deleted because the relation to it was deleted
     // so it became orphan.
