@@ -1,11 +1,20 @@
 # Changelog
 
+## [8.x-1.0-beta12](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta12) (2021-07-05)
+
+[Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta11...8.x-1.0-beta12)
+
+**Merged pull requests:**
+
+- Drupal 9 compatibility fixes [\#54](https://github.com/openeuropa/entity_meta_relation/pull/54) ([bbenbahloul](https://github.com/bbenbahloul))
+
 ## [8.x-1.0-beta11](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta11) (2021-06-15)
 
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta10...8.x-1.0-beta11)
 
 **Merged pull requests:**
 
+- Prepare release 8.x-1.0-beta11. [\#55](https://github.com/openeuropa/entity_meta_relation/pull/55) ([imanoleguskiza](https://github.com/imanoleguskiza))
 - EWPP-965: Improve the storage of the default entity meta revision. [\#53](https://github.com/openeuropa/entity_meta_relation/pull/53) ([upchuk](https://github.com/upchuk))
 - EWPP-721: Update xdebug configuration. [\#50](https://github.com/openeuropa/entity_meta_relation/pull/50) ([22Alexandra](https://github.com/22Alexandra))
 
