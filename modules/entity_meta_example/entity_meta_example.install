@@ -10,7 +10,10 @@ declare(strict_types = 1);
 /**
  * Implements hook_install().
  */
-function entity_meta_example_install() {
+function entity_meta_example_install($is_syncing) {
+  if ($is_syncing) {
+    return;
+  }
   /** @var \Drupal\emr\EntityMetaRelationInstaller $installer */
   $installer = \Drupal::service('emr.installer');
   $installer->installEntityMetaTypeOnContentEntityType('visual', 'node', ['entity_meta_example_ct']);

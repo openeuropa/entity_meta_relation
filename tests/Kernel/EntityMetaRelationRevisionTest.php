@@ -52,7 +52,7 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
@@ -131,13 +131,13 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
 
     // Color has changed.
     $this->assertEquals($visual_meta->get('field_color')->value, 'blue');
-    $this->assertTrue($visual_meta->get('status')->value);
+    $this->assertTrue((bool) $visual_meta->get('status')->value);
     // Audio is still as it was.
     $this->assertEquals($audio_meta->get('field_volume')->value, 'medium');
-    $this->assertTrue($audio_meta->get('status')->value);
+    $this->assertTrue((bool) $audio_meta->get('status')->value);
     // Speed has changed as well.
     $this->assertEquals($speed_meta->getWrapper()->getGear(), '2');
-    $this->assertTrue($speed_meta->get('status')->value);
+    $this->assertTrue((bool) $speed_meta->get('status')->value);
 
     // One extra node revision exists now, so one extra relation and meta
     // revision should exist.
@@ -190,11 +190,11 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
     // The meta values of the of the newly created node revisions should be the
     // same as the ones of the first revision.
     $this->assertEquals('red', $visual_meta->get('field_color')->value);
-    $this->assertFalse($visual_meta->get('status')->value);
+    $this->assertFalse((bool) $visual_meta->get('status')->value);
     $this->assertEquals('low', $audio_meta->get('field_volume')->value);
-    $this->assertFalse($audio_meta->get('status')->value);
+    $this->assertFalse((bool) $audio_meta->get('status')->value);
     $this->assertEquals('1', $speed_meta->getWrapper()->getGear());
-    $this->assertFalse($speed_meta->get('status')->value);
+    $this->assertFalse((bool) $speed_meta->get('status')->value);
 
     // Change again a meta value and confirm everything is normal.
     $visual_meta->set('field_color', 'blue');
@@ -210,11 +210,11 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
     $speed_meta = $node->get('emr_entity_metas')->getEntityMeta('speed');
 
     $this->assertEquals($visual_meta->get('field_color')->value, 'blue');
-    $this->assertFalse($visual_meta->get('status')->value);
+    $this->assertFalse((bool) $visual_meta->get('status')->value);
     $this->assertEquals($audio_meta->get('field_volume')->value, 'low');
-    $this->assertFalse($audio_meta->get('status')->value);
+    $this->assertFalse((bool) $audio_meta->get('status')->value);
     $this->assertEquals($speed_meta->getWrapper()->getGear(), '2');
-    $this->assertFalse($speed_meta->get('status')->value);
+    $this->assertFalse((bool) $speed_meta->get('status')->value);
 
     $this->assertCount(3, $this->entityMetaRelationStorage->loadMultiple());
     $this->assertCount(3, $this->entityMetaStorage->loadMultiple());
@@ -242,7 +242,7 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
       'type' => 'entity_meta_multi_example_ct',
       'title' => 'Node test',
     ]);
-    $node->setPublished(TRUE);
+    $node->setPublished();
     $entity_meta = $this->entityMetaStorage->create([
       'bundle' => 'visual',
       'field_color' => 'red',
@@ -260,7 +260,7 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
     // revision.
     $this->nodeStorage->resetCache();
     $node = $this->nodeStorage->load($node->id());
-    $node->setPublished(FALSE);
+    $node->setUnpublished();
     $node->setNewRevision(TRUE);
     $node->save();
 
@@ -282,7 +282,7 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
       'title' => 'Node test',
       // We keep the node unpublished to test the meta respects the status.
     ]);
-    $node->setPublished(FALSE);
+    $node->setUnpublished();
 
     $entity_metas = [];
     $entity_metas[0] = $this->entityMetaStorage->create([
@@ -305,7 +305,7 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
     $speed_meta = $node->get('emr_entity_metas')->getEntityMeta('speed');
 
     $node->setNewRevision(TRUE);
-    $node->setPublished(TRUE);
+    $node->setPublished();
 
     $audio_meta->getWrapper()->setVolume('medium');
     $speed_meta->getWrapper()->setGear('2');
@@ -324,7 +324,7 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
     $node->get('emr_entity_metas')->attach($entity_meta_visual);
     $node->get('emr_entity_metas')->attach($entity_meta_speed);
     $node->setNewRevision(TRUE);
-    $node->setPublished(FALSE);
+    $node->setUnpublished();
     $node->save();
 
     // Fourth revision - Change visual an publish back the node.
@@ -334,7 +334,7 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
     $entity_meta_visual->set('field_color', 'red');
     $node->get('emr_entity_metas')->attach($entity_meta_visual);
     $node->setNewRevision(TRUE);
-    $node->setPublished(TRUE);
+    $node->setPublished();
     $node->save();
 
     // Make the assertions for all the changes.
@@ -381,11 +381,11 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
         $speed_meta = $node->get('emr_entity_metas')->getEntityMeta('speed');
 
         $this->assertEquals($visual_meta->get('field_color')->value, 'red');
-        $this->assertFalse($visual_meta->get('status')->value);
+        $this->assertFalse((bool) $visual_meta->get('status')->value);
         $this->assertEquals($audio_meta->get('field_volume')->value, 'low');
-        $this->assertFalse($audio_meta->get('status')->value);
+        $this->assertFalse((bool) $audio_meta->get('status')->value);
         $this->assertEquals($speed_meta->getWrapper()->getGear(), '1');
-        $this->assertFalse($speed_meta->get('status')->value);
+        $this->assertFalse((bool) $speed_meta->get('status')->value);
         break;
 
       case 2:
@@ -396,11 +396,11 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
         $speed_meta = $node->get('emr_entity_metas')->getEntityMeta('speed');
         // The visual meta was not changed but the other two were.
         $this->assertEquals($visual_meta->get('field_color')->value, 'red');
-        $this->assertTrue($visual_meta->get('status')->value);
+        $this->assertTrue((bool) $visual_meta->get('status')->value);
         $this->assertEquals($audio_meta->get('field_volume')->value, 'medium');
-        $this->assertTrue($audio_meta->get('status')->value);
+        $this->assertTrue((bool) $audio_meta->get('status')->value);
         $this->assertEquals($speed_meta->getWrapper()->getGear(), '2');
-        $this->assertTrue($speed_meta->get('status')->value);
+        $this->assertTrue((bool) $speed_meta->get('status')->value);
         break;
 
       case 3:
@@ -410,11 +410,11 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
         $visual_meta = $node->get('emr_entity_metas')->getEntityMeta('visual');
         $speed_meta = $node->get('emr_entity_metas')->getEntityMeta('speed');
         $this->assertEquals($visual_meta->get('field_color')->value, 'green');
-        $this->assertFalse($visual_meta->get('status')->value);
+        $this->assertFalse((bool) $visual_meta->get('status')->value);
         $this->assertEquals($audio_meta->get('field_volume')->value, 'medium');
-        $this->assertFalse($audio_meta->get('status')->value);
+        $this->assertFalse((bool) $audio_meta->get('status')->value);
         $this->assertEquals($speed_meta->getWrapper()->getGear(), '3');
-        $this->assertFalse($speed_meta->get('status')->value);
+        $this->assertFalse((bool) $speed_meta->get('status')->value);
         break;
 
       case 4:
@@ -423,11 +423,11 @@ class EntityMetaRelationRevisionTest extends KernelTestBase {
         $speed_meta = $node->get('emr_entity_metas')->getEntityMeta('speed');
 
         $this->assertEquals($visual_meta->get('field_color')->value, 'red');
-        $this->assertTrue($visual_meta->get('status')->value);
+        $this->assertTrue((bool) $visual_meta->get('status')->value);
         $this->assertEquals($audio_meta->get('field_volume')->value, 'medium');
-        $this->assertTrue($audio_meta->get('status')->value);
+        $this->assertTrue((bool) $audio_meta->get('status')->value);
         $this->assertEquals($speed_meta->getWrapper()->getGear(), '3');
-        $this->assertTrue($speed_meta->get('status')->value);
+        $this->assertTrue((bool) $speed_meta->get('status')->value);
         break;
     }
   }

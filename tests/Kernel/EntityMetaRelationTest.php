@@ -55,7 +55,7 @@ class EntityMetaRelationTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
@@ -935,7 +935,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     ]);
     $node->save();
     $this->assertEquals(2, $node->getRevisionId());
-    $this->assertTrue(2, $node->isDefaultRevision());
+    $this->assertTrue($node->isDefaultRevision());
 
     $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
     $this->assertTrue($entity_meta_audio->isNew());
@@ -1064,39 +1064,39 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertNull($entity_meta->get('emr_default_revision')->value);
     $entity_meta->save();
     // When the entity meta is created, the first revision is marked as default.
-    $this->assertTrue($entity_meta->get('emr_default_revision')->value);
+    $this->assertTrue((bool) $entity_meta->get('emr_default_revision')->value);
     $this->entityMetaStorage->resetCache();
     $entity_meta = $this->entityMetaStorage->load($entity_meta->id());
-    $this->assertTrue($entity_meta->get('emr_default_revision')->value);
+    $this->assertTrue((bool) $entity_meta->get('emr_default_revision')->value);
     $this->assertDefaultEntityMetaRevision($entity_meta, 1);
 
     // Make a new revision and mark it as default.
     $entity_meta->setNewRevision(TRUE);
     $entity_meta->set('emr_default_revision', TRUE);
-    $this->assertTrue($entity_meta->get('emr_default_revision')->value);
+    $this->assertTrue((bool) $entity_meta->get('emr_default_revision')->value);
     $this->assertDefaultEntityMetaRevision($entity_meta, 1);
     $entity_meta->save();
     $this->entityMetaStorage->resetCache();
     $entity_meta = $this->entityMetaStorage->load($entity_meta->id());
-    $this->assertTrue($entity_meta->get('emr_default_revision')->value);
+    $this->assertTrue((bool) $entity_meta->get('emr_default_revision')->value);
     $this->assertDefaultEntityMetaRevision($entity_meta, 2);
 
     // Load the first revision and assert it's not marked as default.
     $revision = $this->entityMetaStorage->loadRevision(1);
-    $this->assertFalse($revision->get('emr_default_revision')->value);
+    $this->assertFalse((bool) $revision->get('emr_default_revision')->value);
 
     // Mark back the first revision as the default.
     $revision->set('emr_default_revision', TRUE);
-    $this->assertTrue($revision->get('emr_default_revision')->value);
+    $this->assertTrue((bool) $revision->get('emr_default_revision')->value);
     // The tracking table is not yet updated.
     $this->assertDefaultEntityMetaRevision($entity_meta, 2);
     $revision->save();
     $this->entityMetaStorage->resetCache();
     $revision = $this->entityMetaStorage->loadRevision(1);
-    $this->assertTrue($revision->get('emr_default_revision')->value);
+    $this->assertTrue((bool) $revision->get('emr_default_revision')->value);
     $this->assertDefaultEntityMetaRevision($entity_meta, 1);
     $entity_meta = $this->entityMetaStorage->loadRevision(2);
-    $this->assertFalse($entity_meta->get('emr_default_revision')->value);
+    $this->assertFalse((bool) $entity_meta->get('emr_default_revision')->value);
 
     // Mark the first revision to not be default either (none are left default).
     $revision->set('emr_default_revision', FALSE);
@@ -1105,7 +1105,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertNull($this->entityMetaStorage->load(1));
     foreach ([1, 2] as $revision_id) {
       $revision = $this->entityMetaStorage->loadRevision($revision_id);
-      $this->assertFalse($revision->get('emr_default_revision')->value);
+      $this->assertFalse((bool) $revision->get('emr_default_revision')->value);
     }
     $this->assertNoDefaultEntityMetaRevision(1);
   }
