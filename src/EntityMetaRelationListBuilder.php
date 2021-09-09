@@ -86,7 +86,7 @@ class EntityMetaRelationListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /* @var $entity \Drupal\emr\Entity\EntityMetaRelationInterface */
+    /** @var \Drupal\emr\Entity\EntityMetaRelationInterface $entity */
     $row['id'] = $entity->toLink()->toString();
     return $row + parent::buildRow($entity);
   }

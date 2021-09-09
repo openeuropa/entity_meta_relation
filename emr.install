@@ -109,7 +109,10 @@ function emr_update_8003(&$sandbox) {
   $revisions = $storage->loadMultipleRevisions($ids);
   foreach ($revisions as $revision) {
     \Drupal::database()->insert('entity_meta_default_revision')
-      ->fields(['entity_meta_id' => $revision->id(), 'default_revision_id' => $revision->getRevisionId()])
+      ->fields([
+        'entity_meta_id' => $revision->id(),
+        'default_revision_id' => $revision->getRevisionId(),
+      ])
       ->execute();
 
     $sandbox['current']++;

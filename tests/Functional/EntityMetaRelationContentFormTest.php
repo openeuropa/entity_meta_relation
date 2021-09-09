@@ -410,7 +410,10 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
    * Tests that entity meta forms don't show up on translation forms.
    */
   public function testNoEntityMetaOnTranslationForm(): void {
-    \Drupal::service('module_installer')->install(['language', 'content_translation']);
+    \Drupal::service('module_installer')->install([
+      'language',
+      'content_translation',
+    ]);
     \Drupal::service('content_translation.manager')->setEnabled('node', 'entity_meta_example_ct', TRUE);
     $this->permissions[] = 'translate any entity';
     $this->drupalLogin($this->drupalCreateUser($this->permissions));
