@@ -431,6 +431,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
    * {@inheritdoc}
    *
    * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+   * @SuppressWarnings(PHPMD.NPathComplexity)
    */
   public function getRelatedEntities(ContentEntityInterface $entity): array {
     $entity_type = $entity->getEntityType();
@@ -467,10 +468,11 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     /** @var \Drupal\emr\Entity\EntityMetaRelationInterface[] $entity_meta_relations */
     $entity_meta_relation_revisions = $entity_meta_relation_storage->loadMultipleRevisions(array_keys($ids));
 
-    $related_entities = [];
+    $related_entities = $related_entities_revisions = [];
 
     /** @var \Drupal\emr\Entity\EntityMetaRelationInterface $relation */
     foreach ($entity_meta_relation_revisions as $relation) {
+      // Find the correct field to get the reverse relation.
       if ($entity instanceof EntityMetaInterface) {
         $reverse_relation_field_name = $entity_meta_relation_storage->getRelationFieldName($relation, EntityMetaRelationStorageInterface::RELATION_FIELD_TARGET_CONTENT);
       }
@@ -483,16 +485,36 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
         continue;
       }
 
+      // Get target type, id and revision id on this relation.
+      $target_id = $relation->get($reverse_relation_field_name)->target_id;
       $target_revision_id = $relation->get($reverse_relation_field_name)->target_revision_id;
       $target_type = $relation->get($reverse_relation_field_name)->getFieldDefinition()->getFieldStorageDefinition()->getSetting('target_type');
-      $storage = $entity instanceof EntityMetaInterface ? $this->entityTypeManager->getStorage($target_type) : $this;
-      $related_entity = $storage->loadRevision($target_revision_id);
-      if (!$related_entity instanceof ContentEntityInterface) {
-        continue;
-      }
+      // Add to a list of revisions to load.
+      // This is done to avoid loading duplicated revisions for same entity.
+      $related_entities_revisions[$target_type][$target_id][] = $target_revision_id;
+    }
 
-      $id = $related_entity->getEntityTypeId() . ':' . $related_entity->id();
-      $related_entities[$id] = $related_entity;
+    // Loop through the revisions to load the last one for each related entity.
+    foreach ($related_entities_revisions as $target_type => $target_entity) {
+      foreach ($target_entity as $entity_id => $revision_ids) {
+        // We are interested on the last existing revision
+        // so we revert order to start by the end.
+        rsort($revision_ids);
+        foreach ($revision_ids as $revision_id) {
+          $id = $target_type . ':' . $entity_id;
+          // We already have the entity, no need to load another revision.
+          if (!empty($related_entities[$id])) {
+            break;
+          }
+          $storage = $entity instanceof EntityMetaInterface ? $this->entityTypeManager->getStorage($target_type) : $this;
+          $related_entity = $storage->loadRevision($revision_id);
+          if (!$related_entity instanceof ContentEntityInterface) {
+            continue;
+          }
+
+          $related_entities[$id] = $related_entity;
+        }
+      }
     }
 
     return $related_entities;
