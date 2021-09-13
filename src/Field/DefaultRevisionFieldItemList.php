@@ -71,7 +71,10 @@ class DefaultRevisionFieldItemList extends FieldItemList {
       if ((int) $revision_id !== $this->getDefaultRevisionId((int) $id)) {
         \Drupal::database()->upsert('entity_meta_default_revision')
           ->key('entity_meta_id')
-          ->fields(['entity_meta_id' => $id, 'default_revision_id' => $revision_id])
+          ->fields([
+            'entity_meta_id' => $id,
+            'default_revision_id' => $revision_id,
+          ])
           ->execute();
 
         return;

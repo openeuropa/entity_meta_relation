@@ -87,7 +87,6 @@ class EntityMetaListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /* @var $entity \Drupal\emr\Entity\EntityMetaInterface */
     $row['id'] = $entity->toLink()->toString();
     $row['status'] = $entity->isEnabled() ? $this->t('Enabled') : $this->t('Disabled');
     return $row + parent::buildRow($entity);
