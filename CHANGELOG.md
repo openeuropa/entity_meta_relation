@@ -1,15 +1,21 @@
-# Changelog
+# Change Log
+
+## [8.x-1.0](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0) (2021-09-13)
+[Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta12...8.x-1.0)
+
+**Merged pull requests:**
+
+- EWPP-1494: Improve performance for getRelatedEntities\(\). [\#57](https://github.com/openeuropa/entity_meta_relation/pull/57) ([hernani](https://github.com/hernani))
 
 ## [8.x-1.0-beta12](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta12) (2021-07-05)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta11...8.x-1.0-beta12)
 
 **Merged pull requests:**
 
+- EWPP-0000: Prepare for beta12 release. [\#56](https://github.com/openeuropa/entity_meta_relation/pull/56) ([hernani](https://github.com/hernani))
 - Drupal 9 compatibility fixes [\#54](https://github.com/openeuropa/entity_meta_relation/pull/54) ([bbenbahloul](https://github.com/bbenbahloul))
 
 ## [8.x-1.0-beta11](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta11) (2021-06-15)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta10...8.x-1.0-beta11)
 
 **Merged pull requests:**
@@ -19,7 +25,6 @@
 - EWPP-721: Update xdebug configuration. [\#50](https://github.com/openeuropa/entity_meta_relation/pull/50) ([22Alexandra](https://github.com/22Alexandra))
 
 ## [8.x-1.0-beta10](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta10) (2021-04-09)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta9...8.x-1.0-beta10)
 
 **Merged pull requests:**
@@ -29,7 +34,6 @@
 - EWPP-529: Replace drupal scaffold library. [\#48](https://github.com/openeuropa/entity_meta_relation/pull/48) ([sergepavle](https://github.com/sergepavle))
 
 ## [8.x-1.0-beta9](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta9) (2020-12-03)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta8...8.x-1.0-beta9)
 
 **Merged pull requests:**
@@ -39,7 +43,6 @@
 - EWPP-408: Fix issue with invalid settings of field configs in the emr\_node module. [\#43](https://github.com/openeuropa/entity_meta_relation/pull/43) ([sergepavle](https://github.com/sergepavle))
 
 ## [8.x-1.0-beta8](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta8) (2020-08-17)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta7...8.x-1.0-beta8)
 
 **Merged pull requests:**
@@ -48,7 +51,6 @@
 - EWPP-168: Using the new revision to determine the entity meta publish state [\#41](https://github.com/openeuropa/entity_meta_relation/pull/41) ([upchuk](https://github.com/upchuk))
 
 ## [8.x-1.0-beta7](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta7) (2020-06-23)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta6...8.x-1.0-beta7)
 
 **Merged pull requests:**
@@ -57,7 +59,6 @@
 - OPENEUROPA-0000: Fixing module dependencies. [\#39](https://github.com/openeuropa/entity_meta_relation/pull/39) ([hernani](https://github.com/hernani))
 
 ## [8.x-1.0-beta6](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta6) (2020-06-22)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta5...8.x-1.0-beta6)
 
 **Merged pull requests:**
@@ -67,7 +68,6 @@
 - OPENEUROPA-3249: Entity meta relation plugin form validation. [\#36](https://github.com/openeuropa/entity_meta_relation/pull/36) ([upchuk](https://github.com/upchuk))
 
 ## [8.x-1.0-beta5](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta5) (2020-04-29)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta4...8.x-1.0-beta5)
 
 **Merged pull requests:**
@@ -78,7 +78,6 @@
 - OPENEUROPA-2970: Do not show the entity meta form on translation forms. [\#31](https://github.com/openeuropa/entity_meta_relation/pull/31) ([upchuk](https://github.com/upchuk))
 
 ## [8.x-1.0-beta4](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta4) (2020-04-20)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta3...8.x-1.0-beta4)
 
 **Merged pull requests:**
@@ -93,7 +92,6 @@
 - OPENEUROPA-2276: Entity Meta API [\#20](https://github.com/openeuropa/entity_meta_relation/pull/20) ([hernani](https://github.com/hernani))
 
 ## [8.x-1.0-beta3](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta3) (2020-03-20)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta2...8.x-1.0-beta3)
 
 **Merged pull requests:**
@@ -103,7 +101,6 @@
 - OPENEUROPA-2604: Drupal 8 recommended project. [\#21](https://github.com/openeuropa/entity_meta_relation/pull/21) ([upchuk](https://github.com/upchuk))
 
 ## [8.x-1.0-beta2](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.0-beta2) (2020-02-04)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0-beta1...8.x-1.0-beta2)
 
 **Merged pull requests:**
@@ -130,4 +127,4 @@
 
 
 
-\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
+\* *This Change Log was automatically generated by [github_changelog_generator](https://github.com/skywinder/Github-Changelog-Generator)*
