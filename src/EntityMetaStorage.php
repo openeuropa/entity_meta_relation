@@ -508,11 +508,10 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
           }
           $storage = $entity instanceof EntityMetaInterface ? $this->entityTypeManager->getStorage($target_type) : $this;
           $related_entity = $storage->loadRevision($revision_id);
-          if (!$related_entity instanceof ContentEntityInterface) {
-            continue;
+          if ($related_entity instanceof ContentEntityInterface) {
+            $related_entities[$id] = $related_entity;
+            break;
           }
-
-          $related_entities[$id] = $related_entity;
         }
       }
     }
