@@ -2,7 +2,7 @@ name: Entity Meta Example
 type: module
 description: 'Defines an example meta entity to be related with nodes'
 package: Entity Meta Relation
-core_version_requirement: ^8.9 || ^9.1
+core_version_requirement: ^9.2
 
 dependencies:
   - entity_meta_relation:emr_node

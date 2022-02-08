@@ -37,10 +37,10 @@ class EntityMetaRelationContentFormTest extends BrowserTestBase {
     'access administration pages',
     'administer content types',
     'administer nodes',
+    'create entity_meta_example_ct content',
+    'create entity_meta_multi_example_ct content',
     'edit any entity_meta_example_ct content',
-    'edit own entity_meta_example_ct content',
     'edit any entity_meta_multi_example_ct content',
-    'edit own entity_meta_multi_example_ct content',
     'access content overview',
   ];
 

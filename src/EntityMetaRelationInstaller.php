@@ -116,7 +116,7 @@ class EntityMetaRelationInstaller {
       throw new FieldException("Field config 'entity_meta_relation.{$emr_bundle}.{$field_name}' not found. Without this field, we cannot properly configure Entity Meta type.");
     }
     $handler_settings = $field_config->getSetting('handler_settings');
-    $old_target_bundles = isset($handler_settings['target_bundles']) ? $handler_settings['target_bundles'] : [];
+    $old_target_bundles = $handler_settings['target_bundles'] ?? [];
     $handler_settings['target_bundles'] = array_unique(array_merge($old_target_bundles, $target_bundles));
     $field_config->setSetting('handler_settings', $handler_settings);
     $field_config->save();
