@@ -198,6 +198,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     // There should only be one ID because there can only be one relation
     // between a content entity and a meta.
     $ids = $entity_meta_relation_storage->getQuery()
+      ->accessCheck(FALSE)
       ->condition("{$entity_meta_relation_content_field}.target_id", $content_entity->id())
       ->condition("{$entity_meta_relation_meta_field}.target_id", $entity->id())
       ->execute();
@@ -214,6 +215,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
 
       // We need to delete existing relation revision.
       $revision_ids = $entity_meta_relation_storage->getQuery()
+        ->accessCheck(FALSE)
         ->condition('id', reset($ids))
         ->condition("{$entity_meta_relation_content_field}.target_revision_id", $content_entity->getRevisionId())
         ->condition("{$entity_meta_relation_meta_field}.target_id", $entity->id())
@@ -282,6 +284,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
 
     foreach ($entity_meta_relation_fields as $field_name) {
       $ids = $entity_meta_relation_storage->getQuery()
+        ->accessCheck(FALSE)
         ->condition("{$field_name}.target_id", $entity_meta_ids, 'IN')
         ->execute();
 
@@ -358,6 +361,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
     $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $ids = $entity_meta_relation_storage->getQuery()
+      ->accessCheck(FALSE)
       ->condition($entity_meta_relation_content_field . '.target_id', $content_entity->id())
       ->allRevisions()
       ->execute();
@@ -389,6 +393,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
     $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $ids = $entity_meta_relation_storage->getQuery()
+      ->accessCheck(FALSE)
       ->condition($entity_meta_relation_content_field . '.target_revision_id', $content_entity->getRevisionId())
       ->allRevisions()
       ->execute();
@@ -457,6 +462,7 @@ class EntityMetaStorage extends SqlContentEntityStorage implements EntityMetaSto
     /** @var \Drupal\emr\EntityMetaRelationStorageInterface $entity_meta_relation_storage */
     $entity_meta_relation_storage = $this->entityTypeManager->getStorage('entity_meta_relation');
     $ids = $entity_meta_relation_storage->getQuery()
+      ->accessCheck(FALSE)
       ->condition($relation_field_name . '.' . $target_field, $target_id)
       ->allRevisions()
       ->execute();

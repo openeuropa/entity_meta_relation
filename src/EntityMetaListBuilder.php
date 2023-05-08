@@ -67,6 +67,7 @@ class EntityMetaListBuilder extends EntityListBuilder {
 
     $total = $this->getStorage()
       ->getQuery()
+      ->accessCheck()
       ->count()
       ->execute();
 

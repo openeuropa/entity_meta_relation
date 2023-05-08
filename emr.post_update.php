@@ -20,7 +20,10 @@ function emr_post_update_00002(&$sandbox) {
 
   /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
   $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
-  $meta_ids = $storage->getQuery()->allRevisions()->execute();
+  $meta_ids = $storage->getQuery()
+    ->accessCheck(FALSE)
+    ->allRevisions()
+    ->execute();
   $grouped = [];
   foreach ($meta_ids as $revision_id => $meta_id) {
     $grouped[$meta_id][] = $revision_id;
