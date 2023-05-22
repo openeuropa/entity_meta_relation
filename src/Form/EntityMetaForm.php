@@ -25,7 +25,7 @@ class EntityMetaForm extends ContentEntityForm {
   protected $renderer;
 
   /**
-   * Constructs a EntityMetaForm object.
+   * Constructs an EntityMetaForm object.
    *
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    *   The entity repository service.
@@ -37,9 +37,8 @@ class EntityMetaForm extends ContentEntityForm {
    *   The renderer service.
    */
   public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info, TimeInterface $time, RendererInterface $renderer) {
-    $this->entityRepository = $entity_repository;
-    $this->entityTypeBundleInfo = $entity_type_bundle_info;
-    $this->time = $time;
+    parent::__construct($entity_repository, $entity_type_bundle_info, $time);
+
     $this->renderer = $renderer;
   }
 
