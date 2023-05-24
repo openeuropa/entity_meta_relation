@@ -104,7 +104,11 @@ class EntityMetaRelationStorage extends SqlContentEntityStorage implements Entit
         continue;
       }
 
-      $results = $this->getQuery()->condition("{$field_name}.target_id", $entity_meta->id())->allRevisions()->execute();
+      $results = $this->getQuery()
+        ->accessCheck(FALSE)
+        ->condition("{$field_name}.target_id", $entity_meta->id())
+        ->allRevisions()
+        ->execute();
       if ($results) {
         // If we find revisions, we don't do anything.
         continue;
@@ -128,7 +132,11 @@ class EntityMetaRelationStorage extends SqlContentEntityStorage implements Entit
     $field_name = $this->getRelationFieldName($revision, EntityMetaRelationStorageInterface::RELATION_FIELD_TARGET_META);
     $entity_meta_revision_id = $revision->get($field_name)->target_revision_id;
 
-    $results = $this->getQuery()->condition("{$field_name}.target_revision_id", $entity_meta_revision_id)->allRevisions()->execute();
+    $results = $this->getQuery()
+      ->accessCheck(FALSE)
+      ->condition("{$field_name}.target_revision_id", $entity_meta_revision_id)
+      ->allRevisions()
+      ->execute();
     if ($results) {
       return;
     }

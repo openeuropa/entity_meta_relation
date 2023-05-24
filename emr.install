@@ -93,7 +93,11 @@ function emr_update_8003(&$sandbox) {
   /** @var \Drupal\emr\EntityMetaStorageInterface $storage */
   $storage = \Drupal::entityTypeManager()->getStorage('entity_meta');
   if (!isset($sandbox['total'])) {
-    $ids = $storage->getQuery()->allRevisions()->condition('emr_default_revision', 1)->execute();
+    $ids = $storage->getQuery()
+      ->accessCheck(FALSE)
+      ->allRevisions()
+      ->condition('emr_default_revision', 1)
+      ->execute();
     if (!$ids) {
       return t('No entity meta entities need to be updated.');
     }

@@ -3,7 +3,7 @@ status: true
 dependencies:
   config:
     - emr.entity_meta_type.force
-    - field.field.entity_meta.force.field_volume
+    - field.field.entity_meta.force.field_gravity
 id: entity_meta.force.default
 targetEntityType: entity_meta
 bundle: force
@@ -15,7 +15,7 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_volume:
+  field_gravity:
     type: options_select
     weight: 0
     region: content

@@ -20,4 +20,5 @@ function entity_meta_example_install($is_syncing) {
   $installer->installEntityMetaTypeOnContentEntityType('audio', 'node', ['entity_meta_multi_example_ct']);
   $installer->installEntityMetaTypeOnContentEntityType('visual', 'node', ['entity_meta_multi_example_ct']);
   $installer->installEntityMetaTypeOnContentEntityType('speed', 'node', ['entity_meta_multi_example_ct']);
+  $installer->installEntityMetaTypeOnContentEntityType('force', 'node', ['entity_meta_multi_example_ct']);
 }

@@ -128,7 +128,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     // No entity meta values have been changed so no new revision should have
     // been created.
     $this->entityMetaStorage->resetCache();
-    $results = $this->entityMetaStorage->getQuery()->allRevisions()->execute();
+    $results = $this->entityMetaStorage->getQuery()->accessCheck(FALSE)->allRevisions()->execute();
     $this->assertCount(1, $results);
 
     // However, a relationship between the node and the entity meta should have
@@ -138,7 +138,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     /** @var \Drupal\emr\Entity\EntityMetaRelationInterface $entity_meta_relation */
     $entity_meta_relation = reset($entity_meta_relations);
     // Only one revision of the relation should have been made.
-    $results = $this->entityMetaRelationStorage->getQuery()->allRevisions()->execute();
+    $results = $this->entityMetaRelationStorage->getQuery()->accessCheck(FALSE)->allRevisions()->execute();
     $this->assertCount(1, $results);
     $this->assertEquals(1, $entity_meta_relation->getRevisionId());
     $this->assertEquals(1, $entity_meta_relation->get('emr_meta_revision')->target_id);
@@ -163,7 +163,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $node->setNewRevision(TRUE);
     $node->save();
     $this->nodeStorage->resetCache();
-    $node_revision_ids = $this->nodeStorage->getQuery()->condition('nid', 2)->allRevisions()->execute();
+    $node_revision_ids = $this->nodeStorage->getQuery()->accessCheck(FALSE)->condition('nid', 2)->allRevisions()->execute();
     $this->assertCount(2, $node_revision_ids);
     end($node_revision_ids);
     $last_node_revision_id = key($node_revision_ids);
@@ -180,7 +180,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     // points to that new node revision: 3.
     $this->assertEquals(3, $entity_meta_relation->get('emr_node_revision')->target_revision_id);
     // Check that we have two entity relation revisions.
-    $entity_meta_relation_revision_ids = $this->entityMetaRelationStorage->getQuery()->condition('id', 1)->allRevisions()->execute();
+    $entity_meta_relation_revision_ids = $this->entityMetaRelationStorage->getQuery()->accessCheck(FALSE)->condition('id', 1)->allRevisions()->execute();
     $this->assertCount(2, $entity_meta_relation_revision_ids);
     // Assert that the first revision still points to the first revision of the
     // second node.
@@ -313,7 +313,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     // No entity meta values have been changed so no new revision should have
     // been created.
     $this->entityMetaStorage->resetCache();
-    $results = $this->entityMetaStorage->getQuery()->allRevisions()->execute();
+    $results = $this->entityMetaStorage->getQuery()->accessCheck(FALSE)->allRevisions()->execute();
     $this->assertCount(2, $results);
 
     $entity_meta_visual = $this->entityMetaStorage->load($entity_meta_visual->id());
@@ -536,7 +536,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEquals('low', $entity_meta_audio->getWrapper()->getVolume());
 
     // Update the entity metas without a new node revision.
-    $this->assertCount(2, $this->nodeStorage->getQuery()->condition('nid', 2)->allRevisions()->execute());
+    $this->assertCount(2, $this->nodeStorage->getQuery()->accessCheck(FALSE)->condition('nid', 2)->allRevisions()->execute());
     $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
     $entity_meta_speed = $this->getEntityMetaList($node)->getEntityMeta('speed');
     $entity_meta_audio->getWrapper()->setVolume('medium');
@@ -550,7 +550,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->entityMetaRelationStorage->resetCache();
 
     // Still only two node revisions remain.
-    $this->assertCount(2, $this->nodeStorage->getQuery()->condition('nid', 2)->allRevisions()->execute());
+    $this->assertCount(2, $this->nodeStorage->getQuery()->accessCheck(FALSE)->condition('nid', 2)->allRevisions()->execute());
 
     // Assert the correct new entity meta values are loaded. Since we didn't
     // make a new revision of the node, the entity meta values should have
@@ -614,13 +614,13 @@ class EntityMetaRelationTest extends KernelTestBase {
     // Detach audio entity meta without making a new content revision. This
     // means that relation revisions will need to be deleted so we should
     // establish a baseline of the revisions for the relation with the ID 2.
-    $relation_revisions = $this->entityMetaRelationStorage->getQuery()->condition('id', 2)->allRevisions()->execute();
+    $relation_revisions = $this->entityMetaRelationStorage->getQuery()->accessCheck(FALSE)->condition('id', 2)->allRevisions()->execute();
     $this->assertCount(3, $relation_revisions);
     $this->assertEquals([2, 4, 6], array_keys($relation_revisions));
     $revision = $this->entityMetaRelationStorage->loadRevision(6);
     $this->assertTrue($revision->isDefaultRevision());
     // There are 4 entity meta revisions, two for each meta.
-    $this->assertCount(4, $this->entityMetaStorage->getQuery()->allRevisions()->execute());
+    $this->assertCount(4, $this->entityMetaStorage->getQuery()->accessCheck(FALSE)->allRevisions()->execute());
 
     $this->getEntityMetaList($node)->detach($entity_meta_audio);
     $node->save();
@@ -630,17 +630,17 @@ class EntityMetaRelationTest extends KernelTestBase {
 
     $node = $this->nodeStorage->load(2);
     // No new node revision was made.
-    $this->assertCount(2, $this->nodeStorage->getQuery()->condition('nid', 2)->allRevisions()->execute());
+    $this->assertCount(2, $this->nodeStorage->getQuery()->accessCheck(FALSE)->condition('nid', 2)->allRevisions()->execute());
     // Since there were two relation revisions pointing to this Node revision
     // (due to 2 different meta revisions), both of these should be deleted.
-    $relation_revisions = $this->entityMetaRelationStorage->getQuery()->condition('id', 2)->allRevisions()->execute();
+    $relation_revisions = $this->entityMetaRelationStorage->getQuery()->accessCheck(FALSE)->condition('id', 2)->allRevisions()->execute();
     $this->assertCount(1, $relation_revisions);
     $this->assertEquals([2], array_keys($relation_revisions));
     $revision = $this->entityMetaRelationStorage->loadRevision(2);
     $this->assertTrue($revision->isDefaultRevision());
     // One of the entity meta revisions became orphaned so it should have been
     // deleted.
-    $this->assertCount(3, $this->entityMetaStorage->getQuery()->allRevisions()->execute());
+    $this->assertCount(3, $this->entityMetaStorage->getQuery()->accessCheck(FALSE)->allRevisions()->execute());
 
     $related_entity_meta_entities = $this->entityMetaStorage->getRelatedEntities($node);
     // Only the speed entity meta should remain attached though on the latest
@@ -674,7 +674,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->entityMetaStorage->resetCache();
     $this->assertNull($this->entityMetaStorage->load(2));
     // And only two entity meta revisions left.
-    $this->assertCount(2, $this->entityMetaStorage->getQuery()->allRevisions()->execute());
+    $this->assertCount(2, $this->entityMetaStorage->getQuery()->accessCheck(FALSE)->allRevisions()->execute());
 
     $node = $this->nodeStorage->load(2);
 
@@ -701,7 +701,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $entity_meta_speed = $this->getEntityMetaList($old_node_revision)->getEntityMeta('speed');
     $this->assertEquals(1, $entity_meta_speed->id());
     // Additionally, there should be no orphan revisions of the speed meta.
-    $revision_ids = $this->entityMetaStorage->getQuery()->allRevisions()->execute();
+    $revision_ids = $this->entityMetaStorage->getQuery()->accessCheck(FALSE)->allRevisions()->execute();
     $this->assertEquals([1], array_keys($revision_ids));
 
     // Reattach the two metas (one already existing on the first revision and
@@ -721,7 +721,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     // Detach the audio meta from the latest node revision but this time by
     // making a new node revision in the process to test that the revision
     // creation gets skipped.
-    $this->assertCount(4, $this->entityMetaRelationStorage->getQuery()->allRevisions()->execute());
+    $this->assertCount(4, $this->entityMetaRelationStorage->getQuery()->accessCheck(FALSE)->allRevisions()->execute());
     $entity_meta_audio = $this->getEntityMetaList($node)->getEntityMeta('audio');
     $node->setNewRevision(TRUE);
     $this->getEntityMetaList($node)->detach($entity_meta_audio);
@@ -871,7 +871,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
 
     // Assert querying by value.
-    $ids = $this->entityMetaStorage->getQuery()->condition('field_volume', 'low')->execute();
+    $ids = $this->entityMetaStorage->getQuery()->accessCheck(FALSE)->condition('field_volume', 'low')->execute();
     $this->assertEquals([2 => 2], $ids);
 
     // Update the audio meta and make a new default revision.
@@ -902,7 +902,7 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->assertEquals(1, $entity_meta_audio->get('emr_default_revision')->value);
 
     // Assert querying by value.
-    $ids = $this->entityMetaStorage->getQuery()->condition('field_volume', 'medium')->execute();
+    $ids = $this->entityMetaStorage->getQuery()->accessCheck(FALSE)->condition('field_volume', 'medium')->execute();
     $this->assertEquals([3 => 2], $ids);
 
     // Change the default revision of the audio meta.
@@ -917,10 +917,10 @@ class EntityMetaRelationTest extends KernelTestBase {
     $this->entityMetaStorage->resetCache();
 
     // Assert querying by value.
-    $ids = $this->entityMetaStorage->getQuery()->condition('field_volume', 'medium')->execute();
+    $ids = $this->entityMetaStorage->getQuery()->accessCheck(FALSE)->condition('field_volume', 'medium')->execute();
     $this->assertEmpty($ids);
 
-    $ids = $this->entityMetaStorage->getQuery()->condition('field_volume', 'low')->execute();
+    $ids = $this->entityMetaStorage->getQuery()->accessCheck(FALSE)->condition('field_volume', 'low')->execute();
     $this->assertEquals([2 => 2], $ids);
   }
 
@@ -986,8 +986,8 @@ class EntityMetaRelationTest extends KernelTestBase {
     // Since the default revision of the node no longer is linked to the meta,
     // there is no more default meta revision so no metas should be found.
     $this->assertNull($this->entityMetaStorage->load(1));
-    $this->assertEmpty($this->entityMetaStorage->getQuery()->execute());
-    $this->assertCount(2, $this->entityMetaStorage->getQuery()->allRevisions()->execute());
+    $this->assertEmpty($this->entityMetaStorage->getQuery()->accessCheck(FALSE)->execute());
+    $this->assertCount(2, $this->entityMetaStorage->getQuery()->accessCheck(FALSE)->allRevisions()->execute());
     // The audio entity meta no longer has a tracked default revision.
     $this->assertNoDefaultEntityMetaRevision(1);
 
@@ -1043,7 +1043,7 @@ class EntityMetaRelationTest extends KernelTestBase {
 
     // The last meta revision was deleted because the relation to it was deleted
     // so it became orphan.
-    $this->assertCount(1, $this->entityMetaStorage->getQuery()->condition('id', 2)->allRevisions()->execute());
+    $this->assertCount(1, $this->entityMetaStorage->getQuery()->accessCheck(FALSE)->condition('id', 2)->allRevisions()->execute());
     // No default revisions are left on the meta.
     $this->assertEmpty($this->entityMetaStorage->load(2));
     // The entity meta revision became orphaned so it was cleaned up by the
