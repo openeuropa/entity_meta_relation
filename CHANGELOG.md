@@ -1,15 +1,21 @@
-# Changelog
+# Change Log
 
-## [8.x-1.2](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.2) (2022-07-29)
+## [8.x-1.3](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.3) (2023-05-24)
+[Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.2...8.x-1.3)
 
+**Merged pull requests:**
+
+- EWPP-2995: Drupal 10 compatibility. [\#63](https://github.com/openeuropa/entity_meta_relation/pull/63) ([brummbar](https://github.com/brummbar))
+
+## [8.x-1.2](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.2) (2022-08-02)
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.1...8.x-1.2)
 
 **Merged pull requests:**
 
+- Prepare release 8.x-1.2. [\#62](https://github.com/openeuropa/entity_meta_relation/pull/62) ([imanoleguskiza](https://github.com/imanoleguskiza))
 - EWPP-2358: Drupal 9.4 support. [\#61](https://github.com/openeuropa/entity_meta_relation/pull/61) ([yenyasinn](https://github.com/yenyasinn))
 
 ## [8.x-1.1](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.1) (2022-02-08)
-
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0...8.x-1.1)
 
 **Merged pull requests:**
