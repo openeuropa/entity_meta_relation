@@ -5,7 +5,7 @@
  * Entity Meta Relation Node post update file.
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /**
  * Fix misconfigured handler_settings.
