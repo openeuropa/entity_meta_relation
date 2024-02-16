@@ -2,7 +2,7 @@ name: Entity Meta Relation Node
 type: module
 description: 'Configure entity meta relations for nodes.'
 package: Entity Meta Relation
-core_version_requirement: ^9.4 || ^10
+core_version_requirement: ^10
 
 dependencies:
   - entity_meta_relation:emr
