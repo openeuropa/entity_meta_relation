@@ -1,13 +1,24 @@
-# Change Log
+# Changelog
+
+## [8.x-1.4](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.4) (2024-02-16)
+
+[Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.3...8.x-1.4)
+
+**Merged pull requests:**
+
+- EWPP-3970: Add Drupal 10.2.x and PHP 8.2 to matrix. [\#65](https://github.com/openeuropa/entity_meta_relation/pull/65) ([brummbar](https://github.com/brummbar))
 
 ## [8.x-1.3](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.3) (2023-05-24)
+
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.2...8.x-1.3)
 
 **Merged pull requests:**
 
+- Prepare changelog for release 8.x-1.3. [\#64](https://github.com/openeuropa/entity_meta_relation/pull/64) ([brummbar](https://github.com/brummbar))
 - EWPP-2995: Drupal 10 compatibility. [\#63](https://github.com/openeuropa/entity_meta_relation/pull/63) ([brummbar](https://github.com/brummbar))
 
 ## [8.x-1.2](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.2) (2022-08-02)
+
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.1...8.x-1.2)
 
 **Merged pull requests:**
@@ -16,6 +27,7 @@
 - EWPP-2358: Drupal 9.4 support. [\#61](https://github.com/openeuropa/entity_meta_relation/pull/61) ([yenyasinn](https://github.com/yenyasinn))
 
 ## [8.x-1.1](https://github.com/openeuropa/entity_meta_relation/tree/8.x-1.1) (2022-02-08)
+
 [Full Changelog](https://github.com/openeuropa/entity_meta_relation/compare/8.x-1.0...8.x-1.1)
 
 **Merged pull requests:**
