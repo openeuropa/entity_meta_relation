@@ -1,5 +1,9 @@
 # Entity Meta Relation
 
+# :warning: This repository is archived
+
+Development has moved to [drupal.org](https://www.drupal.org/project/entity_meta_relation).
+
 The Entity meta relation module allows to associate extra information stored in independent entities (meta entities) to content (host) entities. This avoids the need to store this information as a content entity field and pollute the content entity keeping metadata information that controls specific entity behaviour outside of its main storage.
 ​
 ## Content Structure
