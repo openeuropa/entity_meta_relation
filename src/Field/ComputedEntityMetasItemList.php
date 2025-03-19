@@ -142,9 +142,7 @@ class ComputedEntityMetasItemList extends FieldItemList implements EntityMetaIte
    * {@inheritdoc}
    */
   public function getEntityMeta(string $bundle): EntityMetaInterface {
-    if (empty($this->list)) {
-      $this->computeValue();
-    }
+    $this->computeValue();
 
     foreach ($this->list as $item) {
       if (!$item->entity instanceof EntityMetaInterface) {
