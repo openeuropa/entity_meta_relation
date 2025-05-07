@@ -1,3 +1,7 @@
+# :warning: This repository is archived
+
+Development has moved to [drupal.org](https://www.drupal.org/project/entity_meta_relation).
+
 # Entity Meta Relation
 
 # :warning: This repository is archived
